@@ -71,6 +71,7 @@ void BestPathGenerator::CreatePath(Game* game, BTree<VLocation *> location)
 		char ip[SIZE_VLOCATION_IP];
 		UplinkStrncpy(ip, arr->GetData(closestIndex)->ip, SIZE_VLOCATION_IP);
 		game->GetWorld()->GetPlayer()->connection.AddVLocation(ip);
+		currentPoint = path_point(closestIndex, points.GetData(closestPointsIndex)->x, points.GetData(closestPointsIndex)->y);
 		points.RemoveData(closestPointsIndex);
 	}
 }
