@@ -39,6 +39,7 @@
 #include "interface/localinterface/analyser_interface.h"
 #include "interface/localinterface/irc_interface.h"
 #include "interface/localinterface/lan_interface.h"
+#include "interface/localinterface/mail_view_interface.h"
 
 #include "mmgr.h"
 
@@ -143,6 +144,10 @@ void LocalInterface::RunScreen ( int SCREENCODE, int index )
 			screen = new StatusInterface ();
 			break;
 
+		case SCREEN_MAILVIEW:
+			screen = new MailViewInterface();
+			break;
+
 		case SCREEN_FINANCE:
 			screen = new FinanceInterface ();
 			break;
@@ -208,6 +213,7 @@ bool LocalInterface::VerifyScreen ( int SCREENCODE, int index )
 		case SCREEN_HW:
 		case SCREEN_MEMORY:
 		case SCREEN_STATUS:
+		case SCREEN_MAILVIEW:
 		case SCREEN_FINANCE:
 		case SCREEN_ANALYSER:
         case SCREEN_IRC:

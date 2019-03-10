@@ -278,6 +278,7 @@ xcopy "$(OutDir)$(Configuration)\*.exe" "$(ProjectDir)\..\..\Installer\Data\" /Y
     <ClInclude Include="interface\localinterface\lan_interface.h" />
     <ClInclude Include="interface\localinterface\localinterface.h" />
     <ClInclude Include="interface\localinterface\localinterfacescreen.h" />
+    <ClInclude Include="interface\localinterface\mail_view_interface.h" />
     <ClInclude Include="interface\localinterface\memory_interface.h" />
     <ClInclude Include="interface\localinterface\mission_interface.h" />
     <ClInclude Include="interface\localinterface\phonedialler.h" />
@@ -494,6 +495,7 @@ xcopy "$(OutDir)$(Configuration)\*.exe" "$(ProjectDir)\..\..\Installer\Data\" /Y
     <ClCompile Include="interface\localinterface\lan_interface.cpp" />
     <ClCompile Include="interface\localinterface\localinterface.cpp" />
     <ClCompile Include="interface\localinterface\localinterfacescreen.cpp" />
+    <ClCompile Include="interface\localinterface\mail_view_interface.cpp" />
     <ClCompile Include="interface\localinterface\memory_interface.cpp" />
     <ClCompile Include="interface\localinterface\mission_interface.cpp" />
     <ClCompile Include="interface\localinterface\phonedialler.cpp" />

@@ -25,373 +25,383 @@
 
 
 
-SharesViewScreenInterface::SharesViewScreenInterface ()
+SharesViewScreenInterface::SharesViewScreenInterface()
 {
 
-	UplinkStrncpy ( companyname, " ", sizeof ( companyname ) );
+	UplinkStrncpy(companyname, " ", sizeof(companyname));
 
-	for ( int i = 0; i < 12; ++i )
-		sharehistory [i] = 0;
+	for(int i = 0; i < 12; ++i)
+		sharehistory[i] = 0;
 
 	lastmonthset = 0;
 
 }
 
-SharesViewScreenInterface::~SharesViewScreenInterface ()
+SharesViewScreenInterface::~SharesViewScreenInterface()
+{}
+
+bool SharesViewScreenInterface::EscapeKeyPressed()
 {
+
+	char closename[32];
+	UplinkSnprintf(closename, sizeof(closename), "sharesviewscreen_close %d", GetComputerScreen()->nextpage);
+	Button *button = EclGetButton(closename);
+	UplinkAssert(closename);
+
+	CloseClick(button);
+	return true;
+
 }
 
-bool SharesViewScreenInterface::EscapeKeyPressed ()
+void SharesViewScreenInterface::DrawPriceGraph(Button *button, bool highlighted, bool clicked)
 {
 
-	char closename [32];
-	UplinkSnprintf ( closename, sizeof ( closename ), "sharesviewscreen_close %d", GetComputerScreen ()->nextpage );
-    Button *button = EclGetButton (closename);
-    UplinkAssert (closename);
+	UplinkAssert(button);
 
-    CloseClick ( button );
-    return true;
+	clear_draw(button->x, button->y, button->width, button->height);
 
-}
+	SharesViewScreenInterface *thisint = (SharesViewScreenInterface *)game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen();
+	UplinkAssert(thisint);
 
-void SharesViewScreenInterface::DrawPriceGraph ( Button *button, bool highlighted, bool clicked )
-{
-
-	UplinkAssert ( button );
-
-	clear_draw ( button->x, button->y, button->width, button->height );
-
-	SharesViewScreenInterface *thisint = (SharesViewScreenInterface *) game->GetInterface ()->GetRemoteInterface ()->GetInterfaceScreen ();
-	UplinkAssert (thisint);
-
-	if ( thisint->companyname [0] != ' ' ) {
+	if(thisint->companyname[0] != ' ')
+	{
 
 		// Draw the axis
 
-		glColor4f ( 1.0f, 1.0f, 1.0f, 1.0f );
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-		glBegin ( GL_LINES );
-			
-			glVertex2d ( button->x + 25, button->y + button->height - 40 );						// vertical
-			glVertex2d ( button->x + 25, button->y + button->height - 190 );					// price
+		glBegin(GL_LINES);
 
-			glVertex2d ( button->x + 25, button->y + button->height - 40 );						// Horizontal
-			glVertex2d ( button->x + 190, button->y + button->height - 40 );					// time
-				
-		glEnd ();
+		glVertex2d(button->x + 25, button->y + button->height - 40);						// vertical
+		glVertex2d(button->x + 25, button->y + button->height - 190);					// price
 
-		GciDrawText ( 37, button->y + button->height - 40, "0" );
-		GciDrawText ( 32, button->y + button->height - 190, "150" );
-		GciDrawText ( 40, button->y + button->height - 30, "Time" );
+		glVertex2d(button->x + 25, button->y + button->height - 40);						// Horizontal
+		glVertex2d(button->x + 190, button->y + button->height - 40);					// time
+
+		glEnd();
+
+		GciDrawText(37, button->y + button->height - 40, "0");
+		GciDrawText(32, button->y + button->height - 190, "150");
+		GciDrawText(40, button->y + button->height - 30, "Time");
 
 		// Start on the right (now) and work left (the past)
 
 		int monthnow = thisint->lastmonthset;
-		int yearnow = game->GetWorld ()->date.GetYear ();
+		int yearnow = game->GetWorld()->date.GetYear();
 
-		glColor4f ( 0.2f, 0.2f, 1.0f, 1.0f );
-		glLineWidth ( 2 );
+		glColor4f(0.2f, 0.2f, 1.0f, 1.0f);
+		glLineWidth(2);
 
-		glBegin ( GL_LINE_STRIP );
+		glBegin(GL_LINE_STRIP);
 
-		for ( int it = 0; it < 12; ++it ) {
+		for(int it = 0; it < 12; ++it)
+		{
 
 			int month = monthnow - it;
-			if ( month < 0 ) month += 12;
+			if(month < 0) month += 12;
 
-			char date [32];
-			UplinkSnprintf ( date, sizeof ( date ), "%s, %d", Date::GetMonthName ( month + 1 ), month > monthnow ? yearnow - 1 : yearnow );
+			char date[32];
+			UplinkSnprintf(date, sizeof(date), "%s, %d", Date::GetMonthName(month + 1), month > monthnow ? yearnow - 1 : yearnow);
 
-			int value = thisint->sharehistory [month];			
-			glVertex2d ( button->x + 190 - ( it * 15 ), button->y + button->height - 40 - value );
-					
+			int value = thisint->sharehistory[month];
+			glVertex2d(button->x + 190 - (it * 15), button->y + button->height - 40 - value);
+
 		}
 
-		glEnd ();
-		glLineWidth ( 1 );
+		glEnd();
+		glLineWidth(1);
 
 	}
 
-	border_draw ( button );
+	border_draw(button);
 
 }
 
-void SharesViewScreenInterface::DrawProfit ( Button *button, bool highlighted, bool clicked )
+void SharesViewScreenInterface::DrawProfit(Button *button, bool highlighted, bool clicked)
 {
 
-    UplinkAssert (button);
-    clear_draw ( button->x, button->y, button->width, button->height );
-    DrawMainTitle ( button, highlighted, clicked );
+	UplinkAssert(button);
+	clear_draw(button->x, button->y, button->width, button->height);
+	DrawMainTitle(button, highlighted, clicked);
 
 }
 
-void SharesViewScreenInterface::BuyClick ( Button *button )
+void SharesViewScreenInterface::BuyClick(Button *button)
 {
 
-	SharesViewScreenInterface *thisint = (SharesViewScreenInterface *) game->GetInterface ()->GetRemoteInterface ()->GetInterfaceScreen ();
-	UplinkAssert (thisint);
+	SharesViewScreenInterface *thisint = (SharesViewScreenInterface *)game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen();
+	UplinkAssert(thisint);
 
-	if ( thisint->companyname [0] != ' ' ) {
+	if(thisint->companyname[0] != ' ')
+	{
 
-		game->GetWorld ()->GetPlayer ()->TradeShares ( thisint->companyname, 10 );
-		
-		UpdateStatus ();
+		game->GetWorld()->GetPlayer()->TradeShares(thisint->companyname, 10);
 
-	}
-
-}
-
-void SharesViewScreenInterface::SellClick ( Button *button )
-{
-
-	SharesViewScreenInterface *thisint = (SharesViewScreenInterface *) game->GetInterface ()->GetRemoteInterface ()->GetInterfaceScreen ();
-	UplinkAssert (thisint);
-
-	if ( thisint->companyname [0] != ' ' ) {
-
-		game->GetWorld ()->GetPlayer ()->TradeShares ( thisint->companyname, -10 );
-		
-		UpdateStatus ();
+		UpdateStatus();
 
 	}
 
 }
 
-void SharesViewScreenInterface::CloseClick ( Button *button )
+void SharesViewScreenInterface::SellClick(Button *button)
 {
 
-    GenericScreen *gs = (GenericScreen *) game->GetInterface ()->GetRemoteInterface ()->GetComputerScreen ();
-    UplinkAssert (gs);
+	SharesViewScreenInterface *thisint = (SharesViewScreenInterface *)game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen();
+	UplinkAssert(thisint);
 
-	if ( gs->nextpage != -1 ) 
-        game->GetInterface ()->GetRemoteInterface ()->RunScreen ( gs->nextpage, gs->GetComputer () );
+	if(thisint->companyname[0] != ' ')
+	{
+
+		game->GetWorld()->GetPlayer()->TradeShares(thisint->companyname, -10);
+
+		UpdateStatus();
+
+	}
 
 }
 
-void SharesViewScreenInterface::UpdateStatus ()
+void SharesViewScreenInterface::CloseClick(Button *button)
 {
 
-	SharesViewScreenInterface *thisint = (SharesViewScreenInterface *) game->GetInterface ()->GetRemoteInterface ()->GetInterfaceScreen ();
-	UplinkAssert (thisint);
+	GenericScreen *gs = (GenericScreen *)game->GetInterface()->GetRemoteInterface()->GetComputerScreen();
+	UplinkAssert(gs);
 
-	if ( thisint->companyname [0] != ' ' ) {
+	if(gs->nextpage != -1)
+		game->GetInterface()->GetRemoteInterface()->RunScreen(gs->nextpage, gs->GetComputer());
 
-		Company *company = game->GetWorld ()->GetCompany ( thisint->companyname );
-		
-		int numowned = game->GetWorld ()->GetPlayer ()->NumSharesOwned ( thisint->companyname );
-		int pricepaid = game->GetWorld ()->GetPlayer ()->SharesPricePaid ( thisint->companyname );
-		int currentprice = company->GetSharePrice ();
+}
+
+void SharesViewScreenInterface::UpdateStatus()
+{
+
+	SharesViewScreenInterface *thisint = (SharesViewScreenInterface *)game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen();
+	UplinkAssert(thisint);
+
+	if(thisint->companyname[0] != ' ')
+	{
+
+		Company *company = game->GetWorld()->GetCompany(thisint->companyname);
+
+		int numowned = game->GetWorld()->GetPlayer()->NumSharesOwned(thisint->companyname);
+		int pricepaid = game->GetWorld()->GetPlayer()->SharesPricePaid(thisint->companyname);
+		int currentprice = company->GetSharePrice();
 		int profit = (numowned * currentprice) - pricepaid;
 
-        if ( game->GetInterface ()->GetRemoteInterface ()->security_level < 10 ) {
-        
-		    char caption [128];
-		    UplinkSnprintf ( caption, sizeof ( caption ), "You own %d shares\nPaid:%dc Value:%dc", numowned, pricepaid, numowned * currentprice );
-		    EclGetButton ( "sharesviewscreen_owned" )->SetCaption ( caption );
+		if(game->GetInterface()->GetRemoteInterface()->security_level < 10)
+		{
 
-		    char profits [64];
-		    UplinkSnprintf ( profits, sizeof ( profits ), "Profit:%dc", profit );
-		    EclGetButton ( "sharesviewscreen_profit" )->SetCaption ( profits );
+			char caption[128];
+			UplinkSnprintf(caption, sizeof(caption), "You own %d shares\nPaid:%dc Value:%dc", numowned, pricepaid, numowned * currentprice);
+			EclGetButton("sharesviewscreen_owned")->SetCaption(caption);
 
-        }
+			char profits[64];
+			UplinkSnprintf(profits, sizeof(profits), "Profit:%dc", profit);
+			EclGetButton("sharesviewscreen_profit")->SetCaption(profits);
+
+		}
 
 	}
 
 }
 
-void SharesViewScreenInterface::SetCompanyName ( char *newcompanyname )
+void SharesViewScreenInterface::SetCompanyName(char *newcompanyname)
 {
 
-	UplinkAssert ( strlen(newcompanyname) < SIZE_COMPANY_NAME );
-	UplinkStrncpy ( companyname, newcompanyname, sizeof ( companyname ) );
+	UplinkAssert(strlen(newcompanyname) < SIZE_COMPANY_NAME);
+	UplinkStrncpy(companyname, newcompanyname, sizeof(companyname));
 
 	//
 	// Look up the company
 	// and copy the share prices
 	//
 
-	Company *company = game->GetWorld ()->GetCompany ( companyname );
-	UplinkAssert (company);
+	Company *company = game->GetWorld()->GetCompany(companyname);
+	UplinkAssert(company);
 
-	for ( int i = 0; i < 12; ++i )
-		sharehistory [i] = company->GetSharePrice ( i );
+	for(int i = 0; i < 12; ++i)
+		sharehistory[i] = company->GetSharePrice(i);
 
-	lastmonthset = company->GetShareLastMonthSet ();
+	lastmonthset = company->GetShareLastMonthSet();
 
-	EclGetButton ( "sharesviewscreen_subtitle" )->SetCaption ( companyname );
+	EclGetButton("sharesviewscreen_subtitle")->SetCaption(companyname);
 
 	//
 	// Put those share prices into the text boxes
 	//
 
 	int monthnow = lastmonthset;
-	int yearnow = game->GetWorld ()->date.GetYear ();
+	int yearnow = game->GetWorld()->date.GetYear();
 
-	for ( int it = 0; it < 12; ++it ) {
+	for(int it = 0; it < 12; ++it)
+	{
 
 		int month = monthnow - it;
-		if ( month < 0 ) month += 12;
+		if(month < 0) month += 12;
 
-		char bdate [32];
-		char bname [32];
-		UplinkSnprintf ( bdate, sizeof ( bdate ), "sharesviewscreen_date %d", it );
-		UplinkSnprintf ( bname, sizeof ( bname ), "sharesviewscreen_numbers %d", it );
+		char bdate[32];
+		char bname[32];
+		UplinkSnprintf(bdate, sizeof(bdate), "sharesviewscreen_date %d", it);
+		UplinkSnprintf(bname, sizeof(bname), "sharesviewscreen_numbers %d", it);
 
-		char date [32];
-		UplinkSnprintf ( date, sizeof ( date ), "%s, %d", Date::GetMonthName ( month + 1 ), month > monthnow ? yearnow - 1 : yearnow );
-		char value [16];
-		UplinkSnprintf ( value, sizeof ( value ), "%d c", sharehistory [month] );
-		
-		EclGetButton ( bdate )->SetCaption ( date );
-		EclGetButton ( bname )->SetCaption ( value );
+		char date[32];
+		UplinkSnprintf(date, sizeof(date), "%s, %d", Date::GetMonthName(month + 1), month > monthnow ? yearnow - 1 : yearnow);
+		char value[16];
+		UplinkSnprintf(value, sizeof(value), "%d c", sharehistory[month]);
+
+		EclGetButton(bdate)->SetCaption(date);
+		EclGetButton(bname)->SetCaption(value);
 
 	}
 
-	UpdateStatus ();
+	UpdateStatus();
 
 	//
 	// Force a redraw of the graph
 	//
 
-	EclDirtyButton ( "sharesviewscreen_pricegraph" );
+	EclDirtyButton("sharesviewscreen_pricegraph");
 
 }
 
-void SharesViewScreenInterface::Create ()
+void SharesViewScreenInterface::Create()
 {
 
-	if ( cs ) Create ( cs );
-	else printf ( "SharesViewScreenInterface::Create, tried to create when cs==NULL\n" );
+	if(cs) Create(cs);
+	else printf("SharesViewScreenInterface::Create, tried to create when cs==NULL\n");
 
 }
 
-void SharesViewScreenInterface::Create ( ComputerScreen *newcs )
+void SharesViewScreenInterface::Create(ComputerScreen *newcs)
 {
 
-	UplinkAssert ( newcs );
+	UplinkAssert(newcs);
 	cs = newcs;
 
-	if ( !IsVisible () ) {
+	if(!IsVisible())
+	{
 
 		// Draw the screen titles
 
-		EclRegisterButton ( 80, 60, 350, 25, GetComputerScreen ()->maintitle, "", "sharesviewscreen_maintitle" );
-		EclRegisterButtonCallbacks ( "sharesviewscreen_maintitle", DrawMainTitle, NULL, NULL, NULL );
-		EclRegisterButton ( 80, 80, 350, 20, GetComputerScreen ()->subtitle, "", "sharesviewscreen_subtitle" );
-		EclRegisterButtonCallbacks ( "sharesviewscreen_subtitle", DrawSubTitle, NULL, NULL, NULL );
+		EclRegisterButton(80, 60, 350, 25, GetComputerScreen()->maintitle, "", "sharesviewscreen_maintitle");
+		EclRegisterButtonCallbacks("sharesviewscreen_maintitle", DrawMainTitle, NULL, NULL, NULL);
+		EclRegisterButton(80, 80, 350, 20, GetComputerScreen()->subtitle, "", "sharesviewscreen_subtitle");
+		EclRegisterButtonCallbacks("sharesviewscreen_subtitle", DrawSubTitle, NULL, NULL, NULL);
 
 		// Share value graph
 
-		EclRegisterButton ( 30, 120, 200, 15, "Share value graph", "", "sharesviewscreen_valuetitle" );
+		EclRegisterButton(30, 120, 200, 15, "Share value graph", "", "sharesviewscreen_valuetitle");
 
-		EclRegisterButton ( 30, 135, 200, 200, "", "", "sharesviewscreen_pricegraph" );
-		EclRegisterButtonCallbacks ( "sharesviewscreen_pricegraph", DrawPriceGraph, NULL, NULL, NULL );
+		EclRegisterButton(30, 135, 200, 200, "", "", "sharesviewscreen_pricegraph");
+		EclRegisterButtonCallbacks("sharesviewscreen_pricegraph", DrawPriceGraph, NULL, NULL, NULL);
 
 		// Share values (numeric)
 
-		EclRegisterButton ( 250, 120, 150, 15, "Share values", "", "sharesviewscreen_numberstitle" );
+		EclRegisterButton(250, 120, 150, 15, "Share values", "", "sharesviewscreen_numberstitle");
 
-		for ( int i = 0; i < 12; ++i ) {
+		for(int i = 0; i < 12; ++i)
+		{
 
-			char date [32];
-			char name [32];
-			UplinkSnprintf ( date, sizeof ( date ), "sharesviewscreen_date %d", i );
-			UplinkSnprintf ( name, sizeof ( name ), "sharesviewscreen_numbers %d", i );
-			EclRegisterButton ( 250, 135 + i * 17, 100, 15, "date", "", date );
-			EclRegisterButton ( 350, 135 + i * 17, 50, 15, "bla", "", name );
-			EclRegisterButtonCallbacks ( date, textbutton_draw, NULL, NULL, NULL );
-			EclRegisterButtonCallbacks ( name, textbutton_draw, NULL, NULL, NULL );
+			char date[32];
+			char name[32];
+			UplinkSnprintf(date, sizeof(date), "sharesviewscreen_date %d", i);
+			UplinkSnprintf(name, sizeof(name), "sharesviewscreen_numbers %d", i);
+			EclRegisterButton(250, 135 + i * 17, 100, 15, "date", "", date);
+			EclRegisterButton(350, 135 + i * 17, 50, 15, "bla", "", name);
+			EclRegisterButtonCallbacks(date, textbutton_draw, NULL, NULL, NULL);
+			EclRegisterButtonCallbacks(name, textbutton_draw, NULL, NULL, NULL);
 
 		}
 
 		// Control buttons
 
-        if ( game->GetInterface ()->GetRemoteInterface ()->security_level < 10 ) {
+		if(game->GetInterface()->GetRemoteInterface()->security_level < 10)
+		{
 
-		    EclRegisterButton ( 30, 350, 30, 15, "Buy", "Click to buy shares in this company", "sharesviewscreen_buy" );
-		    EclRegisterButtonCallback ( "sharesviewscreen_buy", BuyClick );
+			EclRegisterButton(30, 350, 30, 15, "Buy", "Click to buy shares in this company", "sharesviewscreen_buy");
+			EclRegisterButtonCallback("sharesviewscreen_buy", BuyClick);
 
-		    EclRegisterButton ( 30, 365, 30, 15, "Sell", "Click to sell shares in this company", "sharesviewscreen_sell" );
-		    EclRegisterButtonCallback ( "sharesviewscreen_sell", SellClick );
+			EclRegisterButton(30, 365, 30, 15, "Sell", "Click to sell shares in this company", "sharesviewscreen_sell");
+			EclRegisterButtonCallback("sharesviewscreen_sell", SellClick);
 
-		    EclRegisterButton ( 70, 350, 150, 30, "", "", "sharesviewscreen_owned" );
-		    EclRegisterButtonCallbacks ( "sharesviewscreen_owned", textbutton_draw, NULL, NULL, NULL );
+			EclRegisterButton(70, 350, 150, 30, "", "", "sharesviewscreen_owned");
+			EclRegisterButtonCallbacks("sharesviewscreen_owned", textbutton_draw, NULL, NULL, NULL);
 
-		    EclRegisterButton ( 220, 350, 140, 30, "", "", "sharesviewscreen_profit" );
-		    EclRegisterButtonCallbacks ( "sharesviewscreen_profit", DrawProfit, NULL, NULL, NULL );
-
-        }
-
-		UpdateStatus ();
-
-		// Close button
-
-		EclRegisterButton ( 360, 365, 45, 15, "Close", "Return to the share listing", "sharesviewscreen_close" );
-		EclRegisterButtonCallback ( "sharesviewscreen_close", CloseClick );
-
-	}
-
-}
-
-void SharesViewScreenInterface::Remove ()
-{
-
-	if ( IsVisible () ) {
-
-		EclRemoveButton ( "sharesviewscreen_maintitle" );
-		EclRemoveButton ( "sharesviewscreen_subtitle" );
-
-		EclRemoveButton ( "sharesviewscreen_valuetitle" );
-		EclRemoveButton ( "sharesviewscreen_pricegraph" );
-		EclRemoveButton ( "sharesviewscreen_numberstitle" );
-
-		for ( int i = 0; i < 12; ++i ) {
-
-			char date [32];
-			char name [32];
-			UplinkSnprintf ( date, sizeof ( date ), "sharesviewscreen_date %d", i );
-			UplinkSnprintf ( name, sizeof ( name ), "sharesviewscreen_numbers %d", i );
-
-			EclRemoveButton ( date );
-			EclRemoveButton ( name );
+			EclRegisterButton(220, 350, 140, 30, "", "", "sharesviewscreen_profit");
+			EclRegisterButtonCallbacks("sharesviewscreen_profit", DrawProfit, NULL, NULL, NULL);
 
 		}
 
-		EclRemoveButton ( "sharesviewscreen_owned" );
-		EclRemoveButton ( "sharesviewscreen_profit" );
-		EclRemoveButton ( "sharesviewscreen_sell" );
-		EclRemoveButton ( "sharesviewscreen_buy" );
+		UpdateStatus();
 
-		EclRemoveButton ( "sharesviewscreen_close" );
+		// Close button
+
+		EclRegisterButton(360, 365, 45, 15, "Close", "Return to the share listing", "sharesviewscreen_close");
+		EclRegisterButtonCallback("sharesviewscreen_close", CloseClick);
 
 	}
 
 }
 
-void SharesViewScreenInterface::Update ()
+void SharesViewScreenInterface::Remove()
 {
+
+	if(IsVisible())
+	{
+
+		EclRemoveButton("sharesviewscreen_maintitle");
+		EclRemoveButton("sharesviewscreen_subtitle");
+
+		EclRemoveButton("sharesviewscreen_valuetitle");
+		EclRemoveButton("sharesviewscreen_pricegraph");
+		EclRemoveButton("sharesviewscreen_numberstitle");
+
+		for(int i = 0; i < 12; ++i)
+		{
+
+			char date[32];
+			char name[32];
+			UplinkSnprintf(date, sizeof(date), "sharesviewscreen_date %d", i);
+			UplinkSnprintf(name, sizeof(name), "sharesviewscreen_numbers %d", i);
+
+			EclRemoveButton(date);
+			EclRemoveButton(name);
+
+		}
+
+		EclRemoveButton("sharesviewscreen_owned");
+		EclRemoveButton("sharesviewscreen_profit");
+		EclRemoveButton("sharesviewscreen_sell");
+		EclRemoveButton("sharesviewscreen_buy");
+
+		EclRemoveButton("sharesviewscreen_close");
+
+	}
+
 }
 
-bool SharesViewScreenInterface::IsVisible ()
+void SharesViewScreenInterface::Update()
+{}
+
+bool SharesViewScreenInterface::IsVisible()
 {
-	
-	return ( EclGetButton ( "sharesviewscreen_maintitle" ) != NULL );
+
+	return (EclGetButton("sharesviewscreen_maintitle") != NULL);
 
 }
 
 
-int SharesViewScreenInterface::ScreenID ()
+int SharesViewScreenInterface::ScreenID()
 {
 
 	return SCREEN_SHARESVIEWSCREEN;
-		
+
 }
 
-GenericScreen *SharesViewScreenInterface::GetComputerScreen ()
+GenericScreen *SharesViewScreenInterface::GetComputerScreen()
 {
 
-	UplinkAssert (cs);
-	return (GenericScreen *) cs;
+	UplinkAssert(cs);
+	return (GenericScreen *)cs;
 
 }
 

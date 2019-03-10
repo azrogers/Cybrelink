@@ -69,6 +69,7 @@ protected:
 	static void EmailClick	      ( Button *button );
 	static void MissionHighlight  ( Button *button );
 	static void MissionClick	  ( Button *button );
+	static void MailViewClick(Button *button);
 
 	static void SpeedButtonDraw   ( Button *button, bool highlighted, bool clicked );
 	static void SpeedButtonClick  ( Button *button );
