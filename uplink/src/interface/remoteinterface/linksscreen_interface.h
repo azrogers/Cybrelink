@@ -36,6 +36,7 @@ protected:
 
 	static void LinkDraw ( Button *button, bool highlighted, bool clicked );
 	static void LinkClick  ( Button *button );
+	static void LinkMiddleClick(Button *button);
 	static void LinkMouseDown ( Button *button );
 	static void LinkMouseMove ( Button *button );
 

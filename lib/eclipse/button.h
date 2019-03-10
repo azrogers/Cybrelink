@@ -37,6 +37,7 @@ protected:
 	void (*mousedown) ( Button * );               // Called when mouse down occurs
 	void (*mouseup)   ( Button * );               // Called when mouse up occurs
 	void (*mousemove) ( Button * );               // Called when moved over
+	void(*middleclick)(Button*);
 
 public:
 
@@ -58,6 +59,7 @@ public:
 	void RegisterMouseUpFunction    ( void (*newmouseup)   (Button *) );
 	void RegisterMouseDownFunction  ( void (*newmousedown) (Button *) );	
 	void RegisterMouseMoveFunction  ( void (*newmousemove) (Button *) );
+	void RegisterMiddleClickFunction(void(*newmiddleclick)(Button *));
 
 	void Dirty ();
 
@@ -65,6 +67,7 @@ public:
 	void MouseUp ();
 	void MouseDown ();
 	void MouseMove ();
+	void MiddleClick();
 	
 	void DebugPrint ();
 

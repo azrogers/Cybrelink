@@ -87,7 +87,6 @@ protected:
 	// This stuff handles loading/saving of connections
 	LList <char *> savedconnection;
 	void SaveCurrentConnection();
-	void LoadConnection();
 	void ChangeZoom(float z);
 
 protected:
@@ -104,6 +103,7 @@ protected:
 
 public:
 
+	void LoadConnection();
 	static void CreateWorldMapInterface(int SIZE);
 	static void CreateWorldMapInterface_Small();
 	static void CreateWorldMapInterface_Large();

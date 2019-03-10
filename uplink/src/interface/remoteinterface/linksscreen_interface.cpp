@@ -133,6 +133,25 @@ void LinksScreenInterface::LinkClick(Button *button)
 
 }
 
+void LinksScreenInterface::LinkMiddleClick(Button* button)
+{
+	UplinkAssert(button);
+
+	int fileindex;
+	sscanf(button->name, "linksscreen_link %d", &fileindex);
+	fileindex += baseoffset;
+
+
+	LList <char *> *filteredlist = &((LinksScreenInterface *)game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen())->filteredlist;
+
+	if(filteredlist->ValidIndex(fileindex))
+	{
+		char *ip = filteredlist->GetData(fileindex);
+		PhoneDialler *pd = new PhoneDialler();
+		pd->DialNumber(100, 100, ip, 5, "middleclick");
+	}
+}
+
 void LinksScreenInterface::AfterPhoneDialler(char *ip, char *info)
 {
 
@@ -140,6 +159,15 @@ void LinksScreenInterface::AfterPhoneDialler(char *ip, char *info)
 
 	game->GetWorld()->GetPlayer()->GetConnection()->Disconnect();
 	game->GetWorld()->GetPlayer()->GetConnection()->Reset();
+
+	// if we middle clicked, load the bounce path first
+	if(info != NULL && strcmp(info, "middleclick") == 0)
+	{
+		WorldMapInterface *wmi = &(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
+		UplinkAssert(wmi);
+		wmi->LoadConnection();
+		game->GetWorld()->GetPlayer()->GetConnection()->AddOrRemoveVLocation(ip);
+	}
 
 	game->GetWorld()->GetPlayer()->GetConnection()->AddVLocation(ip);
 	game->GetWorld()->GetPlayer()->GetConnection()->Connect();
@@ -768,6 +796,7 @@ void LinksScreenInterface::Create(ComputerScreen *newcs)
 			UplinkSnprintf(name, sizeof(name), "linksscreen_link %d", li);
 			EclRegisterButton(30, 145 + li * 15, SY(375), 14, "", "Connect to this computer", name);
 			EclRegisterButtonCallbacks(name, LinkDraw, LinkClick, LinkMouseDown, LinkMouseMove);
+			EclRegisterMiddleClickCallback(name, LinkMiddleClick);
 
 			if(GetComputerScreen()->SCREENTYPE == LINKSSCREENTYPE_PLAYERLINKS)
 			{

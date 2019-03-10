@@ -43,10 +43,11 @@ class dirtyrect
 
 public:
 
-    dirtyrect () {  x = y = width = height = 0;    }
-    dirtyrect ( int newx, int newy, int newwidth, int newheight ) :
-                x(newx), y(newy), width(newwidth), height(newheight) {}
-    ~dirtyrect () {    }
+	dirtyrect() { x = y = width = height = 0; }
+	dirtyrect(int newx, int newy, int newwidth, int newheight) :
+		x(newx), y(newy), width(newwidth), height(newheight)
+	{}
+	~dirtyrect() {}
 
 	int x;
 	int y;
@@ -60,223 +61,238 @@ local LList <char *> editablebuttons;						// List of editable buttons
 
 // Default button callbacks
 
-local void (*default_draw)      (Button *, bool, bool) = NULL;
-local void (*default_mouseup)   (Button *) = NULL;
-local void (*default_mousedown) (Button *) = NULL;
-local void (*default_mousemove) (Button *) = NULL;
+local void(*default_draw)      (Button *, bool, bool) = NULL;
+local void(*default_mouseup)   (Button *) = NULL;
+local void(*default_mousedown) (Button *) = NULL;
+local void(*default_mousemove) (Button *) = NULL;
 
-local void (*clear_draw)        (int, int, int, int) = NULL;
+local void(*clear_draw)        (int, int, int, int) = NULL;
 
-local void (*superhighlight_draw) (Button *, bool, bool) = NULL;
+local void(*superhighlight_draw) (Button *, bool, bool) = NULL;
 
 // ============================================================================
 
 
-void EclReset ( int width, int height )
+void EclReset(int width, int height)
 {
 
 
 	// (They are in a linked list - so be careful when removing them
 	// As the list will shrink during the process )
 /*
-    // TODO trim this out
+	// TODO trim this out
 	int numbuttons = buttons.Size ();
 
-    for ( int i = numbuttons - 1; i >= 0; --i ) 
-		if ( buttons.ValidIndex (i) ) 
+	for ( int i = numbuttons - 1; i >= 0; --i )
+		if ( buttons.ValidIndex (i) )
 			EclRemoveButton ( buttons [i]->name );
   */
 
-    delete [] currenthighlight;
-    delete [] currentclick;
-        
+	delete[] currenthighlight;
+	delete[] currentclick;
+
 	currenthighlight = NULL;
 	currentclick = NULL;
-    
-    while ( buttons.ValidIndex ( 0 ) ) {
-        Button *b = buttons.GetData (0);
-        //buttons.RemoveData (0);
-        //delete b;
-		EclRemoveButton ( b->name );
-    }
 
-    // Also delete the animations
-    // TODO : Doing this stops the animation of the caption on the log in screen
-    // After you load a game, then exit back to the login screen
+	while(buttons.ValidIndex(0))
+	{
+		Button *b = buttons.GetData(0);
+		//buttons.RemoveData (0);
+		//delete b;
+		EclRemoveButton(b->name);
+	}
+
+	// Also delete the animations
+	// TODO : Doing this stops the animation of the caption on the log in screen
+	// After you load a game, then exit back to the login screen
 /*
-    for ( int j = 0; j < anims.Size (); ++j )
-        if ( anims.ValidIndex (j) )
-            if ( anims.GetData (j) ) 
-                anims.GetData (j)->DebugPrint ();
+	for ( int j = 0; j < anims.Size (); ++j )
+		if ( anims.ValidIndex (j) )
+			if ( anims.GetData (j) )
+				anims.GetData (j)->DebugPrint ();
 */
 
-    
 
-    // Also delete the edidable buttons
 
-    while ( editablebuttons.GetData (0) ) {
-        char *b = editablebuttons.GetData (0);
-        editablebuttons.RemoveData (0);
-        delete [] b;
-    }
+// Also delete the edidable buttons
 
-	buttons.Empty ();
-//    anims.Empty ();
-	editablebuttons.Empty ();
-        
+	while(editablebuttons.GetData(0))
+	{
+		char *b = editablebuttons.GetData(0);
+		editablebuttons.RemoveData(0);
+		delete[] b;
+	}
+
+	buttons.Empty();
+	//    anims.Empty ();
+	editablebuttons.Empty();
+
 	superhighlight_borderwidth = 0;
-    
-    // TODO sort this out sometime
-    EclDirtyClear();
-    EclDirtyRectangle ( 0, 0, width, height );
-    
+
+	// TODO sort this out sometime
+	EclDirtyClear();
+	EclDirtyRectangle(0, 0, width, height);
+
 }
 
-void EclRegisterButton ( int x, int y, int width, int height, 
-  			 			 char *caption, char *name )
+void EclRegisterButton(int x, int y, int width, int height,
+	char *caption, char *name)
 {
 
-	if ( EclGetButton ( name ) ) {
+	if(EclGetButton(name))
+	{
 
 #ifdef _DEBUG
-		printf ( "ECL WARNING : EclRegisterButton called, Button name not unique : %s\n", name );
+		printf("ECL WARNING : EclRegisterButton called, Button name not unique : %s\n", name);
 #endif
 
 		return;
 
 	}
 
-	Button *button = new Button ( x, y, width, height, caption, name );
-	if ( button ) {
-		buttons.PutDataAtStart ( button );
+	Button *button = new Button(x, y, width, height, caption, name);
+	if(button)
+	{
+		buttons.PutDataAtStart(button);
 
-		EclRegisterButtonCallbacks ( name, default_draw, default_mouseup, 
-									 default_mousedown, default_mousemove );
+		EclRegisterButtonCallbacks(name, default_draw, default_mouseup,
+			default_mousedown, default_mousemove);
 
-		EclDirtyButton ( name );
+		EclDirtyButton(name);
 	}
 
 }
 
-void EclRegisterButton ( int x, int y, int width, int height,
-						 char *caption, char *tooltip, char *name )
+void EclRegisterButton(int x, int y, int width, int height,
+	char *caption, char *tooltip, char *name)
 {
 
-	EclRegisterButton ( x, y, width, height, caption, name );
-	EclGetButton ( name )->SetTooltip ( tooltip );
-	
+	EclRegisterButton(x, y, width, height, caption, name);
+	EclGetButton(name)->SetTooltip(tooltip);
+
 }
 
-void EclRegisterImageButton ( int x, int y, int width, int height,
-							  char *caption, char *tooltip, char *name )
+void EclRegisterImageButton(int x, int y, int width, int height,
+	char *caption, char *tooltip, char *name)
 {
 
 #ifdef _DEBUG
-	if ( EclGetButton ( name ) )
-		printf ( "ECL WARNING : EclRegisterImageButton called, Button name not unique : %s\n", name );
+	if(EclGetButton(name))
+		printf("ECL WARNING : EclRegisterImageButton called, Button name not unique : %s\n", name);
 #endif
 
-	Button *button = new Button ( x, y, width, height, caption, name );
-	if ( button ) {
-		buttons.PutDataAtStart ( button );
+	Button *button = new Button(x, y, width, height, caption, name);
+	if(button)
+	{
+		buttons.PutDataAtStart(button);
 
-		EclRegisterButtonCallbacks ( name, default_draw, default_mouseup, 
-									 default_mousedown, default_mousemove );
+		EclRegisterButtonCallbacks(name, default_draw, default_mouseup,
+			default_mousedown, default_mousemove);
 
-		EclDirtyButton ( name );
+		EclDirtyButton(name);
 	}
 }
 
-void EclRemoveButton ( char *name )
+void EclRemoveButton(char *name)
 {
 
-	int index = EclLookupIndex ( name );
-	
-	if ( buttons.ValidIndex (index) ) {
+	int index = EclLookupIndex(name);
 
-		Button *button = buttons [index];
+	if(buttons.ValidIndex(index))
+	{
 
-		if ( EclIsHighlighted ( name ) ) {
-                    delete [] currenthighlight;
+		Button *button = buttons[index];
+
+		if(EclIsHighlighted(name))
+		{
+			delete[] currenthighlight;
 			currenthighlight = NULL;
-                }
+		}
 
-		if ( EclIsClicked ( name ) ) {
-                    delete [] currentclick;
+		if(EclIsClicked(name))
+		{
+			delete[] currentclick;
 			currentclick = NULL;
-                }
+		}
 
-		if ( EclIsSuperHighlighted ( name ) )
-			EclSuperUnHighlight ( name );			
+		if(EclIsSuperHighlighted(name))
+			EclSuperUnHighlight(name);
 
-		if ( EclIsButtonEditable ( name ) )
-			EclMakeButtonUnEditable ( name );
+		if(EclIsButtonEditable(name))
+			EclMakeButtonUnEditable(name);
 
-		for( int i = anims.Size() - 1; i >= 0; i-- ){
-			if ( anims.ValidIndex (i) ) {
-				Animation *anim = anims [i];
+		for(int i = anims.Size() - 1; i >= 0; i--)
+		{
+			if(anims.ValidIndex(i))
+			{
+				Animation *anim = anims[i];
 
-				if ( strcmp ( name, anim->buttonname ) == 0 )
+				if(strcmp(name, anim->buttonname) == 0)
 					EclRemoveAnimation(i);
 			}
 		}
 
-		EclDirtyRectangle ( button->x, button->y, button->width, button->height );
+		EclDirtyRectangle(button->x, button->y, button->width, button->height);
 
-		buttons.RemoveData ( index );
-		if ( button ) delete button;
+		buttons.RemoveData(index);
+		if(button) delete button;
 
 	}
-	else {
+	else
+	{
 
 #ifdef _DEBUG
-		printf ( "ECL WARNING : EclRemoveButton called, button does not exist : %s\n", name );
+		printf("ECL WARNING : EclRemoveButton called, button does not exist : %s\n", name);
 #endif
 
 	}
 
 }
 
-void EclButtonBringToFront ( char *name )
+void EclButtonBringToFront(char *name)
 {
 
-	int index = EclLookupIndex ( name );
+	int index = EclLookupIndex(name);
 
-	if ( buttons.ValidIndex ( index ) ) {
+	if(buttons.ValidIndex(index))
+	{
 
-		Button *button = buttons [index];
-		buttons.RemoveData ( index );
-		buttons.PutDataAtStart ( button );
-		EclDirtyButton ( name );
+		Button *button = buttons[index];
+		buttons.RemoveData(index);
+		buttons.PutDataAtStart(button);
+		EclDirtyButton(name);
 
 	}
-	else {
+	else
+	{
 
 #ifdef _DEBUG
-		printf ( "ECL WARNING : EclButtonBringToFront called, button does not exist : %s\n", name );
+		printf("ECL WARNING : EclButtonBringToFront called, button does not exist : %s\n", name);
 #endif
 
 	}
 
 }
 
-void EclButtonSendToBack   ( char *name )
+void EclButtonSendToBack(char *name)
 {
 
-	int index = EclLookupIndex ( name );
+	int index = EclLookupIndex(name);
 
-	if ( buttons.ValidIndex ( index ) ) {
+	if(buttons.ValidIndex(index))
+	{
 
-		Button *button = buttons [index];
-		buttons.RemoveData ( index );
-		buttons.PutDataAtEnd ( button );
-		EclDirtyButton ( name );
+		Button *button = buttons[index];
+		buttons.RemoveData(index);
+		buttons.PutDataAtEnd(button);
+		EclDirtyButton(name);
 
 	}
-	else {
+	else
+	{
 
 #ifdef _DEBUG
-		printf ( "ECL WARNING : EclButtonSendToBack called, button does not exist : %s\n", name );
+		printf("ECL WARNING : EclButtonSendToBack called, button does not exist : %s\n", name);
 #endif
 
 	}
@@ -284,10 +300,10 @@ void EclButtonSendToBack   ( char *name )
 
 }
 
-void EclRegisterDefaultButtonCallbacks ( void (*draw) (Button *, bool, bool),
-										 void (*mouseup) (Button *),
-										 void (*mousedown) (Button *),
-										 void (*mousemove) (Button *) )
+void EclRegisterDefaultButtonCallbacks(void(*draw) (Button *, bool, bool),
+	void(*mouseup) (Button *),
+	void(*mousedown) (Button *),
+	void(*mousemove) (Button *))
 {
 
 	default_draw = draw;
@@ -297,121 +313,140 @@ void EclRegisterDefaultButtonCallbacks ( void (*draw) (Button *, bool, bool),
 
 }
 
-void EclRegisterButtonCallbacks ( char *name, void (*draw) (Button *, bool, bool), 
-								  void (*mouseup) (Button *), 
-								  void (*mousedown) (Button *),
-								  void (*mousemove) (Button *) )
+void EclRegisterButtonCallbacks(char *name, void(*draw) (Button *, bool, bool),
+	void(*mouseup) (Button *),
+	void(*mousedown) (Button *),
+	void(*mousemove) (Button *))
 {
 
-	int index = EclLookupIndex ( name );
+	int index = EclLookupIndex(name);
 
-	if ( buttons.ValidIndex ( index ) ) {
+	if(buttons.ValidIndex(index))
+	{
 
-		buttons [index]->RegisterDrawFunction ( draw );
-		buttons [index]->RegisterMouseUpFunction ( mouseup );
-		buttons [index]->RegisterMouseDownFunction ( mousedown );
-		buttons [index]->RegisterMouseMoveFunction ( mousemove );
+		buttons[index]->RegisterDrawFunction(draw);
+		buttons[index]->RegisterMouseUpFunction(mouseup);
+		buttons[index]->RegisterMouseDownFunction(mousedown);
+		buttons[index]->RegisterMouseMoveFunction(mousemove);
 
 	}
-	else {
+	else
+	{
 
 #ifdef _DEBUG
-		printf ( "ECL WARNING : EclRegisterButtonCallbacks called, button does not exist : %s\n", name );
+		printf("ECL WARNING : EclRegisterButtonCallbacks called, button does not exist : %s\n", name);
 #endif
 
 	}
 
 }
 
-void EclRegisterButtonCallback ( char *name, 
-								 void (*mouseup) (Button *) )
+void EclRegisterMiddleClickCallback(char* name, void(*middleclick)(Button*))
 {
 
-	int index = EclLookupIndex ( name );
+	int index = EclLookupIndex(name);
 
-	if ( buttons.ValidIndex ( index ) )
-		buttons [index]->RegisterMouseUpFunction ( mouseup );
+	if(buttons.ValidIndex(index))
+		buttons[index]->RegisterMiddleClickFunction(middleclick);
+}
+
+void EclRegisterButtonCallback(char *name,
+	void(*mouseup) (Button *))
+{
+
+	int index = EclLookupIndex(name);
+
+	if(buttons.ValidIndex(index))
+		buttons[index]->RegisterMouseUpFunction(mouseup);
 
 #ifdef _DEBUG
-	else 
-		printf ( "ECL WARNING : EclRegisterButtonCallback called, button does not exist : %s\n", name );
+	else
+		printf("ECL WARNING : EclRegisterButtonCallback called, button does not exist : %s\n", name);
 #endif
 
 }
 
-void EclMakeButtonEditable ( char *name )
+void EclMakeButtonEditable(char *name)
 {
 
-	Button *button = EclGetButton ( name );
-	
-	if ( button ) {
-		char *bname = new char [strlen(name)+1];
-		strcpy ( bname, name );
-		editablebuttons.PutDataAtEnd ( bname );
+	Button *button = EclGetButton(name);
+
+	if(button)
+	{
+		char *bname = new char[strlen(name) + 1];
+		strcpy(bname, name);
+		editablebuttons.PutDataAtEnd(bname);
 	}
 
 #ifdef DEBUG
 
 	else
-		printf ( "ECL WARNING : EclMakeButtonEditable called, invalid button name\n" );
+		printf("ECL WARNING : EclMakeButtonEditable called, invalid button name\n");
 
 #endif
 
-}
+	}
 
-void EclMakeButtonUnEditable ( char *name )
+void EclMakeButtonUnEditable(char *name)
 {
 
-	for ( int i = 0; i < editablebuttons.Size (); ++i ) {
-		if ( editablebuttons.ValidIndex (i) ) {
-			if ( strcmp ( editablebuttons.GetData (i), name ) == 0 ) {				
-				delete [] ( editablebuttons.GetData (i) );
-				editablebuttons.RemoveData (i);
+	for(int i = 0; i < editablebuttons.Size(); ++i)
+	{
+		if(editablebuttons.ValidIndex(i))
+		{
+			if(strcmp(editablebuttons.GetData(i), name) == 0)
+			{
+				delete[](editablebuttons.GetData(i));
+				editablebuttons.RemoveData(i);
 				break;
 			}
 		}
 	}
-				
+
 }
 
-bool EclIsButtonEditable ( char *name )
+bool EclIsButtonEditable(char *name)
 {
 
-	if ( !EclGetButton (name) ) 
+	if(!EclGetButton(name))
 		return false;
 
-	for ( int i = 0; i < editablebuttons.Size (); ++i )
-		if ( editablebuttons.ValidIndex (i) )
-			if ( strcmp ( editablebuttons.GetData (i), name ) == 0 )
+	for(int i = 0; i < editablebuttons.Size(); ++i)
+		if(editablebuttons.ValidIndex(i))
+			if(strcmp(editablebuttons.GetData(i), name) == 0)
 				return true;
 
 	return false;
 
 }
 
-void EclHighlightNextEditableButton ()
+void EclHighlightNextEditableButton()
 {
 
 	//
 	// Look to see if an existing button is highlighted
 	//
 
-	if ( currenthighlight ) {
+	if(currenthighlight)
+	{
 
-		for ( int i = 0; i < editablebuttons.Size (); ++i ) {
-			if ( editablebuttons.ValidIndex (i) ) {
-				if ( strcmp ( editablebuttons.GetData (i), currenthighlight ) == 0 ) {
+		for(int i = 0; i < editablebuttons.Size(); ++i)
+		{
+			if(editablebuttons.ValidIndex(i))
+			{
+				if(strcmp(editablebuttons.GetData(i), currenthighlight) == 0)
+				{
 
 					// This is the currently highlighted button 
 					// move onto the next
 
-					char *nextbutton = ( i < editablebuttons.Size () - 1 ) ?
-											 editablebuttons.GetData (i+1) :
-											 editablebuttons.GetData (0);
+					char *nextbutton = (i < editablebuttons.Size() - 1) ?
+						editablebuttons.GetData(i + 1) :
+						editablebuttons.GetData(0);
 
-					EclHighlightButton ( nextbutton );
+					EclHighlightButton(nextbutton);
 					return;
-					
+
 				}
 			}
 		}
@@ -422,35 +457,35 @@ void EclHighlightNextEditableButton ()
 	// Nothing editable is currentlyhighlighted, so move to the first
 	//
 
-	if ( editablebuttons.ValidIndex (0) )
-		EclHighlightButton ( editablebuttons.GetData (0) );
-	
+	if(editablebuttons.ValidIndex(0))
+		EclHighlightButton(editablebuttons.GetData(0));
+
 }
 
-int  EclLookupIndex ( char *name )
+int  EclLookupIndex(char *name)
 {
 
-	if ( name )
-		for ( int i = 0; i < buttons.Size (); ++i )
-			if ( buttons.ValidIndex ( i ) )		
-				if ( strcmp ( buttons [i]->name, name ) == 0 )
+	if(name)
+		for(int i = 0; i < buttons.Size(); ++i)
+			if(buttons.ValidIndex(i))
+				if(strcmp(buttons[i]->name, name) == 0)
 					return i;
 
 	return -1;
 
 }
 
-local bool EclRectangleOverlap ( int x1, int y1, int w1, int h1,
-								 int x2, int y2, int w2, int h2 )
+local bool EclRectangleOverlap(int x1, int y1, int w1, int h1,
+	int x2, int y2, int w2, int h2)
 {
 
-	int maxleft = x1 > x2 ? x1 : x2;			
-	int maxtop  = y1 > y2 ? y1 : y2;
-	
-	int minright  = x1 + w1 < x2 + w2 ? x1 + w1 : x2 + w2;
+	int maxleft = x1 > x2 ? x1 : x2;
+	int maxtop = y1 > y2 ? y1 : y2;
+
+	int minright = x1 + w1 < x2 + w2 ? x1 + w1 : x2 + w2;
 	int minbottom = y1 + h1 < y2 + h2 ? y1 + h1 : y2 + h2;
 
-	if ( maxtop < minbottom && maxleft < minright ) 
+	if(maxtop < minbottom && maxleft < minright)
 		return true;
 
 	else
@@ -458,16 +493,18 @@ local bool EclRectangleOverlap ( int x1, int y1, int w1, int h1,
 
 }
 
-bool EclIsOccupied ( int x, int y, int w, int h )
+bool EclIsOccupied(int x, int y, int w, int h)
 {
 
-	for ( int i = 0; i < buttons.Size (); ++i ) {
+	for(int i = 0; i < buttons.Size(); ++i)
+	{
 
-		if ( buttons.ValidIndex (i) ) {
-			
-			Button *b = buttons [i];
-			if ( EclRectangleOverlap ( b->x, b->y, b->width, b->height,
-									   x, y, w, h ) )
+		if(buttons.ValidIndex(i))
+		{
+
+			Button *b = buttons[i];
+			if(EclRectangleOverlap(b->x, b->y, b->width, b->height,
+				x, y, w, h))
 				return true;
 
 		}
@@ -478,333 +515,339 @@ bool EclIsOccupied ( int x, int y, int w, int h )
 
 }
 
-void EclDirtyButton ( char *name )
+void EclDirtyButton(char *name)
 {
 
-/********************************************************************
- *** Removed now that the screen is totally repainted every frame ***
- ********************************************************************
+	/********************************************************************
+	 *** Removed now that the screen is totally repainted every frame ***
+	 ********************************************************************
 
-	Button *button = EclGetButton ( name );
+		Button *button = EclGetButton ( name );
 
-	if ( button ) {
+		if ( button ) {
 
-		if ( !button->dirty ) {
-				
-			button->Dirty ();
+			if ( !button->dirty ) {
 
-			// Dirty any buttons that are above this one (ie have a lower index)
-			// This occurs recursivly - as multiple overlapping buttons need refreshing
+				button->Dirty ();
 
-			int thisindex = EclLookupIndex (name);
+				// Dirty any buttons that are above this one (ie have a lower index)
+				// This occurs recursivly - as multiple overlapping buttons need refreshing
 
-			for ( int i = thisindex - 1; i >= 0; --i )
-				if ( buttons.ValidIndex (i) ) {
-					Button *b = buttons [i];
-					if ( EclRectangleOverlap ( b->x, b->y, b->width, b->height,
-											   button->x, button->y, button->width, button->height ) )
-						EclDirtyButton ( b->name );
-				}
+				int thisindex = EclLookupIndex (name);
+
+				for ( int i = thisindex - 1; i >= 0; --i )
+					if ( buttons.ValidIndex (i) ) {
+						Button *b = buttons [i];
+						if ( EclRectangleOverlap ( b->x, b->y, b->width, b->height,
+												   button->x, button->y, button->width, button->height ) )
+							EclDirtyButton ( b->name );
+					}
+
+			}
 
 		}
-
-	}
-#ifdef _DEBUG
-	else 
-		printf ( "ECL WARNING : EclDirtyButton called, button does not exist : %s\n", name );
-#endif
-*/
+	#ifdef _DEBUG
+		else
+			printf ( "ECL WARNING : EclDirtyButton called, button does not exist : %s\n", name );
+	#endif
+	*/
 
 }
 
-void EclDirtyRectangle ( int x, int y, int w, int h )
+void EclDirtyRectangle(int x, int y, int w, int h)
 {
-/*
-	dirtyrect *d = new dirtyrect ();
-	d->x = x;
-	d->y = y;
-	d->width = w;
-	d->height = h;
+	/*
+		dirtyrect *d = new dirtyrect ();
+		d->x = x;
+		d->y = y;
+		d->width = w;
+		d->height = h;
 
-	dirtyrectangles.PutData ( d );
-*/
+		dirtyrectangles.PutData ( d );
+	*/
 
-/********************************************************************
- *** Removed now that the screen is totally repainted every frame ***
- ********************************************************************
+	/********************************************************************
+	 *** Removed now that the screen is totally repainted every frame ***
+	 ********************************************************************
 
-    dirtyrectangles.push_back ( dirtyrect(x, y, w, h) );
+		dirtyrectangles.push_back ( dirtyrect(x, y, w, h) );
 
-	// Dirty any buttons in this area
+		// Dirty any buttons in this area
 
-	for ( int i = 0; i < buttons.Size (); ++i ) {
-		if ( buttons.ValidIndex (i) ) {
-			
-			Button *b = buttons.GetData (i);
+		for ( int i = 0; i < buttons.Size (); ++i ) {
+			if ( buttons.ValidIndex (i) ) {
 
-			if ( EclRectangleOverlap ( x, y, w, h, b->x, b->y, b->width, b->height ) ) 
-				EclDirtyButton ( b->name );
-			
+				Button *b = buttons.GetData (i);
+
+				if ( EclRectangleOverlap ( x, y, w, h, b->x, b->y, b->width, b->height ) )
+					EclDirtyButton ( b->name );
+
+			}
 		}
-	}
 
-*/
+	*/
 
 }
 
-void EclDrawAllButtons ()
+void EclDrawAllButtons()
 {
 
-/*
+	/*
 
-	// Blank all dirty rectangles
+		// Blank all dirty rectangles
 
-	if ( clear_draw ) 
-		for ( unsigned int i = 0; i < dirtyrectangles.size (); ++i ) {
-			dirtyrect &d = dirtyrectangles [i];
-            
-            clear_draw ( d.x, d.y, d.width, d.height );
-		}
-	
+		if ( clear_draw )
+			for ( unsigned int i = 0; i < dirtyrectangles.size (); ++i ) {
+				dirtyrect &d = dirtyrectangles [i];
 
-	// Blank all dirty buttons
-////// *
-	if ( clear_draw )
+				clear_draw ( d.x, d.y, d.width, d.height );
+			}
+
+
+		// Blank all dirty buttons
+	////// *
+		if ( clear_draw )
+			for ( int i = buttons.Size () - 1; i >= 0; --i )
+				if ( buttons.ValidIndex ( i ) )
+					if ( buttons [i]->dirty )
+						clear_draw ( buttons [i]->x, buttons [i]->y, buttons [i]->width, buttons [i]->height );
+	* //////
+
+		// Draw all buttons
+
 		for ( int i = buttons.Size () - 1; i >= 0; --i )
-			if ( buttons.ValidIndex ( i ) ) 
-				if ( buttons [i]->dirty ) 			
-					clear_draw ( buttons [i]->x, buttons [i]->y, buttons [i]->width, buttons [i]->height );
-* //////
-		
-	// Draw all buttons
+			if ( buttons.ValidIndex ( i ) )
+				if ( buttons [i]->dirty )
+					if ( buttons [i]->x >= 0 && buttons [i]->y >= 0 )
+						EclDrawButton ( i );
 
-	for ( int i = buttons.Size () - 1; i >= 0; --i )
-		if ( buttons.ValidIndex ( i ) ) 
-			if ( buttons [i]->dirty ) 			
-				if ( buttons [i]->x >= 0 && buttons [i]->y >= 0 )
-					EclDrawButton ( i );				
+	//        EclDirtyClear();
 
-//        EclDirtyClear();
-
-*/
+	*/
 
 	// Draw all buttons
 
-	for ( int i = buttons.Size () - 1; i >= 0; --i )
-		if ( buttons.ValidIndex ( i ) ) {
-			Button *b = buttons [i];
-			if ( b->x >= 0 && b->y >= 0 ) {
-				EclDrawButton ( i );
+	for(int i = buttons.Size() - 1; i >= 0; --i)
+		if(buttons.ValidIndex(i))
+		{
+			Button *b = buttons[i];
+			if(b->x >= 0 && b->y >= 0)
+			{
+				EclDrawButton(i);
 				b->dirty = false;
 			}
 		}
 
-    dirtyrectangles.clear ();
+	dirtyrectangles.clear();
 
 }
 
-void EclClearRectangle ( int x, int y, int w, int h )
+void EclClearRectangle(int x, int y, int w, int h)
 {
 
-	if ( clear_draw ) 
-        clear_draw ( x, y, w, h );
+	if(clear_draw)
+		clear_draw(x, y, w, h);
 
 }
 
-void EclDirtyClear  ()
+void EclDirtyClear()
 {
-/*
-    // TODO trim this out
-	if ( dirtyrectangles.size () > 0 )
-		for ( int i = dirtyrectangles.size () - 1; i >= 0; --i ) 
-            if ( dirtyrectangles[i] )
-			    delete dirtyrectangles [i];
-*/
+	/*
+		// TODO trim this out
+		if ( dirtyrectangles.size () > 0 )
+			for ( int i = dirtyrectangles.size () - 1; i >= 0; --i )
+				if ( dirtyrectangles[i] )
+					delete dirtyrectangles [i];
+	*/
 
-/*
-    while ( dirtyrectangles.GetData (0) ) {
-        dirtyrect *d = dirtyrectangles.GetData (0);
-        dirtyrectangles.RemoveData (0);
-        delete d;
-    }
-*/
+	/*
+		while ( dirtyrectangles.GetData (0) ) {
+			dirtyrect *d = dirtyrectangles.GetData (0);
+			dirtyrectangles.RemoveData (0);
+			delete d;
+		}
+	*/
 
-//	dirtyrectangles.Empty ();
+	//	dirtyrectangles.Empty ();
 
-    dirtyrectangles.clear ();
+	dirtyrectangles.clear();
 
-	for ( int ib = buttons.Size () - 1; ib >= 0; --ib )
-		if ( buttons.ValidIndex ( ib ) ) 
-			buttons [ib]->dirty = false;	
+	for(int ib = buttons.Size() - 1; ib >= 0; --ib)
+		if(buttons.ValidIndex(ib))
+			buttons[ib]->dirty = false;
 
 }
 
-void EclDrawButton ( char *name )
+void EclDrawButton(char *name)
 {
 
-	int index = EclLookupIndex ( name );
+	int index = EclLookupIndex(name);
 
-	if ( buttons.ValidIndex ( index ) )
-		EclDrawButton ( index );
+	if(buttons.ValidIndex(index))
+		EclDrawButton(index);
 
 }
 
-void EclDrawButton ( int index )
+void EclDrawButton(int index)
 {
 
-	if ( buttons.ValidIndex ( index ) )
-		if ( EclIsClicked ( buttons [index]->name ) )
-			buttons [index]->Draw ( false, true );
-		else if ( EclIsHighlighted ( buttons [index]->name ) )
-			buttons [index]->Draw ( true, false );
+	if(buttons.ValidIndex(index))
+		if(EclIsClicked(buttons[index]->name))
+			buttons[index]->Draw(false, true);
+		else if(EclIsHighlighted(buttons[index]->name))
+			buttons[index]->Draw(true, false);
 		else
-			buttons [index]->Draw ( false, false );
+			buttons[index]->Draw(false, false);
 
 }
 
-void EclHighlightButton ( char *name )
+void EclHighlightButton(char *name)
 {
 
-//	if ( !currenthighlight || strcmp ( currenthighlight, name ) != 0 ) {
-	if ( !EclIsHighlighted ( name ) ) {
-	
-		EclUnHighlightButton ();
-                delete [] currenthighlight;
-		currenthighlight = new char [strlen (name) + 1];
-		strcpy ( currenthighlight, name );
-		EclDirtyButton ( name );
+	//	if ( !currenthighlight || strcmp ( currenthighlight, name ) != 0 ) {
+	if(!EclIsHighlighted(name))
+	{
+
+		EclUnHighlightButton();
+		delete[] currenthighlight;
+		currenthighlight = new char[strlen(name) + 1];
+		strcpy(currenthighlight, name);
+		EclDirtyButton(name);
 
 	}
 
 }
 
-void EclClickButton ( char *name )
+void EclClickButton(char *name)
 {
 
-//	if ( !currentclick || strcmp ( currentclick, name ) != 0 ) {
-	if ( !EclIsClicked ( name ) ) {
-	
-		EclUnClickButton ();
-                delete [] currentclick;
-		currentclick = new char [strlen (name) + 1];
-		strcpy ( currentclick, name );
-		EclDirtyButton ( name );
+	//	if ( !currentclick || strcmp ( currentclick, name ) != 0 ) {
+	if(!EclIsClicked(name))
+	{
+
+		EclUnClickButton();
+		delete[] currentclick;
+		currentclick = new char[strlen(name) + 1];
+		strcpy(currentclick, name);
+		EclDirtyButton(name);
 
 	}
 
 }
 
-bool EclIsHighlighted ( char *name )
+bool EclIsHighlighted(char *name)
 {
 
-	return ( currenthighlight && strcmp ( currenthighlight, name ) == 0 );
+	return (currenthighlight && strcmp(currenthighlight, name) == 0);
 
 }
 
-bool EclIsClicked ( char *name )
+bool EclIsClicked(char *name)
 {
 
-	return ( currentclick && strcmp ( currentclick, name ) == 0 );
+	return (currentclick && strcmp(currentclick, name) == 0);
 
 }
 
-void EclUnHighlightButton ()
+void EclUnHighlightButton()
 {
 
-	Button *button = EclGetButton ( currenthighlight );
-	if ( button ) EclDirtyButton ( button->name );
+	Button *button = EclGetButton(currenthighlight);
+	if(button) EclDirtyButton(button->name);
 
-        delete [] currenthighlight;
+	delete[] currenthighlight;
 	currenthighlight = NULL;
-		
+
 }
-			
-void EclUnClickButton ()
+
+void EclUnClickButton()
 {
 
-	Button *button = EclGetButton ( currentclick );
-	if ( button ) EclDirtyButton ( button->name );
+	Button *button = EclGetButton(currentclick);
+	if(button) EclDirtyButton(button->name);
 
-    delete [] currentclick;
+	delete[] currentclick;
 	currentclick = NULL;
 
 }
 
-void EclSuperHighlight ( char *name )
+void EclSuperHighlight(char *name)
 {
 
-	Button *button = EclGetButton ( name );
+	Button *button = EclGetButton(name);
 
-	if ( !superhighlightedbuttons.LookupTree ( name ) && button ) {
+	if(!superhighlightedbuttons.LookupTree(name) && button)
+	{
 
 		// Needs to be added
-		superhighlightedbuttons.PutData ( name, 0 );
+		superhighlightedbuttons.PutData(name, 0);
 
 		// Create the button itself
-		
+
 		int x = button->x - superhighlight_borderwidth;
 		int y = button->y - superhighlight_borderwidth;
 		int width = button->width + superhighlight_borderwidth * 2;
 		int height = button->height + superhighlight_borderwidth * 2;
 
-		char superhighlightname [128];
-		sprintf ( superhighlightname, "Ecl_superhighlight %s", name );
+		char superhighlightname[128];
+		sprintf(superhighlightname, "Ecl_superhighlight %s", name);
 
-		EclRegisterButton ( x, y, width, height, "", "", superhighlightname );
-		EclRegisterButtonCallbacks ( superhighlightname, superhighlight_draw, NULL, NULL, NULL );
+		EclRegisterButton(x, y, width, height, "", "", superhighlightname);
+		EclRegisterButtonCallbacks(superhighlightname, superhighlight_draw, NULL, NULL, NULL);
 
-		EclButtonSendToBack ( superhighlightname );
+		EclButtonSendToBack(superhighlightname);
 
 	}
 
 }
 
-void EclSuperUnHighlight ( char *name )
+void EclSuperUnHighlight(char *name)
 {
 
-	if ( superhighlightedbuttons.LookupTree ( name ) ) {
+	if(superhighlightedbuttons.LookupTree(name))
+	{
 
-		superhighlightedbuttons.RemoveData ( name );
+		superhighlightedbuttons.RemoveData(name);
 
 		// Remove the button itself
-		char superhighlightname [128];
-		sprintf ( superhighlightname, "Ecl_superhighlight %s", name );
-		EclRemoveButton ( superhighlightname );
+		char superhighlightname[128];
+		sprintf(superhighlightname, "Ecl_superhighlight %s", name);
+		EclRemoveButton(superhighlightname);
 
 	}
 #ifdef _DEBUG
-	else 
-		printf ( "ECL WARNING : SuperUnHighlight called, button not found : %s\n", name );
+	else
+		printf("ECL WARNING : SuperUnHighlight called, button not found : %s\n", name);
 #endif
 
 }
 
-void EclSuperUnHighlightAll	()
+void EclSuperUnHighlightAll()
 {
 
-	DArray <char *> *highlights = superhighlightedbuttons.ConvertIndexToDArray ();
+	DArray <char *> *highlights = superhighlightedbuttons.ConvertIndexToDArray();
 
-	for ( int i = 0; i < highlights->Size (); ++i )
-		if ( highlights->ValidIndex (i) )
-			EclSuperUnHighlight ( highlights->GetData (i) );
+	for(int i = 0; i < highlights->Size(); ++i)
+		if(highlights->ValidIndex(i))
+			EclSuperUnHighlight(highlights->GetData(i));
 
 }
 
-bool EclIsSuperHighlighted ( char *name )
+bool EclIsSuperHighlighted(char *name)
 {
 
-	return ( superhighlightedbuttons.LookupTree (name) != NULL );
+	return (superhighlightedbuttons.LookupTree(name) != NULL);
 
 }
 
-void EclRegisterClearDrawFunction ( void (*draw) (int, int, int, int) )
+void EclRegisterClearDrawFunction(void(*draw) (int, int, int, int))
 {
 
 	clear_draw = draw;
 
 }
 
-void EclRegisterSuperHighlightFunction ( int borderwidth, void (*draw) (Button *, bool, bool) )
+void EclRegisterSuperHighlightFunction(int borderwidth, void(*draw) (Button *, bool, bool))
 {
 
 	superhighlight_borderwidth = borderwidth;
@@ -812,65 +855,71 @@ void EclRegisterSuperHighlightFunction ( int borderwidth, void (*draw) (Button *
 
 }
 
-void EclUpdateSuperHighlights ( char *name )
+void EclUpdateSuperHighlights(char *name)
 {
 
-	Button *sourcebutton = EclGetButton ( name );
+	Button *sourcebutton = EclGetButton(name);
 
-	if ( !sourcebutton ) {
-		
-		EclSuperUnHighlight ( name );
+	if(!sourcebutton)
+	{
+
+		EclSuperUnHighlight(name);
 		return;
 
 	}
 
-	if ( EclIsSuperHighlighted ( name ) ) {
+	if(EclIsSuperHighlighted(name))
+	{
 
-		char superhighlight_name [128];
-		sprintf ( superhighlight_name, "Ecl_superhighlight %s", name );
+		char superhighlight_name[128];
+		sprintf(superhighlight_name, "Ecl_superhighlight %s", name);
 
-		Button *highlightbutton = EclGetButton ( superhighlight_name );
-		
-		if ( highlightbutton ) {
+		Button *highlightbutton = EclGetButton(superhighlight_name);
+
+		if(highlightbutton)
+		{
 
 			// Update the position of this highlight button 
 			// to keep up with the actual button
 
-			if ( highlightbutton->x != sourcebutton->x ||
-				highlightbutton->y != sourcebutton->y ) {
+			if(highlightbutton->x != sourcebutton->x ||
+				highlightbutton->y != sourcebutton->y)
+			{
 
-				EclDirtyRectangle ( highlightbutton->x, highlightbutton->y, 
-									highlightbutton->width, highlightbutton->height );
+				EclDirtyRectangle(highlightbutton->x, highlightbutton->y,
+					highlightbutton->width, highlightbutton->height);
 
 				highlightbutton->x = sourcebutton->x - superhighlight_borderwidth;
 				highlightbutton->y = sourcebutton->y - superhighlight_borderwidth;
-			
+
 			}
-			
-			EclDirtyButton ( superhighlight_name );
+
+			EclDirtyButton(superhighlight_name);
 
 		}
 #ifdef _DEBUG
-		else 
-			printf ( "ECL WARNING : UpdateSuperHighlights called, button is SuperHighlighted : %s\nBut no SuperHighlight button exists\n", name );
+		else
+			printf("ECL WARNING : UpdateSuperHighlights called, button is SuperHighlighted : %s\nBut no SuperHighlight button exists\n", name);
 #endif
 
 	}
 #ifdef _DEBUG
 	else
-		printf ( "ECL WARNING : UpdateSuperHighlights called, button is not SuperHighlighted : %s\n", name );
+		printf("ECL WARNING : UpdateSuperHighlights called, button is not SuperHighlighted : %s\n", name);
 #endif
 
 }
 
-char *EclGetButtonAtCoord ( int x, int y )
+char *EclGetButtonAtCoord(int x, int y)
 {
 
-	for ( int i = 0; i < buttons.Size (); ++i ) {
-		if ( buttons.ValidIndex (i) ) {
-			Button *b = buttons [i];
-			if ( x >= b->x && x <= b->x + b->width &&
-				 y >= b->y && y <= b->y + b->height )				 
+	for(int i = 0; i < buttons.Size(); ++i)
+	{
+		if(buttons.ValidIndex(i))
+		{
+			Button *b = buttons[i];
+			if(x >= b->x && x <= b->x + b->width &&
+				y >= b->y && y <= b->y + b->height)
 				return b->name;
 		}
 	}
@@ -879,40 +928,40 @@ char *EclGetButtonAtCoord ( int x, int y )
 
 }
 
-char *EclGetHighlightedButton ()
+char *EclGetHighlightedButton()
 {
 
 	return currenthighlight;
 
 }
 
-Button *EclGetButton ( char *name )
+Button *EclGetButton(char *name)
 {
 
-	int index = EclLookupIndex ( name );
+	int index = EclLookupIndex(name);
 
-	if ( buttons.ValidIndex ( index ) )
-		return buttons [index];
+	if(buttons.ValidIndex(index))
+		return buttons[index];
 	else
 		return NULL;
 
 }
 
-void EclEnableAnimations ()
+void EclEnableAnimations()
 {
 
 	animsenabled = true;
 
 }
 
-void EclDisableAnimations ()
+void EclDisableAnimations()
 {
 
 	animsenabled = false;
 
 }
 
-void EclEnableFasterAnimations ( double speed )
+void EclEnableFasterAnimations(double speed)
 {
 
 	animsfasterenabled = true;
@@ -920,77 +969,78 @@ void EclEnableFasterAnimations ( double speed )
 
 }
 
-void EclDisableFasterAnimations ()
+void EclDisableFasterAnimations()
 {
 
 	animsfasterenabled = false;
 
 }
 
-int  EclRegisterMovement ( char *bname, int targetX, int targetY, int time_ms,
-						   void (*callback) ())
+int  EclRegisterMovement(char *bname, int targetX, int targetY, int time_ms,
+	void(*callback) ())
 {
 
-	return EclRegisterMovement ( bname, targetX, targetY, time_ms, MOVE_STRAIGHTLINE, callback );
+	return EclRegisterMovement(bname, targetX, targetY, time_ms, MOVE_STRAIGHTLINE, callback);
 
 }
 
-int  EclRegisterMovement  ( char *bname, int targetX, int targetY, int time_ms, int MOVETYPE,
-						    void (*callback) () )
+int  EclRegisterMovement(char *bname, int targetX, int targetY, int time_ms, int MOVETYPE,
+	void(*callback) ())
 {
 
-	Button *button = EclGetButton ( bname );
-	if ( button ) 
-		return EclRegisterAnimation ( bname, targetX, targetY, MOVETYPE, button->width, button->height, NULL, time_ms, callback );
+	Button *button = EclGetButton(bname);
+	if(button)
+		return EclRegisterAnimation(bname, targetX, targetY, MOVETYPE, button->width, button->height, NULL, time_ms, callback);
 
 	else
 		return -1;
 
 }
 
-int  EclRegisterResize ( char *bname, int targetW, int targetH, int time_ms, void (*callback) () )
+int  EclRegisterResize(char *bname, int targetW, int targetH, int time_ms, void(*callback) ())
 {
 
-	Button *button = EclGetButton ( bname );
-	if ( button ) 
-		return EclRegisterAnimation ( bname, button->x, button->y, targetW, targetH, time_ms, callback );
+	Button *button = EclGetButton(bname);
+	if(button)
+		return EclRegisterAnimation(bname, button->x, button->y, targetW, targetH, time_ms, callback);
 
 	else
 		return -1;
 }
 
-int  EclRegisterAnimation ( char *bname, int targetX, int targetY, 
-							int targetW, int targetH, int time_ms,
-							void (*callback) () )
+int  EclRegisterAnimation(char *bname, int targetX, int targetY,
+	int targetW, int targetH, int time_ms,
+	void(*callback) ())
 {
 
-	return EclRegisterAnimation ( bname, targetX, targetY, MOVE_STRAIGHTLINE, targetW, targetH, NULL, time_ms, callback );
+	return EclRegisterAnimation(bname, targetX, targetY, MOVE_STRAIGHTLINE, targetW, targetH, NULL, time_ms, callback);
 
 }
 
-int  EclRegisterCaptionChange ( char *bname, char *targetC, int time_ms,
-							    void (*callback) ())
+int  EclRegisterCaptionChange(char *bname, char *targetC, int time_ms,
+	void(*callback) ())
 {
 
-	Button *button = EclGetButton ( bname );
-	if ( button ) 
-		return EclRegisterAnimation ( bname, button->x, button->y, MOVE_STRAIGHTLINE, button->width, button->height, targetC, time_ms, callback );
-	
-	else {
+	Button *button = EclGetButton(bname);
+	if(button)
+		return EclRegisterAnimation(bname, button->x, button->y, MOVE_STRAIGHTLINE, button->width, button->height, targetC, time_ms, callback);
+
+	else
+	{
 #ifdef _DEBUG	
-		printf ( "ECL WARNING : Tried to register a caption change, could not find button %s\n", bname );
+		printf("ECL WARNING : Tried to register a caption change, could not find button %s\n", bname);
 #endif
 		return -1;
 	}
 
 }
 
-int  EclRegisterCaptionChange ( char *bname, char *targetC,				
-							    void (*callback) () )
+int  EclRegisterCaptionChange(char *bname, char *targetC,
+	void(*callback) ())
 {
 
 	int time = (int)(strlen(targetC) * 20);
-	return EclRegisterCaptionChange ( bname, targetC, time, callback );
+	return EclRegisterCaptionChange(bname, targetC, time, callback);
 
 }
 
@@ -1000,18 +1050,19 @@ int EclAnimationsRunning()
 }
 
 
-int  EclRegisterAnimation ( char *bname, int targetX, int targetY, int MOVETYPE, 
-							int targetW, int targetH, char *targetC, int time_ms,
-							void (*callback) () )
+int  EclRegisterAnimation(char *bname, int targetX, int targetY, int MOVETYPE,
+	int targetW, int targetH, char *targetC, int time_ms,
+	void(*callback) ())
 {
 
-	Button *button = EclGetButton ( bname );
+	Button *button = EclGetButton(bname);
 
-	if ( button ) {
+	if(button)
+	{
 
 		Animation *anim = new Animation;
-		anim->buttonname = new char [strlen(bname)+1];
-		strcpy ( anim->buttonname, bname );
+		anim->buttonname = new char[strlen(bname) + 1];
+		strcpy(anim->buttonname, bname);
 		anim->button = button;
 		anim->MOVETYPE = MOVETYPE;
 
@@ -1027,22 +1078,24 @@ int  EclRegisterAnimation ( char *bname, int targetX, int targetY, int MOVETYPE,
 		anim->callback = callback;
 
 		anim->time = time_ms;
-		if ( animsfasterenabled )
-			anim->time = (int) ( anim->time / animsfasterspeed );
+		if(animsfasterenabled)
+			anim->time = (int)(anim->time / animsfasterspeed);
 
-		anim->starttime = (int)EclGetAccurateTime ();              
-		anim->finishtime = (int)EclGetAccurateTime () + anim->time;
-	
-		if ( anim->finishtime - anim->starttime == 0 ) anim->finishtime = anim->starttime + 1;
+		anim->starttime = (int)EclGetAccurateTime();
+		anim->finishtime = (int)EclGetAccurateTime() + anim->time;
 
-		if ( anim->targetX != anim->sourceX || anim->targetY != anim->sourceY ) {
+		if(anim->finishtime - anim->starttime == 0) anim->finishtime = anim->starttime + 1;
+
+		if(anim->targetX != anim->sourceX || anim->targetY != anim->sourceY)
+		{
 
 			// Button will move
-			anim->dX = float ( anim->targetX - anim->sourceX ) / float ( anim->finishtime - anim->starttime );
-			anim->dY = float ( anim->targetY - anim->sourceY ) / float ( anim->finishtime - anim->starttime );
+			anim->dX = float(anim->targetX - anim->sourceX) / float(anim->finishtime - anim->starttime);
+			anim->dY = float(anim->targetY - anim->sourceY) / float(anim->finishtime - anim->starttime);
 
 		}
-		else {
+		else
+		{
 
 			// Button will not move
 			anim->dX = 0.0;
@@ -1050,14 +1103,16 @@ int  EclRegisterAnimation ( char *bname, int targetX, int targetY, int MOVETYPE,
 
 		}
 
-		if ( anim->targetW != anim->sourceW || anim->targetH != anim->sourceH ) {
+		if(anim->targetW != anim->sourceW || anim->targetH != anim->sourceH)
+		{
 
 			// Button will resize
-			anim->dW = float ( anim->targetW - anim->sourceW ) / float ( anim->finishtime - anim->starttime );
-			anim->dH = float ( anim->targetH - anim->sourceH ) / float ( anim->finishtime - anim->starttime );
+			anim->dW = float(anim->targetW - anim->sourceW) / float(anim->finishtime - anim->starttime);
+			anim->dH = float(anim->targetH - anim->sourceH) / float(anim->finishtime - anim->starttime);
 
 		}
-		else {
+		else
+		{
 
 			// Button will not resize
 			anim->dW = 0.0;
@@ -1065,25 +1120,28 @@ int  EclRegisterAnimation ( char *bname, int targetX, int targetY, int MOVETYPE,
 
 		}
 
-		if ( targetC ) {
+		if(targetC)
+		{
 
 			// Button caption will change
 			// Remove ALL existing caption change animations
 
-			int ca = EclIsCaptionChangeActive ( bname );
-			while ( ca != -1 ) {
-				EclRemoveAnimation ( ca );
-				ca = EclIsCaptionChangeActive ( bname );
+			int ca = EclIsCaptionChangeActive(bname);
+			while(ca != -1)
+			{
+				EclRemoveAnimation(ca);
+				ca = EclIsCaptionChangeActive(bname);
 			}
-			
-			if ( anim->targetC )
-				delete [] anim->targetC;
-			anim->targetC = new char [strlen(targetC)+1];
-			strcpy ( anim->targetC, targetC );			
-			anim->dC = float ( strlen ( targetC ) ) / float ( anim->finishtime - anim->starttime );
-			
+
+			if(anim->targetC)
+				delete[] anim->targetC;
+			anim->targetC = new char[strlen(targetC) + 1];
+			strcpy(anim->targetC, targetC);
+			anim->dC = float(strlen(targetC)) / float(anim->finishtime - anim->starttime);
+
 		}
-		else {
+		else
+		{
 
 			// Button caption will not change
 			anim->targetC = NULL;
@@ -1091,10 +1149,11 @@ int  EclRegisterAnimation ( char *bname, int targetX, int targetY, int MOVETYPE,
 
 		}
 
-		return anims.PutData ( anim );
+		return anims.PutData(anim);
 
 	}
-	else {
+	else
+	{
 
 		// Could not find button
 		return -1;
@@ -1103,17 +1162,19 @@ int  EclRegisterAnimation ( char *bname, int targetX, int targetY, int MOVETYPE,
 
 }
 
-int EclIsAnimationActive ( char *bname )
+int EclIsAnimationActive(char *bname)
 {
 
-	for ( int i = 0; i < anims.Size (); ++i ) {
+	for(int i = 0; i < anims.Size(); ++i)
+	{
 
-		if ( anims.ValidIndex (i) ) {
+		if(anims.ValidIndex(i))
+		{
 
-			Animation *anim = anims [i];
-			assert ( anim );
+			Animation *anim = anims[i];
+			assert(anim);
 
-			if ( strcmp ( bname, anim->buttonname ) == 0 )
+			if(strcmp(bname, anim->buttonname) == 0)
 				return i;
 
 		}
@@ -1124,18 +1185,20 @@ int EclIsAnimationActive ( char *bname )
 
 }
 
-int EclIsCaptionChangeActive ( char *bname )
+int EclIsCaptionChangeActive(char *bname)
 {
 
-	for ( int i = 0; i < anims.Size (); ++i ) {
+	for(int i = 0; i < anims.Size(); ++i)
+	{
 
-		if ( anims.ValidIndex (i) ) {
+		if(anims.ValidIndex(i))
+		{
 
-			Animation *anim = anims [i];
-			assert ( anim );
+			Animation *anim = anims[i];
+			assert(anim);
 
-			if ( strcmp ( bname, anim->buttonname ) == 0 &&
-				 anim->targetC != NULL )
+			if(strcmp(bname, anim->buttonname) == 0 &&
+				anim->targetC != NULL)
 				return i;
 
 		}
@@ -1146,18 +1209,20 @@ int EclIsCaptionChangeActive ( char *bname )
 
 }
 
-int EclIsNoCaptionChangeActive ( char *bname )
+int EclIsNoCaptionChangeActive(char *bname)
 {
 
-	for ( int i = 0; i < anims.Size (); ++i ) {
+	for(int i = 0; i < anims.Size(); ++i)
+	{
 
-		if ( anims.ValidIndex (i) ) {
+		if(anims.ValidIndex(i))
+		{
 
-			Animation *anim = anims [i];
-			assert ( anim );
+			Animation *anim = anims[i];
+			assert(anim);
 
-			if ( strcmp ( bname, anim->buttonname ) == 0 &&
-				 anim->targetC == NULL )
+			if(strcmp(bname, anim->buttonname) == 0 &&
+				anim->targetC == NULL)
 				return i;
 
 		}
@@ -1168,18 +1233,19 @@ int EclIsNoCaptionChangeActive ( char *bname )
 
 }
 
-void EclRemoveAnimation ( int idnumber )
+void EclRemoveAnimation(int idnumber)
 {
 
-    if ( anims.ValidIndex ( idnumber ) ) {
-        Animation *anim = anims.GetData (idnumber);
-        if ( anim ) delete anim;
-		anims.RemoveData ( idnumber );
-    }
+	if(anims.ValidIndex(idnumber))
+	{
+		Animation *anim = anims.GetData(idnumber);
+		if(anim) delete anim;
+		anims.RemoveData(idnumber);
+	}
 
 }
 
-void EclUpdateAllAnimations ()
+void EclUpdateAllAnimations()
 {
 
 	int i;
@@ -1189,11 +1255,11 @@ void EclUpdateAllAnimations ()
 	// Update all super-highlighted buttons
 	//
 
-	DArray <char *> *superhighlighted = superhighlightedbuttons.ConvertIndexToDArray ();
+	DArray <char *> *superhighlighted = superhighlightedbuttons.ConvertIndexToDArray();
 
-	for ( i = 0; i < superhighlighted->Size (); ++i )
-		if ( superhighlighted->ValidIndex (i) )
-			EclUpdateSuperHighlights ( superhighlighted->GetData (i) );
+	for(i = 0; i < superhighlighted->Size(); ++i)
+		if(superhighlighted->ValidIndex(i))
+			EclUpdateSuperHighlights(superhighlighted->GetData(i));
 
 	delete superhighlighted;
 
@@ -1202,113 +1268,128 @@ void EclUpdateAllAnimations ()
 	// Update all animations
 	//
 
-	for ( i = 0; i < anims.Size (); ++i ) {
+	for(i = 0; i < anims.Size(); ++i)
+	{
 
-		if ( anims.ValidIndex (i) ) {
+		if(anims.ValidIndex(i))
+		{
 
-			Animation *anim = anims [i];
-			assert ( anim );
-			
+			Animation *anim = anims[i];
+			assert(anim);
+
 			// Button may have been deleted - attempt to re-aquire it here
-			anim->button = EclGetButton ( anim->buttonname );
-			
-			if ( !anim->button ) {
+			anim->button = EclGetButton(anim->buttonname);
+
+			if(!anim->button)
+			{
 
 				// This button has been destroyed - remove the anim
 #ifdef _DEBUG
-				printf ( "ECL WARNING : Animation defined on invalid button : %s\n", anim->buttonname );
+				printf("ECL WARNING : Animation defined on invalid button : %s\n", anim->buttonname);
 #endif
 
-                EclRemoveAnimation ( i );
+				EclRemoveAnimation(i);
 
 			}
-			else {
-							
-				EclDirtyButton ( anim->buttonname );
+			else
+			{
 
-				if ( EclGetAccurateTime () >= anim->finishtime || !animsenabled ) {
+				EclDirtyButton(anim->buttonname);
+
+				if(EclGetAccurateTime() >= anim->finishtime || !animsenabled)
+				{
 
 					// Animation has finished - set to final position / size / caption
 					// OR Animations are not enabled - set to final position as well
 
-					if ( anim->dX || anim->dY ) {
+					if(anim->dX || anim->dY)
+					{
 
-						EclDirtyRectangle ( anim->button->x, anim->button->y, anim->button->width, anim->button->height );		
+						EclDirtyRectangle(anim->button->x, anim->button->y, anim->button->width, anim->button->height);
 
 						anim->button->x = anim->targetX;
-						anim->button->y = anim->targetY;						
-						
+						anim->button->y = anim->targetY;
+
 					}
 
-					if ( anim->dW || anim->dH ) {
+					if(anim->dW || anim->dH)
+					{
 
-						EclDirtyRectangle ( anim->button->x, anim->button->y, anim->button->width, anim->button->height );		
+						EclDirtyRectangle(anim->button->x, anim->button->y, anim->button->width, anim->button->height);
 
 						anim->button->width = anim->targetW;
-						anim->button->height = anim->targetH;						
+						anim->button->height = anim->targetH;
 
 					}
 
-					if ( anim->dC ) {
+					if(anim->dC)
+					{
 
-						anim->button->SetCaption ( anim->targetC );
+						anim->button->SetCaption(anim->targetC);
 
 					}
 
 					// Update any SuperHighlights that exist on this button
 
-					if ( EclIsSuperHighlighted ( anim->buttonname ) )
-						EclUpdateSuperHighlights ( anim->buttonname );
-						
+					if(EclIsSuperHighlighted(anim->buttonname))
+						EclUpdateSuperHighlights(anim->buttonname);
+
 					// Call the callback if neccesary
-					if ( anim->callback ) anim->callback ();
+					if(anim->callback) anim->callback();
 
 					// Remove the animation from the list
-                    EclRemoveAnimation ( i );
+					EclRemoveAnimation(i);
 
 				}
-				else {
+				else
+				{
 
-					if ( anim->MOVETYPE == MOVE_STRAIGHTLINE ) {
+					if(anim->MOVETYPE == MOVE_STRAIGHTLINE)
+					{
 
 						// Button moves at a constant rate in a straight line to target
 
-						if ( anim->dX || anim->dY ) {
-							
-							int dX = (int)(anim->sourceX + ( EclGetAccurateTime () - anim->starttime ) * anim->dX) - anim->button->x;
-							int dY = (int)(anim->sourceY + ( EclGetAccurateTime () - anim->starttime ) * anim->dY) - anim->button->y;
+						if(anim->dX || anim->dY)
+						{
+
+							int dX = (int)(anim->sourceX + (EclGetAccurateTime() - anim->starttime) * anim->dX) - anim->button->x;
+							int dY = (int)(anim->sourceY + (EclGetAccurateTime() - anim->starttime) * anim->dY) - anim->button->y;
 
 							//EclDirtyRectangle ( anim->button->x, anim->button->y, dX, anim->button->height );		
-							EclDirtyRectangle ( anim->button->x, anim->button->y, anim->button->width, anim->button->height );		
+							EclDirtyRectangle(anim->button->x, anim->button->y, anim->button->width, anim->button->height);
 
 							// Buttons location can change
 							// Calculate location of button
-							anim->button->x = anim->sourceX + (int)(( EclGetAccurateTime () - anim->starttime ) * anim->dX);
-							anim->button->y = anim->sourceY + (int)(( EclGetAccurateTime () - anim->starttime ) * anim->dY);							
-// 							double now = EclGetAccurateTime();
-// 							double f = ( now - anim->starttime ) / (anim->finishtime - anim->starttime);
-// 							anim->button->x = anim->sourceX + (anim->targetX - anim->sourceX) * f;
-// 							anim->button->y = anim->sourceY + (anim->targetY - anim->sourceY) * f;
+							anim->button->x = anim->sourceX + (int)((EclGetAccurateTime() - anim->starttime) * anim->dX);
+							anim->button->y = anim->sourceY + (int)((EclGetAccurateTime() - anim->starttime) * anim->dY);
+							// 							double now = EclGetAccurateTime();
+							// 							double f = ( now - anim->starttime ) / (anim->finishtime - anim->starttime);
+							// 							anim->button->x = anim->sourceX + (anim->targetX - anim->sourceX) * f;
+							// 							anim->button->y = anim->sourceY + (anim->targetY - anim->sourceY) * f;
 						}
-					
+
 					}
-					else if ( anim->MOVETYPE == MOVE_XFIRST ) {
+					else if(anim->MOVETYPE == MOVE_XFIRST)
+					{
 
 						// Button moves in X direction, then in Y direction
 
-						if ( anim->dX || anim->dY ) {
+						if(anim->dX || anim->dY)
+						{
 
-							EclDirtyRectangle ( anim->button->x, anim->button->y, anim->button->width, anim->button->height );		
-						
+							EclDirtyRectangle(anim->button->x, anim->button->y, anim->button->width, anim->button->height);
+
 							float ratio = (anim->dX / (anim->dX + anim->dY));
 							int halftime = anim->starttime + (int)(ratio * (anim->finishtime - anim->starttime));
 
-							if ( EclGetAccurateTime () < halftime ) {
-								float firsthalf = (float) ( EclGetAccurateTime () - anim->starttime ) / (float) ( halftime - anim->starttime );
+							if(EclGetAccurateTime() < halftime)
+							{
+								float firsthalf = (float)(EclGetAccurateTime() - anim->starttime) / (float)(halftime - anim->starttime);
 								anim->button->x = anim->sourceX + (int)((anim->targetX - anim->sourceX) * firsthalf);
 							}
-							else {
-								float secondhalf = (float) ( EclGetAccurateTime () - halftime ) / (float) ( anim->finishtime - halftime );
+							else
+							{
+								float secondhalf = (float)(EclGetAccurateTime() - halftime) / (float)(anim->finishtime - halftime);
 								anim->button->x = anim->targetX;
 								anim->button->y = anim->sourceY + (int)((anim->targetY - anim->sourceY) * secondhalf);
 							}
@@ -1316,59 +1397,65 @@ void EclUpdateAllAnimations ()
 						}
 
 					}
-					else if ( anim->MOVETYPE == MOVE_YFIRST ) {
+					else if(anim->MOVETYPE == MOVE_YFIRST)
+					{
 
 						// Button moves in Y direction, then in X direction
 
-						if ( anim->dX || anim->dY ) {
-						
-							EclDirtyRectangle ( anim->button->x, anim->button->y, anim->button->width, anim->button->height );		
+						if(anim->dX || anim->dY)
+						{
+
+							EclDirtyRectangle(anim->button->x, anim->button->y, anim->button->width, anim->button->height);
 
 							float ratio = (anim->dY / (anim->dX + anim->dY));
 							int halftime = anim->starttime + (int)(ratio * (anim->finishtime - anim->starttime));
 
-							if ( EclGetAccurateTime () < halftime ) {
-								float firsthalf = (float) ( EclGetAccurateTime () - anim->starttime ) / (float) ( halftime - anim->starttime );
+							if(EclGetAccurateTime() < halftime)
+							{
+								float firsthalf = (float)(EclGetAccurateTime() - anim->starttime) / (float)(halftime - anim->starttime);
 								anim->button->y = anim->sourceY + (int)((anim->targetY - anim->sourceY) * firsthalf);
 							}
-							else {
-								float secondhalf = (float) ( EclGetAccurateTime () - halftime ) / (float) ( anim->finishtime - halftime );
+							else
+							{
+								float secondhalf = (float)(EclGetAccurateTime() - halftime) / (float)(anim->finishtime - halftime);
 								anim->button->y = anim->targetY;
 								anim->button->x = anim->sourceX + (int)((anim->targetX - anim->sourceX) * secondhalf);
 							}
 
-						}					
+						}
 
 					}
 
-					if ( anim->dW || anim->dH ) {
+					if(anim->dW || anim->dH)
+					{
 
 						// Buttons size can change
 						// Calculate new size
-						EclDirtyRectangle ( anim->button->x, anim->button->y, anim->button->width, anim->button->height );		
+						EclDirtyRectangle(anim->button->x, anim->button->y, anim->button->width, anim->button->height);
 
-						anim->button->width = anim->sourceW + (int)(( EclGetAccurateTime () - anim->starttime ) * anim->dW);
-						anim->button->height = anim->sourceH + (int)(( EclGetAccurateTime () - anim->starttime ) * anim->dH);
+						anim->button->width = anim->sourceW + (int)((EclGetAccurateTime() - anim->starttime) * anim->dW);
+						anim->button->height = anim->sourceH + (int)((EclGetAccurateTime() - anim->starttime) * anim->dH);
 
 					}
 
-					if ( anim->dC ) {
+					if(anim->dC)
+					{
 
 						// Buttons caption can change
-						size_t showlength = (size_t)( ( (float)EclGetAccurateTime () - anim->starttime ) * anim->dC );
-						char *caption = new char [strlen(anim->targetC)+1];
-						strcpy ( caption, anim->targetC );
-						if ( showlength < strlen(anim->targetC)+1 )
-                                                    caption [showlength] = 0;
-						anim->button->SetCaption ( caption );
-						delete [] caption;
+						size_t showlength = (size_t)(((float)EclGetAccurateTime() - anim->starttime) * anim->dC);
+						char *caption = new char[strlen(anim->targetC) + 1];
+						strcpy(caption, anim->targetC);
+						if(showlength < strlen(anim->targetC) + 1)
+							caption[showlength] = 0;
+						anim->button->SetCaption(caption);
+						delete[] caption;
 
 					}
 
 					// Update any SuperHighlights that exist on this button
 
-					if ( EclIsSuperHighlighted ( anim->buttonname ) )
-						EclUpdateSuperHighlights ( anim->buttonname );
+					if(EclIsSuperHighlighted(anim->buttonname))
+						EclUpdateSuperHighlights(anim->buttonname);
 
 				}
 
@@ -1380,7 +1467,7 @@ void EclUpdateAllAnimations ()
 
 }
 
-double EclGetAccurateTime ()
+double EclGetAccurateTime()
 {
 
 #ifdef WIN32
@@ -1392,26 +1479,31 @@ double EclGetAccurateTime ()
 	static LARGE_INTEGER firstPerformanceCount;
 	static DWORD firstTickCount = 0;
 
-	if ( !initted ) {
+	if(!initted)
+	{
 		initted = true;
 
-		if ( QueryPerformanceFrequency ( &frequency ) && 
-		     QueryPerformanceCounter ( &firstPerformanceCount ) ) {
+		if(QueryPerformanceFrequency(&frequency) &&
+			QueryPerformanceCounter(&firstPerformanceCount))
+		{
 
 			supportsHighResTime = true;
 		}
-		else {
+		else
+		{
 			firstTickCount = GetTickCount();
 		}
 	}
 
-	if ( supportsHighResTime ) {
+	if(supportsHighResTime)
+	{
 		LARGE_INTEGER performanceCount;
-		QueryPerformanceCounter ( &performanceCount );
+		QueryPerformanceCounter(&performanceCount);
 
-		return 1000.0 * ( performanceCount.QuadPart - firstPerformanceCount.QuadPart ) / frequency.QuadPart;
+		return 1000.0 * (performanceCount.QuadPart - firstPerformanceCount.QuadPart) / frequency.QuadPart;
 	}
-	else {
+	else
+	{
 		return GetTickCount() - firstTickCount;
 	}
 
@@ -1433,62 +1525,63 @@ double EclGetAccurateTime ()
 
 	// Linux version
 
-	static bool initted = false; 
-	static struct timeval startTime; 
-	struct timeval tv; 
-  
-	if (!initted) { 
-		initted = true; 
-		gettimeofday(&startTime, NULL); 
+	static bool initted = false;
+	static struct timeval startTime;
+	struct timeval tv;
+
+	if(!initted)
+	{
+		initted = true;
+		gettimeofday(&startTime, NULL);
 		startTime.tv_usec = 0;
-		return 0; 
-	} 
+		return 0;
+	}
 
-	gettimeofday(&tv, NULL); 
-  
-	long diff_usec = tv.tv_usec - startTime.tv_usec; 
-// 	if (diff_usec < 0) { 
-// 		diff_usec += 1000000; 
-// 		tv.tv_sec --; 
-// 	} 
-	long diff_sec = tv.tv_sec - startTime.tv_sec; 
+	gettimeofday(&tv, NULL);
 
-	return 1000.0 * diff_sec + diff_usec / 1000.0; 
+	long diff_usec = tv.tv_usec - startTime.tv_usec;
+	// 	if (diff_usec < 0) { 
+	// 		diff_usec += 1000000; 
+	// 		tv.tv_sec --; 
+	// 	} 
+	long diff_sec = tv.tv_sec - startTime.tv_sec;
+
+	return 1000.0 * diff_sec + diff_usec / 1000.0;
 
 #endif
 
 }
 
-void EclDebugPrint ()
+void EclDebugPrint()
 {
 
-	printf ( "============== E C L I P S E ===============================\n" );	
+	printf("============== E C L I P S E ===============================\n");
 
-	printf ( "BUTTONS : \n" );
-	for ( int bi = 0; bi < buttons.Size (); ++bi )
-		buttons.GetData (bi)->DebugPrint ();		
+	printf("BUTTONS : \n");
+	for(int bi = 0; bi < buttons.Size(); ++bi)
+		buttons.GetData(bi)->DebugPrint();
 
-	printf ( "Current Highlight = %s\n", currenthighlight );
-	printf ( "Current Click     = %s\n", currentclick );
+	printf("Current Highlight = %s\n", currenthighlight);
+	printf("Current Click     = %s\n", currentclick);
 
-	printf ( "ANIMATIONS : \n" );
-	if ( animsenabled )  printf ( "Animations are ENABLED\n" );
-	else				 printf ( "Animations are DISABLED\n" );
+	printf("ANIMATIONS : \n");
+	if(animsenabled)  printf("Animations are ENABLED\n");
+	else				 printf("Animations are DISABLED\n");
 
-	if ( animsfasterenabled )  printf ( "Faster Animations are ENABLED\n" );
-	else                       printf ( "Faster Animations are DISABLED\n" );
+	if(animsfasterenabled)  printf("Faster Animations are ENABLED\n");
+	else                       printf("Faster Animations are DISABLED\n");
 
-	for ( int ai = 0; ai < anims.Size (); ++ai ) 
-		if ( anims.ValidIndex (ai) )
-			anims.GetData (ai)->DebugPrint ();
+	for(int ai = 0; ai < anims.Size(); ++ai)
+		if(anims.ValidIndex(ai))
+			anims.GetData(ai)->DebugPrint();
 
-	printf ( "EDITABLE BUTTONS : \n" );
-	
-	for ( int eb = 0; eb < editablebuttons.Size (); ++eb )
-		if ( editablebuttons.ValidIndex (eb) )
-			printf ( "%s\n", editablebuttons.GetData (eb) );
+	printf("EDITABLE BUTTONS : \n");
 
-	printf ( "============== E N D  O F  E C L I P S E ===================\n" );
+	for(int eb = 0; eb < editablebuttons.Size(); ++eb)
+		if(editablebuttons.ValidIndex(eb))
+			printf("%s\n", editablebuttons.GetData(eb));
+
+	printf("============== E N D  O F  E C L I P S E ===================\n");
 
 }
 
