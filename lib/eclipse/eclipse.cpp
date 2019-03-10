@@ -989,7 +989,7 @@ int  EclRegisterCaptionChange ( char *bname, char *targetC,
 							    void (*callback) () )
 {
 
-	int time = (int)(strlen(targetC) * 50);
+	int time = (int)(strlen(targetC) * 20);
 	return EclRegisterCaptionChange ( bname, targetC, time, callback );
 
 }
