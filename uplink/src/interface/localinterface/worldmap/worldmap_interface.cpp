@@ -1696,6 +1696,27 @@ void WorldMapInterface::CheckLinksChanged()
 
 }
 
+void WorldMapInterface::UpdateScrollwheel(bool up)
+{
+	Button *worldmap = EclGetButton("worldmap_largemap");
+	if(!worldmap) return;
+
+	int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
+	int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
+	float x = (get_mouseX() / (float)screenw - 0.5f) * 2.0f;
+	float y = (get_mouseY() / (float)screenh - 0.5f) * 2.0f;
+	ChangeZoom(up ? 0.2f : -0.2f);
+	float scrollAmount = (1.0f / pow(zoom, 2)) * 0.2f;
+	if(up && abs(x) > 0.2f && zoom < 4.0f)
+	{
+		ScrollX(x * scrollAmount);
+	}
+	if(up && abs(y) > 0.2f && zoom < 4.0f)
+	{
+		ScrollY(y * scrollAmount);
+	}
+}
+
 void WorldMapInterface::UpdateAccessLevel ()
 {
 
@@ -1794,7 +1815,7 @@ void WorldMapInterface::Update ()
 
         // Update scrolling
 
-        int timesincelastscroll = (int) ( EclGetAccurateTime() - scrollupdate );
+		int timesincelastscroll = (int)(EclGetAccurateTime() - scrollupdate);
 
         if ( timesincelastscroll > 20 ) {
 

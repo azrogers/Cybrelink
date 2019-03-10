@@ -595,7 +595,18 @@ void mouse ( int button, int state, int x, int y )
 			game->GetInterface ()->GetTaskManager ()->SetTargetProgram ( -1 );
 
 	}
-
+	else if(button == GCI_WHEELDOWN || button == GCI_WHEELUP)
+	{
+		if(game->IsRunning())
+		{
+			WorldMapInterface *wmi = &(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
+			// if we're currently in the world map view
+			if(wmi && wmi->IsVisibleWorldMapInterface() == WORLDMAP_LARGE)
+			{
+				wmi->UpdateScrollwheel(button == GCI_WHEELUP);
+			}
+		}
+	}
 }
 
 local void mousedraw ( Button *button, bool highlighted, bool clicked )

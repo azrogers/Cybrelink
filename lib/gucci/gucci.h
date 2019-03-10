@@ -82,6 +82,7 @@ typedef void GciDisplayFuncT(void);
 typedef void GciIdleFuncT(void);
 typedef void GciKeyboardFuncT(unsigned char key, int x, int y);
 typedef void GciMouseFuncT(int button, int state, int x, int y);
+typedef void GciScrollwheelFuncT(int change);
 typedef void GciMotionFuncT(int x, int y);
 typedef void GciPassiveMotionFuncT(int x, int y);
 typedef void GciReshapeFuncT(int newWidth, int oldWidth);
@@ -131,6 +132,8 @@ void GciTimerFunc(unsigned int millis, GciCallbackT *callback, int value);
 #define GCI_LEFT_BUTTON 1
 #define GCI_RIGHT_BUTTON 2
 #define GCI_MIDDLE_BUTTON 3
+#define GCI_WHEELUP 4
+#define GCI_WHEELDOWN 5
 
 /* Define for unknown buttons */
 #define GCI_UNKNOWN -1
