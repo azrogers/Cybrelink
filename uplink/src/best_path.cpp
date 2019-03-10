@@ -4,6 +4,8 @@
 #include "world/world.h"
 #include "world/player.h"
 
+#define Y_WEIGHT 1.0f
+
 struct path_point
 {
 	int index;
@@ -56,7 +58,7 @@ void BestPathGenerator::CreatePath(Game* game, BTree<VLocation *> location)
 		for(int j = 0; j < points.Size(); j++)
 		{
 			auto point = points.GetData(j);
-			int distance = sqrt(pow(point->x - currentPoint.x, 2) + pow(point->y - currentPoint.y, 2));
+			int distance = sqrt(pow(point->x - currentPoint.x, 2) + Y_WEIGHT * pow((float)point->y - currentPoint.y, 2));
 			if(closestIndex == -1 || distance < lastDistance)
 			{
 				closestIndex = point->index;

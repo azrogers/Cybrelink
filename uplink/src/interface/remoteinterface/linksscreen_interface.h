@@ -52,6 +52,8 @@ protected:
     static void ShowLinkClick ( Button *button );
 	static void ShowLinkMouseMove ( Button *button );
 
+	static void AddAllClick(Button* button);
+
 	static void ScrollUpClick ( Button *button );
 	static void ScrollDownClick ( Button *button );
 

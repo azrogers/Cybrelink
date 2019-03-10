@@ -537,6 +537,15 @@ void LinksScreenInterface::CloseClick ( Button *button )
 	
 }
 
+void LinksScreenInterface::AddAllClick(Button *button)
+{
+	LinksScreenInterface *lsi = (LinksScreenInterface *)GetInterfaceScreen(SCREEN_LINKSSCREEN);
+	for(int i = 0; i < lsi->fulllist.Size(); i++)
+	{
+		game->GetWorld()->GetPlayer()->GiveLink(lsi->fulllist.GetData(i));
+	}
+}
+
 void LinksScreenInterface::SetFullList ( LList <char *> *newfulllist )
 {
 
@@ -843,8 +852,11 @@ void LinksScreenInterface::Create ( ComputerScreen *newcs )
 			 fulllist.Size () >= NumLinksOnScreen() ) {
 
 			int xpos = 15;
-			int width = 150 - xpos;
-			EclRegisterButton ( xpos, 125, width, 15, "IP Address", "Shows the IP address of the location", "linksscreen_iptitle" );
+			int width = 150 - xpos - 13 - 5;
+			EclRegisterButton(xpos, 125, 13, 13, "", "Add all links", "linksscreen_addall");
+			EclRegisterButtonCallback("linksscreen_addall", AddAllClick);
+			button_assignbitmaps("linksscreen_addall", iadd_tif, iadd_h_tif, iadd_c_tif);
+			EclRegisterButton ( xpos + 13 + 5, 125, width, 15, "IP Address", "Shows the IP address of the location", "linksscreen_iptitle" );
 			EclRegisterButton ( 155, 125, (48 + SY(375)) - 155, 15, "Location name", "Shows the computer name at that location", "linksscreen_comptitle" );
 
 		}
@@ -867,6 +879,7 @@ void LinksScreenInterface::Remove ()
 
 		EclRemoveButton ( "linksscreen_iptitle" );
 		EclRemoveButton ( "linksscreen_comptitle" );
+		EclRemoveButton("linksscreen_addall");
 
 		for ( int i = 0; i < NumLinksOnScreen(); ++i ) {
 
