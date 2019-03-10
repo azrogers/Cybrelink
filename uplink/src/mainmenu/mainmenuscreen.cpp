@@ -39,7 +39,7 @@ void MainMenuScreen::Create ()
 	int screenw = app->GetOptions ()->GetOptionValue ("graphics_screenwidth");
 	int screenh = app->GetOptions ()->GetOptionValue ("graphics_screenheight");
 
-	RegisterButton ( SX(320) - 170, 75, 425, 60, "", "mainmenu_background" );
+	RegisterButton ( SX(320) - 250, 75, 500, 100, "", "mainmenu_background" );
 	button_assignbitmap ( "mainmenu_background", "mainmenu/uplinklogo.tif" );		
 	EclRegisterButtonCallbacks ( "mainmenu_background", imagebutton_draw, NULL, NULL, NULL );
 

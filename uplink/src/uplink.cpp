@@ -883,6 +883,8 @@ bool VerifyLegitAndCodeCardCheck()
 
     }
 
+	return true;
+
 #ifdef VERIFY_UPLINK_LEGIT
 
 	printf ( "\nAn error occured in Uplink\n" );

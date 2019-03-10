@@ -108,7 +108,7 @@ void opengl_initialise(int argc, char **argv)
 	}
 	delete mode;
 
-	char *errorMessageInit = GciInitGraphics("uplink",
+	char *errorMessageInit = GciInitGraphics("CybreLink",
 		graphics_flags,
 		screenWidth, screenHeight,
 		screenDepth, screenRefresh,
