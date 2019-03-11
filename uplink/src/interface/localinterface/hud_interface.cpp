@@ -51,6 +51,7 @@ HUDInterfaceUpgrade HUDInterface::hudUpgrades[8] = {
 
 };
 
+map<int, bool> HUDInterface::MissionIsConnected = map<int, bool>();
 
 HUDInterface::HUDInterface()
 {
@@ -698,6 +699,20 @@ HUDInterfaceUpgrade *HUDInterface::GetUpgrade(char upgrade)
 
 }
 
+void HUDInterface::MissionDraw(Button* button, bool highlighted, bool clicked)
+{
+	imagebutton_draw(button, highlighted, clicked);
+
+	int index;
+	sscanf(button->name, "hud_mission %d", &index);
+
+	if(MissionIsConnected[index])
+	{
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		border_draw(button);
+	}
+}
+
 void HUDInterface::Update()
 {
 
@@ -732,7 +747,6 @@ void HUDInterface::Update()
 				EclRegisterMovement(bname, screenw - 30 * (mi + 1), screenh - 41, 1000);
 				SgPlaySound(RsArchiveFileOpen("sounds/newmail.wav"), "sounds/newmail.wav", false);
 			}
-
 		}
 
 		// What the fuck is this for?
@@ -749,6 +763,13 @@ void HUDInterface::Update()
 			UplinkSnprintf(bname, sizeof(bname), "hud_message %d", removeMessageIndex);
 		}
 
+		bool isConnected = game->GetWorld()->GetPlayer()->IsConnected();
+		char remote[24];
+		if(isConnected)
+		{
+			UplinkStrncpy(remote, game->GetWorld()->GetPlayer()->remotehost, sizeof(remote));
+		}
+
 
 		// Update the missions on display
 
@@ -756,15 +777,16 @@ void HUDInterface::Update()
 
 		for(int msi = 0; msi < game->GetWorld()->GetPlayer()->missions.Size(); ++msi)
 		{
-
 			char bname[128];
 			UplinkSnprintf(bname, sizeof(bname), "hud_mission %d", msi);
+
+			MissionIsConnected[msi] = game->GetWorld()->GetPlayer()->missions.GetData(msi)->IsLink(remote);
 
 			if(!EclGetButton(bname))
 			{
 				EclRegisterButton(222, screenh - 41, 24, 24, "", "View this mission", bname);
 				button_assignbitmaps(bname, "hud/mission.tif", "hud/mission_h.tif", "hud/mission_c.tif");
-				EclRegisterButtonCallbacks(bname, imagebutton_draw, MissionClick, button_click, MissionHighlight);
+				EclRegisterButtonCallbacks(bname, MissionDraw, MissionClick, button_click, MissionHighlight);
 				EclRegisterMovement(bname, baseX - 30 * msi, screenh - 41, 1000);
 				SgPlaySound(RsArchiveFileOpen("sounds/newmail.wav"), "sounds/newmail.wav", false);
 			}
@@ -775,7 +797,6 @@ void HUDInterface::Update()
 						EclRegisterMovement(bname, baseX - 30 * msi, screenh - 41, 300);
 
 			}
-
 		}
 
 		// Remove any mission buttons that shouldn't be here

@@ -76,6 +76,9 @@ public:
 	Mission ();
 	~Mission ();
 
+	// is this IP addr a link of this mission?
+	bool IsLink(char* ip);
+
 	void SetTYPE			( int newTYPE );
 	void SetCompletion		( char *newA, char *newB, char *newC, char *newD, char *newE );
 
@@ -115,7 +118,6 @@ public:
 	
 	char *GetID ();
 	int   GetOBJECTID ();
-
 };
 
 

@@ -18,6 +18,7 @@
 #include "interface/localinterface/gateway_interface.h"
 #include "interface/localinterface/sw_interface.h"
 #include "interface/localinterface/worldmap/worldmap_interface.h"
+#include <map>
 
 struct HUDInterfaceUpgrade
 {
@@ -50,9 +51,10 @@ protected:
     
     char visibleUpgrades[8];                                    // Entries corrispond to visual position on screen. 
     static HUDInterfaceUpgrade hudUpgrades[8];
+	static map<int, bool> MissionIsConnected;
 
 protected:
-	
+
 	static void MainMenuClick     ( Button *button );
 	static void SoftwareClick	  ( Button *button );
 	static void HardwareClick     ( Button *button );
@@ -69,6 +71,7 @@ protected:
 	static void EmailClick	      ( Button *button );
 	static void MissionHighlight  ( Button *button );
 	static void MissionClick	  ( Button *button );
+	static void MissionDraw(Button* button, bool highlighted, bool clicked);
 	static void MailViewClick(Button *button);
 
 	static void SpeedButtonDraw   ( Button *button, bool highlighted, bool clicked );

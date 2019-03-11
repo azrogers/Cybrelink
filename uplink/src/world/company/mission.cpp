@@ -66,6 +66,19 @@ Mission::~Mission ()
 
 }
 
+bool Mission::IsLink(char* ip)
+{
+	for(int i = 0; i < links.Size(); i++)
+	{
+		if(strcmp(links.GetData(i), ip) == 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void Mission::SetTYPE ( int newTYPE )
 {
 
