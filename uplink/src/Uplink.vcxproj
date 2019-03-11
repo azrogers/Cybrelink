@@ -104,7 +104,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..\..\lib\mmgr;..\..\lib\tosser;..\..\lib\eclipse;..\..\lib\bungle;..\..\lib\gucci;..\..\lib\redshirt;..\..\lib\soundgarden;..\..\lib\vanbakel;..\..\lib\common;..\..\contrib\tcp4u.331\include;..\..\contrib\irclib;..\..\contrib\XCrashReport;..\..\contrib\SDL-1.2.11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_SDL;WIN32;_CRT_SECURE_NO_DEPRECATE;FULLGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>TESTGAME;USE_SDL;WIN32;_CRT_SECURE_NO_DEPRECATE;FULLGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>

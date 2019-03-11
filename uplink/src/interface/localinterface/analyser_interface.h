@@ -26,6 +26,7 @@ protected:
 	
 	static int moving_stipplepattern;
 	static int static_stipplepattern;
+	static bool autobypass_toggle;
 
 	time_t lastupdate;
 	int stippleupdate;

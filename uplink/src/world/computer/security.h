@@ -46,6 +46,9 @@ public:
 	int NumSystems ();
 	int NumRunningSystems ();
 
+	bool HasSystem(int TYPE);
+	int GetTypeIndex(int TYPE);
+
 	// Use these to determine status of security system
 
 	bool IsRunning			  ( int TYPE );

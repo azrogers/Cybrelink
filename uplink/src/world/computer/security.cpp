@@ -98,6 +98,32 @@ bool Security::IsRunning ( int TYPE )
 	return false;
 
 }
+
+bool Security::HasSystem(int TYPE)
+{
+	for(int i = 0; i < NumSystems(); i++)
+	{
+		if(GetSystem(i)->TYPE == TYPE)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+int Security::GetTypeIndex(int TYPE)
+{
+	for(int i = 0; i < NumSystems(); i++)
+	{
+		if(GetSystem(i)->TYPE == TYPE)
+		{
+			return i;
+		}
+	}
+
+	return -1;
+}
 	
 bool Security::IsRunning_Proxy ()
 {

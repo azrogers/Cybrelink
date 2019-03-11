@@ -37,6 +37,7 @@ protected:
 protected:
 
 	char ip [SIZE_VLOCATION_IP];				// Target IP
+	int moveToTime = 1000;
 
 public:
 
@@ -57,6 +58,7 @@ public:
 	void EndCurrentBypass ();
 
 	void SetTarget ( UplinkObject *uo, char *uos, int uoi );
+	void SetMoveToTime(int time);
 	void MoveTo ( int x, int y, int time_ms );			
 
 	void Initialise ();     

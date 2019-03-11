@@ -225,6 +225,11 @@ void SecurityBypass::EndCurrentBypass ()
 
 }
 
+void SecurityBypass::SetMoveToTime(int time)
+{
+	moveToTime = time;
+}
+
 void SecurityBypass::SetTarget ( UplinkObject *uo, char *uos, int uoi )
 {
 
@@ -255,7 +260,7 @@ void SecurityBypass::SetTarget ( UplinkObject *uo, char *uos, int uoi )
 
 			Button *b = EclGetButton ( uos );
 			UplinkAssert (b);
-			MoveTo ( b->x, b->y + b->height, 1000 );
+			MoveTo ( b->x, b->y + b->height, moveToTime );
 
 			//
 			// Store our target
@@ -291,8 +296,9 @@ void SecurityBypass::SetTarget ( UplinkObject *uo, char *uos, int uoi )
 
 void SecurityBypass::MoveTo ( int x, int y, int time_ms )
 {
-
 	// X and Y of bottom left corner
+
+	ShowInterface();
 
 	if ( IsInterfaceVisible () ) {
 
