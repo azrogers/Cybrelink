@@ -276,7 +276,7 @@ void FinanceInterface::Create()
 			UplinkSnprintf(name, sizeof(name), "finance_account %d", i);
 			EclRegisterButton(screenw - panelwidth, paneltop + 100 + i * 20, panelwidth - 7, 15, accounttext, "Set this to be your current account", name);
 			EclRegisterButtonCallbacks(name, DrawAccountButton, ClickAccountButton, button_click, button_highlight);
-
+			EclRegisterMiddleClickCallback(name, MiddleClickAccountButton);
 		}
 
 		previousnumaccounts = game->GetWorld()->GetPlayer()->accounts.Size();
@@ -284,6 +284,33 @@ void FinanceInterface::Create()
 
 	}
 
+}
+
+void FinanceInterface::MiddleClickAccountButton(Button* button)
+{
+	Button* sourceButton = EclGetButton("s_accno_value -1 -1");
+	if(!sourceButton)
+	{
+		return;
+	}
+
+	int index;
+	sscanf(button->name, "finance_account %d", &index);
+
+	auto account = game->GetWorld()->GetPlayer()->accounts.GetData(index);
+	char ip[SIZE_VLOCATION_IP];
+	char accno[16];
+	sscanf(account, "%s %s", ip, accno);
+
+	Button* targetIpButton = EclGetButton("t_ip_value 0 0");
+	Button* targetAccountNumButton = EclGetButton("t_accno_value 0 0");
+	if(!targetIpButton || !targetAccountNumButton)
+	{
+		return;
+	}
+
+	targetIpButton->SetCaption(ip);
+	targetAccountNumButton->SetCaption(accno);
 }
 
 void FinanceInterface::Remove()
@@ -349,7 +376,7 @@ void FinanceInterface::Update()
 				UplinkSnprintf(name, sizeof(name), "finance_account %d", i);
 				EclRegisterButton(screenw - panelwidth, paneltop + 100 + i * 20, panelwidth - 7, 15, accounttext, "Open this account", name);
 				EclRegisterButtonCallbacks(name, DrawAccountButton, ClickAccountButton, button_click, button_highlight);
-
+				EclRegisterMiddleClickCallback(name, MiddleClickAccountButton);
 			}
 
 			previousnumaccounts = game->GetWorld()->GetPlayer()->accounts.Size();

@@ -276,7 +276,7 @@ void createBypass(Computer* comp, char* bypass, float version, int securityIndex
 	game->GetInterface()->GetTaskManager()->RunSoftware(bypass, version);
 	game->GetInterface()->GetTaskManager()->SetTargetProgram(SvbGetTask(bypass)->GetPID());
 	char name[128];
-	UplinkSnprintf(name, sizeof(name), "analyser_system_t %d", securityIndex);
+	UplinkSnprintf(name, sizeof(name), "analyser_system %d", securityIndex);
 	UplinkTask *proxyTask = (UplinkTask *)SvbGetTask(bypass);
 	proxyTask->SetFollowMouse(false);
 	((SecurityBypass*)proxyTask)->SetMoveToTime(0);

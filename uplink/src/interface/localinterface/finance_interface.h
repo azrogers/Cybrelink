@@ -25,6 +25,7 @@ protected:
 	static void DrawAccountsTitle ( Button *button, bool highlighted, bool clicked );
 
 	static void ClickAccountButton ( Button *button );
+	static void MiddleClickAccountButton(Button *button);
 	static void DrawAccountButton ( Button *button, bool highlighted, bool clicked );
 
 public:
