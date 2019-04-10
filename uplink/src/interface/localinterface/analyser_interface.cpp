@@ -51,7 +51,6 @@ static int STIPPLE[] = { 0x1111,		//		0001000100010001
 
 int AnalyserInterface::moving_stipplepattern = STIPPLE[0];
 int AnalyserInterface::static_stipplepattern = STIPPLE[0];
-bool AnalyserInterface::autobypass_toggle = true;
 
 
 void AnalyserInterface::CycleStipplePattern()
@@ -220,11 +219,10 @@ void AnalyserInterface::Create()
 		EclRegisterButton(screenw - panelwidth + 6, paneltop + 20, 70, 15, "Localhost", "", "analyser_localhost_t");
 		EclRegisterButtonCallbacks("analyser_localhost_t", text_draw, NULL, NULL, NULL);
 
-		EclRegisterButton(screenw - panelwidth, paneltop + SY(300) - 18, panelwidth - 7, 15, "Auto Bypass: On", "analyser_autobypass");
+		EclRegisterButton(screenw - panelwidth, paneltop + SY(300) - 18, panelwidth - 7, 15, "Auto Bypass", "analyser_autobypass");
 		EclRegisterButtonCallback("analyser_autobypass", [](Button* button)
 		{
-			AnalyserInterface::autobypass_toggle = !AnalyserInterface::autobypass_toggle;
-			button->SetCaption(AnalyserInterface::autobypass_toggle ? "Auto Bypass: On" : "Auto Bypass: Off");
+				BypassSystem();
 		});
 	}
 
@@ -419,51 +417,6 @@ void AnalyserInterface::Update()
 
 		}
 
-		// initialize all bypassers if set to do so automatically
-		if(AnalyserInterface::autobypass_toggle)
-		{
-			DataBank *db = &(game->GetWorld()->GetPlayer()->gateway.databank);
-			int proxyIndex = comp->security.GetTypeIndex(SECURITY_TYPE_PROXY);
-			int monitorIndex = comp->security.GetTypeIndex(SECURITY_TYPE_MONITOR);
-			int firewallIndex = comp->security.GetTypeIndex(SECURITY_TYPE_FIREWALL);
-
-			for(int di = 0; di < db->GetDataSize(); ++di)
-			{
-				if(!db->GetDataFile(di) || db->GetDataFile(di)->TYPE != DATATYPE_PROGRAM)
-				{
-					continue;
-				}
-
-				char name[128];
-
-				// run each bypass if not running already
-				if(
-					strcmp(db->GetDataFile(di)->title, "Proxy_Bypass") == 0 && 
-					SvbGetTask("Proxy_Bypass") == NULL &&
-					proxyIndex != -1 &&
-					comp->security.GetSystem(proxyIndex)->level <= db->GetDataFile(di)->version)
-				{
-					createBypass(comp, "Proxy_Bypass", db->GetDataFile(di)->version, proxyIndex);
-				}
-				else if(
-					strcmp(db->GetDataFile(di)->title, "Firewall_Bypass") == 0 &&
-					SvbGetTask("Firewall_Bypass") == NULL &&
-					firewallIndex != -1 &&
-					comp->security.GetSystem(firewallIndex)->level <= db->GetDataFile(di)->version)
-				{
-					createBypass(comp, "Firewall_Bypass", db->GetDataFile(di)->version, firewallIndex);
-				}
-				else if(
-					strcmp(db->GetDataFile(di)->title, "Monitor_Bypass") == 0 &&
-					SvbGetTask("Monitor_Bypass") == NULL &&
-					monitorIndex != -1 &&
-					comp->security.GetSystem(monitorIndex)->level <= db->GetDataFile(di)->version)
-				{
-					createBypass(comp, "Monitor_Bypass", db->GetDataFile(di)->version, monitorIndex);
-				}
-			}
-		}
-
 		// Bring all bypassers to the front
 
 		SvbShowAllTasks();
@@ -550,3 +503,58 @@ int AnalyserInterface::ScreenID()
 
 }
 
+
+void AnalyserInterface::BypassSystem()
+{
+	// Look up the new remote host
+	VLocation* vl = game->GetWorld()->GetVLocation(remotehost);
+	UplinkAssert(vl);
+	Computer* comp = vl->GetComputer();
+	UplinkAssert(comp);
+
+	if (strcmp(comp->ip, IP_LOCALHOST) == 0)
+	{
+		return;
+	}
+
+	DataBank* db = &(game->GetWorld()->GetPlayer()->gateway.databank);
+	int proxyIndex = comp->security.GetTypeIndex(SECURITY_TYPE_PROXY);
+	int monitorIndex = comp->security.GetTypeIndex(SECURITY_TYPE_MONITOR);
+	int firewallIndex = comp->security.GetTypeIndex(SECURITY_TYPE_FIREWALL);
+
+	for (int di = 0; di < db->GetDataSize(); ++di)
+	{
+		if (!db->GetDataFile(di) || db->GetDataFile(di)->TYPE != DATATYPE_PROGRAM)
+		{
+			continue;
+		}
+
+		char name[128];
+
+		// run each bypass if not running already
+		if (
+			strcmp(db->GetDataFile(di)->title, "Proxy_Bypass") == 0 &&
+			SvbGetTask("Proxy_Bypass") == NULL &&
+			proxyIndex != -1 &&
+			comp->security.GetSystem(proxyIndex)->level <= db->GetDataFile(di)->version)
+		{
+			createBypass(comp, "Proxy_Bypass", db->GetDataFile(di)->version, proxyIndex);
+		}
+		else if (
+			strcmp(db->GetDataFile(di)->title, "Firewall_Bypass") == 0 &&
+			SvbGetTask("Firewall_Bypass") == NULL &&
+			firewallIndex != -1 &&
+			comp->security.GetSystem(firewallIndex)->level <= db->GetDataFile(di)->version)
+		{
+			createBypass(comp, "Firewall_Bypass", db->GetDataFile(di)->version, firewallIndex);
+		}
+		else if (
+			strcmp(db->GetDataFile(di)->title, "Monitor_Bypass") == 0 &&
+			SvbGetTask("Monitor_Bypass") == NULL &&
+			monitorIndex != -1 &&
+			comp->security.GetSystem(monitorIndex)->level <= db->GetDataFile(di)->version)
+		{
+			createBypass(comp, "Monitor_Bypass", db->GetDataFile(di)->version, monitorIndex);
+		}
+	}
+}

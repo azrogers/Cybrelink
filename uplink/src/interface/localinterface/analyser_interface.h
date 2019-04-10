@@ -26,7 +26,6 @@ protected:
 	
 	static int moving_stipplepattern;
 	static int static_stipplepattern;
-	static bool autobypass_toggle;
 
 	time_t lastupdate;
 	int stippleupdate;
@@ -39,6 +38,7 @@ protected:
 	static void SystemClick ( Button *button );
 
 	static void ConnectionDraw ( Button *button, bool highlighted, bool clicked );
+	static void BypassSystem();
 
 public:
 
