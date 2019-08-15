@@ -300,6 +300,12 @@ void UserIDScreenInterface::CodeButtonClick ( Button *button )
 
 }
 
+void UserIDScreenInterface::CodeButtonMiddleClick(Button* button)
+{
+	game->GetInterface()->GetTaskManager()->RunHighestVersionOf("Password_Breaker");
+	CodeButtonClick(button);
+}
+
 bool UserIDScreenInterface::ReturnKeyPressed ()
 {
 
@@ -330,6 +336,7 @@ void UserIDScreenInterface::Create ( ComputerScreen *newcs )
 
 		EclRegisterButton ( 227, 236, 148, 15, "", "Enter your access code here", "useridscreen_code" );
 		EclRegisterButtonCallbacks ( "useridscreen_code", CodeButtonDraw, CodeButtonClick, button_click, button_highlight );
+		EclRegisterMiddleClickCallback("useridscreen_code", CodeButtonMiddleClick);
 
 		EclRegisterButton ( 168, 280, 120, 15, "", "", "useridscreen_message" );
 		EclRegisterButtonCallbacks ( "useridscreen_message", textbutton_draw, NULL, NULL, NULL );

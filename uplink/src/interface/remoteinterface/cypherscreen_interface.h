@@ -41,6 +41,7 @@ protected:
 
 	static void DrawCypher ( Button *button, bool highlighted, bool clicked );
 	static void ClickCypher ( Button *button );
+	static void MiddleClickCypher(Button *button);
 
 	static void BypassClick ( Button *button );
 	static void ProceedClick ( Button *button );

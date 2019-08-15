@@ -7,6 +7,7 @@
 // ============================================================================
 
 #include "interface/remoteinterface/remoteinterfacescreen.h"
+#include "interface/scrollbox.h"
 
 class ComputerScreen;
 class LinksScreen; 

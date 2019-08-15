@@ -23,6 +23,7 @@ protected:
 
 	static void CursorFlash ();
 	static void PasswordClick ( Button *button );
+	static void PasswordMiddleClick(Button* button);
 
 	static void AccessCodeClick ( Button *button );
 

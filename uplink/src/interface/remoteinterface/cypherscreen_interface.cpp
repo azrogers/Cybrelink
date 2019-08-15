@@ -16,6 +16,9 @@
 #include "options/options.h"
 
 #include "game/game.h"
+#include "world/world.h"
+#include "world/player.h"
+#include "world/computer/databank.h"
 
 #include "world/generator/numbergenerator.h"
 
@@ -123,6 +126,15 @@ void CypherScreenInterface::ClickCypher ( Button *button )
 
 	game->GetInterface ()->GetTaskManager ()->SetProgramTarget ( csi->GetComputerScreen (), button->name, -1 );
 
+}
+
+void CypherScreenInterface::MiddleClickCypher(Button* button)
+{
+	game->GetInterface()->GetTaskManager()->RunHighestVersionOf("Decypher");
+
+	RemoteInterfaceScreen* ris = game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen();
+	CypherScreenInterface* csi = (CypherScreenInterface*)ris;
+	game->GetInterface()->GetTaskManager()->SetProgramTarget(csi->GetComputerScreen(), button->name, -1);
 }
 
 void CypherScreenInterface::BypassClick ( Button *button )
@@ -257,6 +269,7 @@ void CypherScreenInterface::Create ( ComputerScreen *newcs )
 
 		EclRegisterButton ( 50, 130, 380, 250, " ", " ", "cypherscreen_cypher" );
 		EclRegisterButtonCallbacks ( "cypherscreen_cypher", DrawCypher, ClickCypher, button_click, button_highlight );
+		EclRegisterMiddleClickCallback("cypherscreen_cypher", MiddleClickCypher);
 
 		EclRegisterButton ( 350, 380, 80, 15, "Proceed", "Click here when done", "cypherscreen_proceed" );
 		button_assignbitmaps ( "cypherscreen_proceed", "proceed.tif", "proceed_h.tif", "proceed_c.tif" );

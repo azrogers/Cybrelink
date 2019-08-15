@@ -44,6 +44,7 @@ public:
 	~TaskManager ();
 
 	void RunSoftware ( char *name, float version );
+	void RunHighestVersionOf(char* name);
 												
 	void SetProgramTarget ( UplinkObject *newprogramtarget, char *targetstring, int targetint );
 	void SetTargetProgram ( int newtargetprogram );

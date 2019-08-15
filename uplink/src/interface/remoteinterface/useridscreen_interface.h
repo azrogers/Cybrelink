@@ -23,6 +23,7 @@ protected:
 
 	static void CodeButtonDraw ( Button *button, bool highlighted, bool clicked );
 	static void CodeButtonClick ( Button *button );
+	static void CodeButtonMiddleClick(Button* button);
 
 	static void AccessCodeClick ( Button *button );
 

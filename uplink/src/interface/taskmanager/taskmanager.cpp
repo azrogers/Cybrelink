@@ -67,6 +67,30 @@ TaskManager::~TaskManager ()
 {
 }
 
+void TaskManager::RunHighestVersionOf(char* name)
+{
+	if (SvbGetTask(name) != NULL)
+	{
+		return;
+	}
+
+	DataBank* db = &(game->GetWorld()->GetPlayer()->gateway.databank);
+	for (int di = 0; di < db->GetDataSize(); ++di)
+	{
+		if (!db->GetDataFile(di) || db->GetDataFile(di)->TYPE != DATATYPE_PROGRAM)
+		{
+			continue;
+		}
+
+		if (strcmp(db->GetDataFile(di)->title, name))
+		{
+			RunSoftware(name, db->GetDataFile(di)->version);
+			SetTargetProgram(SvbGetTask(name)->GetPID());
+			break;
+		}
+	}
+}
+
 
 void TaskManager::RunSoftware ( char *name, float version )
 {

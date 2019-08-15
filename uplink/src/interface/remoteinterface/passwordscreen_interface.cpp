@@ -47,6 +47,13 @@ void PasswordScreenInterface::CursorFlash ()
 
 }
 
+void PasswordScreenInterface::PasswordMiddleClick(Button* button)
+{
+	game->GetInterface()->GetTaskManager()->RunHighestVersionOf("Password_Breaker");
+
+	PasswordClick(button);
+}
+
 void PasswordScreenInterface::PasswordClick ( Button *button )
 {
 
@@ -190,6 +197,7 @@ void PasswordScreenInterface::Create ( ComputerScreen *newcs )
 
 		EclRegisterButton ( 206, 251, 145, 14, "", "Target this password box", "passwordscreen_password" );
 		EclRegisterButtonCallbacks ( "passwordscreen_password", CodeButtonDraw, PasswordClick, button_click, button_highlight );
+		EclRegisterMiddleClickCallback("passwordscreen_password", PasswordMiddleClick);
 		
 		EclMakeButtonEditable ( "passwordscreen_password" );
 
