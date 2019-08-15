@@ -560,6 +560,12 @@ void LanInterface::LanSystemDraw ( Button *button, bool highlighted, bool clicke
 
 }
 
+void LanInterface::LanSystemMiddleClick(Button* button)
+{
+	game->GetInterface()->GetTaskManager()->RunHighestVersionOf("LAN_Probe");
+	LanSystemClick(button);
+}
+
 void LanInterface::LanSystemClick ( Button *button )
 {
 
@@ -1020,6 +1026,7 @@ void LanInterface::CreateLayout ()
                 EclRegisterButton ( x, y, intObj->width, intObj->height, " ", "Access this system", name );
                 button_assignbitmap ( name, intObj->filename );
                 EclRegisterButtonCallbacks ( name, LanSystemDraw, LanSystemClick, button_click, LanSystemMouseMove );
+				EclRegisterMiddleClickCallback(name, LanSystemMiddleClick);
 
             }
         }

@@ -71,6 +71,7 @@ void TaskManager::RunHighestVersionOf(char* name)
 {
 	if (SvbGetTask(name) != NULL)
 	{
+		SetTargetProgram(SvbGetTask(name)->GetPID());
 		return;
 	}
 

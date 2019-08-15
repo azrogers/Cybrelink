@@ -63,6 +63,7 @@ protected:
 
     static void LanSystemDraw		( Button *button, bool highlighted, bool clicked );
     static void LanSystemClick		( Button *button );
+	static void LanSystemMiddleClick(Button* button);
     static void LanSystemMouseMove	( Button *button );
 
     static void TitleClick          ( Button *button );

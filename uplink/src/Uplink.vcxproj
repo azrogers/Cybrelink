@@ -104,7 +104,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>.;..\..\lib\mmgr;..\..\lib\tosser;..\..\lib\eclipse;..\..\lib\bungle;..\..\lib\gucci;..\..\lib\redshirt;..\..\lib\soundgarden;..\..\lib\vanbakel;..\..\lib\common;..\..\contrib\tcp4u.331\include;..\..\contrib\irclib;..\..\contrib\XCrashReport;..\..\contrib\SDL-1.2.11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_SDL;WIN32;_CRT_SECURE_NO_DEPRECATE;FULLGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>CHEATMODES_ENABLED;USE_SDL;WIN32;_CRT_SECURE_NO_DEPRECATE;FULLGAME;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -126,15 +126,12 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <CustomBuildStep>
       <Message>Performing Custom Build Step</Message>
-      <Command>xcopy "$(OutDir)$(TargetFileName)" "$(OutDir)$(Configuration)\" /Y /I
-xcopy "$(OutDir)$(TargetName).pdb" "$(OutDir)$(Configuration)\" /Y /I
-xcopy "$(OutDir)$(Configuration)\*.exe" "$(ProjectDir)\..\..\Installer\Data\" /Y /I
-"C:\Program Files\NSIS\makensis.exe" "$(ProjectDir)\..\..\Installer\Uplink-patch.nsi"
-"C:\Program Files\NSIS\makensis.exe" "$(ProjectDir)\..\..\Installer\Uplink-full.nsi"
-"C:\Program Files\NSIS\makensis.exe" "$(ProjectDir)\..\..\Installer\Uplink-download.nsi"
-</Command>
-      <Inputs>$(OutDir)$(TargetFileName);%(Inputs)</Inputs>
-      <Outputs>$(OutDir)$(Configuration)\$(TargetFileName);$(OutDir)$(Configuration)\$(TargetName).pdb;%(Outputs)</Outputs>
+      <Command>
+      </Command>
+      <Inputs>
+      </Inputs>
+      <Outputs>
+      </Outputs>
     </CustomBuildStep>
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
@@ -156,6 +153,7 @@ xcopy "$(OutDir)$(Configuration)\*.exe" "$(ProjectDir)\..\..\Installer\Data\" /Y
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <TargetMachine>MachineX86</TargetMachine>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Unoptimised|Win32'">

@@ -34,21 +34,21 @@
 
 void CheatInterface::TitleClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
 	game->GetInterface ()->GetLocalInterface ()->RunScreen ( SCREEN_NONE );
 #endif
 }
 
 void CheatInterface::AllLinksClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
 	game->GetWorld ()->GetPlayer ()->GiveAllLinks ();
 #endif
 }
 
 void CheatInterface::AllSoftwareClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
 	game->GetWorld ()->GetPlayer ()->gateway.SetMemorySize ( 256 );
 	game->GetWorld ()->GetPlayer ()->gateway.GiveAllSoftware ();
 #endif
@@ -56,21 +56,21 @@ void CheatInterface::AllSoftwareClick ( Button *button )
 
 void CheatInterface::AllHardwareClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
     game->GetWorld ()->GetPlayer ()->gateway.GiveAllHardware ();
 #endif
 }
 
 void CheatInterface::LotsOfMoneyClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
 	game->GetWorld ()->GetPlayer ()->ChangeBalance ( 10000, "You cheating motherfucker!" );
 #endif
 }
 
 void CheatInterface::MaxRatingsClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
 	game->GetWorld ()->GetPlayer ()->rating.SetUplinkRating ( NUM_UPLINKRATINGS-1 );
 //	game->GetWorld ()->GetPlayer ()->rating.SetNeuromancerRating ( NUM_NEUROMANCERRATINGS-1 );
 #endif
@@ -78,7 +78,7 @@ void CheatInterface::MaxRatingsClick ( Button *button )
 
 void CheatInterface::NextRatingClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
 	game->GetWorld ()->GetPlayer ()->rating.SetUplinkRating ( game->GetWorld ()->GetPlayer ()->rating.uplinkrating + 1 );
     game->GetWorld ()->GetPlayer ()->rating.ChangeUplinkScore ( 1 );
 #endif
@@ -86,14 +86,14 @@ void CheatInterface::NextRatingClick ( Button *button )
 
 void CheatInterface::EventQueueClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
 	game->GetInterface ()->GetLocalInterface ()->RunScreen ( SCREEN_EVTQUEUE );
 #endif
 }
 
 void CheatInterface::RevelationClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
     for ( int i = 0; i < 5; ++i ) {
 
         Computer *comp = WorldGenerator::GetRandomComputer ();
@@ -105,7 +105,7 @@ void CheatInterface::RevelationClick ( Button *button )
 
 void CheatInterface::EndGameClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
 	// Simulate a "shot by feds" event in 5 seconds
 
 	Date duedate;
@@ -123,7 +123,7 @@ void CheatInterface::EndGameClick ( Button *button )
 
 void CheatInterface::ShowLANClick ( Button *button )
 {
-#ifdef TESTGAME	
+#ifdef CHEATMODES_ENABLED	
 	VLocation *vl = game->GetWorld()->GetPlayer()->GetRemoteHost();
 	UplinkAssert (vl);
 	Computer *comp = vl->GetComputer ();
@@ -158,14 +158,14 @@ void CheatInterface::ShowLANClick ( Button *button )
 
 void CheatInterface::CancelTraceClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
 	game->GetWorld ()->GetPlayer ()->GetConnection ()->EndTrace ();
 #endif
 }
 
 void CheatInterface::DebugPrintClick ( Button *button )
 {
-#ifdef TESTGAME
+#ifdef CHEATMODES_ENABLED
 	app->Print ();
 	EclDebugPrint ();
 	SvbDebugPrint ();
