@@ -13,7 +13,9 @@ So far, Cybrelink has added:
 * Middle clicking on links (like on the main screen) will load your saved bounce path before connecting.
 * Middle clicking on an account on the accounts view will fill in its details on the bank transfer page.
 * If you are connected to a server that you have a mission for, the mission will be highlighted with a border around it.
-* An auto-bypass toggle on the connection analyser page.
+* An auto-bypass button on the connection analyser page.
+* F2 anywhere in-game will connect you directly to the Uplink Internal Services System.
+* Mouse wheel now scrolls the main links interface.
 
 ## Building
 
