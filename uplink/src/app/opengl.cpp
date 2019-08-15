@@ -490,6 +490,25 @@ void keyboard(unsigned char key, int x, int y)
 
 }
 
+void forceopenip(char* ip)
+{
+	if (!game->IsRunning())
+	{
+		return;
+	}
+
+	if (game->GetWorld()->GetPlayer()->IsConnected())
+	{
+		game->GetWorld()->GetPlayer()->GetConnection()->Disconnect();
+		game->GetWorld()->GetPlayer()->GetConnection()->Reset();
+	}
+
+	game->GetWorld()->GetPlayer()->GetConnection()->AddVLocation(ip);
+	game->GetWorld()->GetPlayer()->GetConnection()->Connect();
+
+	game->GetInterface()->GetRemoteInterface()->RunNewLocation();
+}
+
 void specialkeyboard(int key, int x, int y)
 {
 
@@ -512,21 +531,10 @@ void specialkeyboard(int key, int x, int y)
 #endif  
 		break;
 	case GCI_KEY_F2:
-		if (!game->IsRunning())
-		{
-			return;
-		}
-
-		if (game->GetWorld()->GetPlayer()->IsConnected())
-		{
-			game->GetWorld()->GetPlayer()->GetConnection()->Disconnect();
-			game->GetWorld()->GetPlayer()->GetConnection()->Reset();
-		}
-
-		game->GetWorld()->GetPlayer()->GetConnection()->AddVLocation(IP_UPLINKINTERNALSERVICES);
-		game->GetWorld()->GetPlayer()->GetConnection()->Connect();
-
-		game->GetInterface()->GetRemoteInterface()->RunNewLocation();
+		forceopenip(IP_UPLINKINTERNALSERVICES);
+		break;
+	case GCI_KEY_F3:
+		forceopenip(IP_INTERNIC);
 		break;
 	case GCI_KEY_F9:
 

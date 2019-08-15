@@ -662,7 +662,7 @@ void HUDInterface::AddUpgrade(char upgrade)
 		if(theUpgrade)
 		{
 
-			int xPos = 195 + 27 * insertedAt;
+			int xPos = 222 + 27 * insertedAt;
 			int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
 
 			EclRegisterButton(60, screenh - 42, 24, 24, theUpgrade->name, theUpgrade->tooltip, theUpgrade->buttonName);
