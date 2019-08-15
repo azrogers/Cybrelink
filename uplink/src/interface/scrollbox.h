@@ -46,6 +46,10 @@ public:
     void SetCurrentIndex    ( int newCurrentIndex );
     void SetCallback        ( void (*newcallback) (char *, int) );
 
+	void ScrollUp();
+	void ScrollDown();
+	void UpdateInterface();
+
 protected:
 
     // Interface related stuff
@@ -54,11 +58,7 @@ protected:
 
     void CreateInterface ();
     void RemoveInterface ();
-    void UpdateInterface ();
     bool IsInterfaceVisible ();
-
-    void ScrollUp ();
-    void ScrollDown ();
 
     static void ClickScrollUp       ( Button *button );
     static void ClickScrollDown     ( Button *button );
@@ -71,7 +71,7 @@ public:
 
     // These manage the set of all scroll boxes in existence
 
-    static void CreateScrollBox ( char *name, 
+    static ScrollBox* CreateScrollBox ( char *name, 
                                   int x, int y, int w, int h,
                                   int numItems, int windowSize, int currentIndex,
                                   void (*callback)(char *, int) = NULL );

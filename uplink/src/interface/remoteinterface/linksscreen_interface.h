@@ -20,6 +20,7 @@ class LinksScreenInterface : public RemoteInterfaceScreen
 protected:
 
 	static int baseoffset;
+	static ScrollBox* scrollBox;
 
 	LList <char *> fulllist;
 	LList <char *> filteredlist;
@@ -67,6 +68,7 @@ protected:
 public:
 
 	static void AfterPhoneDialler ( char *ip, char *info );
+	static void ScrollWheelUpdate(bool dir);
 
     LinksScreenInterface ();
     ~LinksScreenInterface ();

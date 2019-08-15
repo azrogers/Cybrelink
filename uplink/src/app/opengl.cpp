@@ -21,6 +21,7 @@
 #include "options/options.h"
 
 #include "app/app.h"
+#include "app/serialise.h"
 #include "app/opengl.h"
 #include "app/globals.h"
 #include "app/opengl_interface.h"
@@ -35,6 +36,8 @@
 
 #include "interface/interface.h"
 #include "interface/scrollbox.h"
+#include "interface/remoteinterface/remoteinterface.h"
+#include "world/computer/computerscreen/computerscreen.h"
 #include "interface/localinterface/localinterface.h"
 #include "interface/localinterface/hud_interface.h"
 #include "interface/localinterface/irc_interface.h"
@@ -47,6 +50,7 @@
 #include "world/player.h"
 
 #include "mmgr.h"
+#include "game/data/data.h"
 
 #define CHEATMODES_ENABLED
 
@@ -507,7 +511,23 @@ void specialkeyboard(int key, int x, int y)
 #endif
 #endif  
 		break;
+	case GCI_KEY_F2:
+		if (!game->IsRunning())
+		{
+			return;
+		}
 
+		if (game->GetWorld()->GetPlayer()->IsConnected())
+		{
+			game->GetWorld()->GetPlayer()->GetConnection()->Disconnect();
+			game->GetWorld()->GetPlayer()->GetConnection()->Reset();
+		}
+
+		game->GetWorld()->GetPlayer()->GetConnection()->AddVLocation(IP_UPLINKINTERNALSERVICES);
+		game->GetWorld()->GetPlayer()->GetConnection()->Connect();
+
+		game->GetInterface()->GetRemoteInterface()->RunNewLocation();
+		break;
 	case GCI_KEY_F9:
 
 		char screenpath[256];
@@ -643,6 +663,13 @@ void mouse(int button, int state, int x, int y)
 			if(wmi && wmi->IsVisibleWorldMapInterface() == WORLDMAP_LARGE)
 			{
 				wmi->UpdateScrollwheel(button == GCI_WHEELUP);
+			}
+			
+			auto id = game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen()->GetComputerScreen()->GetOBJECTID();
+			if (id == OID_LINKSSCREEN)
+			{
+				auto linksScreen = (LinksScreenInterface*)game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen();
+				linksScreen->ScrollWheelUpdate(button == GCI_WHEELUP);
 			}
 		}
 	}

@@ -370,7 +370,7 @@ bool ScrollBox::IsInterfaceVisible ()
     return true;
 }
 
-void ScrollBox::CreateScrollBox ( char *name, 
+ScrollBox* ScrollBox::CreateScrollBox ( char *name, 
                        int x, int y, int w, int h,
                        int numItems, int windowSize, int currentIndex,
                        void (*callback)(char *, int) )
@@ -386,7 +386,7 @@ void ScrollBox::CreateScrollBox ( char *name,
     scrollBoxes.PutData( sb );
 
     sb->CreateInterface();
-
+	return sb;
 }
 
 void ScrollBox::RemoveScrollBox ( char *name )

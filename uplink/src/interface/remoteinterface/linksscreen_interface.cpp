@@ -49,6 +49,9 @@ Image *LinksScreenInterface::iadd_h_tif = NULL;
 Image *LinksScreenInterface::iadd_c_tif = NULL;
 
 
+ScrollBox* LinksScreenInterface::scrollBox = NULL;
+
+
 LinksScreenInterface::LinksScreenInterface()
 {
 
@@ -552,6 +555,27 @@ void LinksScreenInterface::FilterClick(Button *button)
 
 }
 
+void LinksScreenInterface::ScrollWheelUpdate(bool dir)
+{
+	if (scrollBox == NULL)
+	{
+		return;
+	}
+
+	if (dir)
+	{
+		scrollBox->ScrollUp();
+		scrollBox->ScrollUp();
+	}
+	else
+	{
+		scrollBox->ScrollDown();
+		scrollBox->ScrollDown();
+	}
+
+	scrollBox->UpdateInterface();
+}
+
 void LinksScreenInterface::ScrollChange(char *scrollname, int newValue)
 {
 
@@ -889,7 +913,7 @@ void LinksScreenInterface::Create(ComputerScreen *newcs)
 
 			// Create the scrollbar
 
-			ScrollBox::CreateScrollBox("linksscreen_scroll", 50 + SY(375), 145, 15,
+			scrollBox = ScrollBox::CreateScrollBox("linksscreen_scroll", 50 + SY(375), 145, 15,
 				NumLinksOnScreen() * 15, fulllist.Size(), NumLinksOnScreen(), 0, ScrollChange);
 
 			EclRegisterButton(50 + SY(375), 125, 15, 15, "", "", "linksscreen_topright");
