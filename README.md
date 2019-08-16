@@ -5,11 +5,12 @@ This is a small Uplink mod to make important quality of life improvements to the
 ## Improvements
 
 #### Hotkeys / Shortcuts
-* Middle clicking on links (like on the main screen) will load your saved bounce path before connecting.
+* Middle clicking on links (like on the main screen) will load your saved bounce path before connecting. If you're connecting to a central mainframe computer, it will connect through that company's internal services system if you've discovered it.
 * Middle clicking on an account on the accounts view will fill in its details on the bank transfer page.
 * Middle clicking on a password input box will run the password breaker automatically.
 * Middle clicking on a decypher interface will run the decypher tool automatically.
 * Middle clicking on a LAN system will run the LAN probe tool automatically.
+* Middle clicking on the "Connect" button on a LAN system will connect directly back to it without hiding the LAN screen.
 * Pressing F2 anywhere in-game will connect you directly to the Uplink Internal Services System.
 * Pressing F3 anywhere in-game will connect you directly to InterNIC.
 

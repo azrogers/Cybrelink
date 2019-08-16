@@ -144,7 +144,6 @@ void LinksScreenInterface::LinkMiddleClick(Button* button)
 	sscanf(button->name, "linksscreen_link %d", &fileindex);
 	fileindex += baseoffset;
 
-
 	LList <char *> *filteredlist = &((LinksScreenInterface *)game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen())->filteredlist;
 
 	if(filteredlist->ValidIndex(fileindex))
@@ -169,6 +168,21 @@ void LinksScreenInterface::AfterPhoneDialler(char *ip, char *info)
 		WorldMapInterface *wmi = &(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
 		UplinkAssert(wmi);
 		wmi->LoadConnection();
+
+		auto dest = game->GetWorld()->GetVLocation(ip);
+		// if this is a central mainframe computer, we should connect through their internal services machine
+		if (dest->GetComputer()->TYPE == COMPUTER_TYPE_CENTRALMAINFRAME)
+		{
+			char tempname[256];
+			UplinkSnprintf(tempname, sizeof(tempname), "%s Internal Services Machine", dest->GetComputer()->companyname);
+			auto comp = game->GetWorld()->GetComputer(tempname);
+			if (comp != NULL && game->GetWorld()->GetPlayer()->HasLink(comp->ip))
+			{
+				game->GetWorld()->GetPlayer()->GetConnection()->AddOrRemoveVLocation(comp->ip);
+				game->GetWorld()->GetPlayer()->GetConnection()->AddVLocation(comp->ip);
+			}
+		}
+
 		game->GetWorld()->GetPlayer()->GetConnection()->AddOrRemoveVLocation(ip);
 	}
 
