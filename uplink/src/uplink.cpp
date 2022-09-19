@@ -401,7 +401,7 @@ void RunUplink ( int argc, char **argv )
 #endif
 		Init_Options  ( argc, argv );
 
-#if defined(FULLGAME) || defined(TESTGAME)
+#if (defined(FULLGAME) || defined(TESTGAME)) && !defined(NODRM)
 #if defined(WIN32)
 		if ( !Init_Steam () ) {
 			Cleanup_Uplink ();
