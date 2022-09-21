@@ -34,6 +34,8 @@ FTFont::~FTFont()
     delete glyphList;
 }
 
+FT_Error FTFont::Error() const { return err; }
+
 
 bool FTFont::Attach( const char* fontFilePath)
 {

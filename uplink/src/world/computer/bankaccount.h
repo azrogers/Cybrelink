@@ -14,6 +14,7 @@
 
 
 #include "app/uplinkobject.h"
+#include "app/serialise.h"
 
 #include "world/person.h"
 #include "world/computer/logbank.h"
@@ -25,7 +26,6 @@ class BankAccount : public UplinkObject
 {
 
 public:
-	
 	char name [SIZE_PERSON_NAME];
 	char password [64];
 	int security;
@@ -69,6 +69,58 @@ public:
 	char *GetID ();
 	int   GetOBJECTID ();
 
+};
+
+class BankAccountId : public IUplinkSerializeable
+{
+	char IpAddress[SIZE_VLOCATION_IP];
+	char AccountNum[16];
+
+public:
+	const char* GetIpAddress() { return IpAddress; }
+	const char* GetAccountNum() { return AccountNum; }
+
+	void SetIpAddress(const char* addr) { strncpy(IpAddress, addr, SIZE_VLOCATION_IP); }
+	void SetAccountNum(const char* num) { strncpy(AccountNum, num, 16); }
+
+	virtual bool Read(FILE* file) override
+	{
+		fread(IpAddress, sizeof(char), SIZE_VLOCATION_IP, file);
+		fread(AccountNum, sizeof(char), 16, file);
+		return true;
+	}
+	virtual bool Write(FILE* file) override
+	{
+		fwrite(IpAddress, sizeof(char), SIZE_VLOCATION_IP, file);
+		fwrite(AccountNum, sizeof(char), 16, file);
+		return true;
+	}
+
+	operator BankAccount* () const
+	{
+		return BankAccount::GetAccount(const_cast<char*>(IpAddress), const_cast<char*>(AccountNum));
+	}
+
+	operator int() const
+	{
+		return atoi(AccountNum);
+	}
+
+	BankAccountId()
+	{
+	}
+
+	BankAccountId(char* addr, char* num)
+	{
+		strncpy(IpAddress, addr, SIZE_VLOCATION_IP);
+		strncpy(AccountNum, num, 16);
+	}
+
+	BankAccountId(char* addr, int num)
+	{
+		strncpy(IpAddress, addr, SIZE_VLOCATION_IP);
+		sprintf(AccountNum, "%d", num);
+	}
 };
 
 #endif 

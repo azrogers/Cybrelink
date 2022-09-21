@@ -14,6 +14,8 @@
 #include "world/vlocation.h"
 #include "world/generator/missiongenerator.h"
 
+#include <regex>
+
 #include "mmgr.h"
 
 
@@ -390,6 +392,46 @@ bool Mission::Load  ( FILE *file )
 
 	}
 
+	if (game->CompareSavefileVersions("SAV63") <= 0)
+	{
+		if (!LoadVector<BankAccountId>(AttachedBankAccounts, file)) return false;
+	}
+	else
+	{
+		std::regex findAccnoRegex("ACCNO: (\\d+)\n");
+		std::string detailsStr(fulldetails);
+
+		int accountNum = 0;
+		char ipAddr[SIZE_VLOCATION_IP];
+
+		// we don't have attached bank accounts to read... try to reconstruct this information
+		switch (TYPE)
+		{
+		case MISSION_FINDDATA:
+			if (sscanf(completionA, "%s %d", ipAddr, &accountNum) > 1)
+			{
+				AttachedBankAccounts.push_back(BankAccountId(ipAddr, accountNum));
+			}
+			break;
+		case MISSION_PAYFINE:
+			if (sscanf(completionB, "%s %d", ipAddr, &accountNum) > 1)
+			{
+				AttachedBankAccounts.push_back(BankAccountId(ipAddr, accountNum));
+			}
+			break;
+		case MISSION_CHANGEACCOUNT:
+			if (sscanf(completionA, "%s %d", ipAddr, &accountNum) > 1)
+			{
+				AttachedBankAccounts.push_back(BankAccountId(ipAddr, accountNum));
+			}
+			if (sscanf(completionB, "%s %d", ipAddr, &accountNum) > 1)
+			{
+				AttachedBankAccounts.push_back(BankAccountId(ipAddr, accountNum));
+			}
+			break;
+		}
+	}
+
 	LoadID_END ( file );
 
 	return true;
@@ -436,6 +478,8 @@ void Mission::Save  ( FILE *file )
 
 	fwrite ( &maxpayment, sizeof(maxpayment), 1, file );
 	fwrite ( &paymentmethod, sizeof(paymentmethod), 1, file );
+
+	SaveVector<BankAccountId>(AttachedBankAccounts, file);
 	
 	SaveID_END ( file );
 

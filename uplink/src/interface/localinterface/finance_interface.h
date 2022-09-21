@@ -28,6 +28,7 @@ protected:
 	static void MiddleClickAccountButton(Button *button);
 	static void DrawAccountButton ( Button *button, bool highlighted, bool clicked );
 
+	static void ClickPayFinesButton(Button* button);
 public:
 
 	static void AfterPhoneDialler ( char *ip, char *info );

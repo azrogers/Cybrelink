@@ -375,3 +375,10 @@ MigrationBackup/
 *.exe
 *.out
 *.app
+
+# misc visual studio file
+*.idb
+*.tlog/
+*.tlog
+*.lastbuildstate
+*.lib.recipe

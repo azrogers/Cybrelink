@@ -214,7 +214,7 @@ class FTGL_EXPORT FTFont
          *
          * @return  The current error code.
          */
-        FT_Error Error() const { return err;}
+        FT_Error Error() const;
 
     protected:
         /**

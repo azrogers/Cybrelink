@@ -66,16 +66,21 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;..\..\contrib\gltt-2.5;..\..\contrib\tiff-3.7.2\libtiff;..\..\contrib\glut-3.7.6-bin;..\..\contrib\SDL-1.2.11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;..\..\contrib\FTGL-2.1.2\include;..\..\contrib\tiff-3.7.2\libtiff;..\..\contrib\glut-3.7.6-bin;..\..\contrib\SDL-1.2.11\include;..\..\contrib\freetype-2.2.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>USE_SDL;WIN32;_CRT_SECURE_NO_DEPRECATE;USE_FTGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
     </ClCompile>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\contrib\FTGL-2.1.2\win32_vcpp\Build;..\..\contrib\freetype-2.2.1\objs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ftgl_static_MTd_d.lib;freetype221MT_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>

@@ -29,6 +29,9 @@
 #include "interface/localinterface/phonedialler.h"
 #include "interface/remoteinterface/remoteinterface.h"
 
+#include "world/company/mission.h"
+#include "world/message.h"
+#include "world/generator/missiongenerator.h"
 #include "world/world.h"
 #include "world/vlocation.h"
 #include "world/player.h"
@@ -282,6 +285,9 @@ void FinanceInterface::Create()
 		previousnumaccounts = game->GetWorld()->GetPlayer()->accounts.Size();
 		lastupdate = 0;
 
+		EclRegisterButton(screenw - panelwidth + 150, paneltop + 50, 80, 15, "Pay All Fines", "finance_pay_fines");
+		EclRegisterButtonCallbacks("finance_pay_fines", button_draw, ClickPayFinesButton, button_click, button_highlight);
+
 	}
 
 }
@@ -313,6 +319,101 @@ void FinanceInterface::MiddleClickAccountButton(Button* button)
 	targetAccountNumButton->SetCaption(accno);
 }
 
+void FinanceInterface::ClickPayFinesButton(Button* button)
+{
+	std::vector<Mission*> missionsToRemove;
+	// find total amount of money the player has
+	int totalMoney = 0;
+	for (int i = 0; i < game->GetWorld()->GetPlayer()->accounts.Size(); i++)
+	{
+		char* accountdetails = game->GetWorld()->GetPlayer()->accounts.GetData(i);
+		char ip[SIZE_VLOCATION_IP];
+		char accno[16];
+		sscanf(accountdetails, "%s %s", ip, accno);
+
+		BankAccount* account = BankAccount::GetAccount(ip, accno);
+		totalMoney += account->balance;
+	}
+
+	// find every payfine mission and force it to complete
+	for (int i = 0; i < game->GetWorld()->GetPlayer()->missions.Size(); i++)
+	{
+		Mission* mission = game->GetWorld()->GetPlayer()->missions.GetData(i);
+		if (mission->TYPE == MISSION_PAYFINE)
+		{
+			char targetIp[SIZE_VLOCATION_IP];
+			char targetAccno[16];
+			sscanf(mission->completionB, "%s %s", targetIp, targetAccno);
+
+			Person* person = game->GetWorld()->GetPerson(mission->completionA);
+
+			int amountToTransfer = atoi(mission->completionC);
+			if (amountToTransfer > totalMoney)
+			{
+				// not enough to pay for the fine
+				break;
+			}
+
+			for (int j = 0; j < game->GetWorld()->GetPlayer()->accounts.Size(); j++)
+			{
+				char* accountdetails = game->GetWorld()->GetPlayer()->accounts.GetData(j);
+				char ip[SIZE_VLOCATION_IP];
+				char accno[16];
+				sscanf(accountdetails, "%s %s", ip, accno);
+				BankAccount* account = BankAccount::GetAccount(ip, accno);
+
+				if (account->balance >= amountToTransfer)
+				{
+					UplinkAssert(account->TransferMoney(ip, accno, targetIp, targetAccno, amountToTransfer, person));
+					Message* m = new Message();
+					m->SetFrom("PLAYER");
+					m->SetTo(mission->contact);
+					m->SetSubject("Mission completed");
+					
+					Person* person = game->GetWorld()->GetPerson(mission->contact);
+
+					// force mission to complete
+					bool isCompleted = MissionGenerator::IsMissionComplete(mission, person, m);
+					UplinkAssert(isCompleted);
+					totalMoney -= amountToTransfer;
+					missionsToRemove.push_back(mission);
+
+					delete m;
+					break;
+				}
+			}
+		}
+	}
+
+	// remove after for loop to avoid modifying the collection while iterating
+	for (Mission* mission : missionsToRemove)
+	{
+		int idx = game->GetWorld()->GetPlayer()->missions.FindData(mission);
+		game->GetWorld()->GetPlayer()->missions.RemoveData(idx);
+		delete mission;
+	}
+
+	// remove messages generated when fine paid
+	std::vector<Message*> messagesToRemove;
+	for (int i = 0; i < game->GetWorld()->GetPlayer()->messages.Size(); i++)
+	{
+		Message* message = game->GetWorld()->GetPlayer()->messages.GetData(i);
+		if (strcmp(message->GetSubject(), "Fine paid") == 0 || strcmp(message->GetSubject(), "Outstanding fine still not paid") == 0)
+		{
+			messagesToRemove.push_back(message);
+		}
+	}
+
+	for (Message* message : messagesToRemove)
+	{
+		int idx = game->GetWorld()->GetPlayer()->messages.FindData(message);
+		game->GetWorld()->GetPlayer()->messages.RemoveData(idx);
+		delete message;
+	}
+
+	game->GetInterface()->GetLocalInterface()->Update();
+}
+
 void FinanceInterface::Remove()
 {
 
@@ -324,6 +425,7 @@ void FinanceInterface::Remove()
 		EclRemoveButton("finance_title");
 		EclRemoveButton("finance_balance");
 		EclRemoveButton("finance_acctitle");
+		EclRemoveButton("finance_pay_fines");
 
 		// Remove each account button
 

@@ -16,6 +16,8 @@
 
 #include "app/uplinkobject.h"
 #include "world/date.h"
+#include "world/computer/bankaccount.h"
+#include <vector>
 
 #define SIZE_MISSION_DESCRIPTION    128
 #define SIZE_MISSION_EMPLOYER       64
@@ -67,6 +69,8 @@ public:
 	int acceptrating;					// If you have this rating you can auto-accept this mission
 
 	bool npcpriority;					// NPC's will take this one first if this bool is true
+
+	std::vector<BankAccountId> AttachedBankAccounts;
 
 	LList <char *> links;				// All useful ip addresses (to be added to links)
 	BTree <char *> codes;				// Access codes, indexed on ip

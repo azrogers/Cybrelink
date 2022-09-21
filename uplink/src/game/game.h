@@ -103,6 +103,33 @@ public:
 	void Update ();
 	char *GetID ();
 
+	// 1 if the argument version is greater than the savefile version
+	// -1 if lesser
+	// 0 if the same
+	int CompareSavefileVersions(const char* versionStr)
+	{
+		if (strlen(versionStr) != 5)
+		{
+			return 1;
+		}
+
+		int argNumber, gameNumber;
+		// skip SAV
+		sscanf(versionStr + 3, "%d", &argNumber);
+		sscanf(GetLoadedSavefileVer() + 3, "%d", &gameNumber);
+
+		if (argNumber > gameNumber)
+		{
+			return 1;
+		}
+		else if (argNumber < gameNumber)
+		{
+			return -1;
+		}
+
+		return 0;
+	}
+
 	const char *GetLoadedSavefileVer () const;   // Return the savefile version the game is/was loaded from
 
 	// Winning Code functions

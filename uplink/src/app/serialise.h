@@ -1,4 +1,7 @@
 
+#ifndef __uplink_serialise_h
+#define __uplink_serialise_h
+
 /*
 
 	Some useful functions for saving Tosser based dynamic data structures
@@ -10,10 +13,19 @@
   */
 
 #include <stdio.h>
+#include <vector>
 
 #include "tosser.h"
 
 class UplinkObject;
+
+// interface for serializeable objects
+class IUplinkSerializeable
+{
+public:
+	virtual bool Write(FILE* file) = 0;
+	virtual bool Read(FILE* file) = 0;
+};
 
 #ifndef DeleteDArrayData
 #define DeleteDArrayData(x)   DeleteDArrayDataD(x,__FILE__,__LINE__)
@@ -55,6 +67,50 @@ void SaveDArray       ( DArray <int> *darray, FILE *file );
 bool LoadDArray       ( DArray <int> *darray, FILE *file );
 void PrintDArray      ( DArray <int> *darray );
 
+template<typename T> bool SaveSerializeable(T& obj, FILE* file)
+{
+	return obj.Write(file);
+}
+
+template<typename T> bool LoadSerializeable(T& obj, FILE* file)
+{
+	return obj.Read(file);
+}
+
+template<typename T> bool SaveVector(std::vector<T>& vector, FILE* file)
+{
+	int size = vector.size();
+	fwrite(&size, sizeof(int), 1, file);
+
+	for (auto item : vector)
+	{
+		if (!SaveSerializeable(item, file))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+template<typename T> bool LoadVector(std::vector<T>& vector, FILE* file)
+{
+	int size;
+	fread(&size, sizeof(int), 1, file);
+	vector.reserve(size);
+
+	for (int i = 0; i < size; i++)
+	{
+		T obj;
+		if (!LoadSerializeable<T>(obj, file))
+		{
+			return false;
+		}
+
+		vector.push_back(obj);
+	}
+
+	return true;
+}
 
 UplinkObject *CreateUplinkObject ( int OBJECTID );
 
@@ -143,3 +199,5 @@ bool LoadDynamicStringInt  ( char* _file, int _line, char *string, int maxsize, 
 bool FileReadDataInt     ( char* _file, int _line, void * _DstBuf, size_t _ElementSize, size_t _Count, FILE * _File );
 
 #define FileReadData(_DstBuf,_ElementSize,_Count,_File) FileReadDataInt(__FILE__,__LINE__,_DstBuf,_ElementSize,_Count,_File)
+
+#endif
