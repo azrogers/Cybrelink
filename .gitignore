@@ -382,3 +382,4 @@ MigrationBackup/
 *.tlog
 *.lastbuildstate
 *.lib.recipe
+vcpkg_installed/

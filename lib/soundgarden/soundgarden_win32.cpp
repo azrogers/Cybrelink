@@ -5,8 +5,7 @@
 */
 
 // Now use soundgarden_sdlmixer instead
-//#ifdef WIN32
-#if 0
+#ifdef USE_WIN32
 
 #include <windows.h>
 #include <winbase.h>

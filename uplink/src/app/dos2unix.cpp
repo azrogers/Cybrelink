@@ -64,12 +64,7 @@ int dos2unixbuf::underflow()
 int dos2unixbuf::uflow() {
 	int ch = underflow();
 	if (ch != EOF) {
-#ifdef WIN32
-		stossc();
-		return ch;
-#else
 		return sbumpc();
-#endif
 	}
 	else
 		return ch;

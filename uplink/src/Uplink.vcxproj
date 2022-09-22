@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\vcpkg.C.Tools.vcpkg.1.0.0\build\native\vcpkg.C.Tools.vcpkg.props" Condition="Exists('packages\vcpkg.C.Tools.vcpkg.1.0.0\build\native\vcpkg.C.Tools.vcpkg.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -97,6 +98,24 @@
     <IntDir>$(Configuration)\</IntDir>
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='DemoDebug|Win32'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='DemoRelease|Win32'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Unoptimised|Win32'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <CustomBuildStep>
       <Message>Performing Custom Build Step</Message>
@@ -104,21 +123,24 @@
     </CustomBuildStep>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;..\..\lib\mmgr;..\..\lib\tosser;..\..\lib\eclipse;..\..\lib\bungle;..\..\lib\gucci;..\..\lib\redshirt;..\..\lib\soundgarden;..\..\lib\vanbakel;..\..\lib\common;..\..\contrib\tcp4u.331\include;..\..\contrib\irclib;..\..\contrib\XCrashReport;..\..\contrib\SDL-1.2.11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>CHEATMODES_ENABLED;USE_SDL;WIN32;_CRT_SECURE_NO_DEPRECATE;FULLGAME;NODRM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <AdditionalIncludeDirectories>.;..\..\lib\mmgr;..\..\lib\tosser;..\..\lib\eclipse;..\..\lib\bungle;..\..\lib\gucci;..\..\lib\redshirt;..\..\lib\soundgarden;..\..\lib\vanbakel;..\..\lib\common;..\..\contrib\tcp4u.331\include;..\..\contrib\irclib;..\..\contrib\XCrashReport;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>CHEATMODES_ENABLED;USE_SDL;WIN32;_CRT_SECURE_NO_DEPRECATE;FULLGAME;NODRM;_HAS_STD_BYTE=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <DisableSpecificWarnings>4996; 4800;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>Default</LanguageStandard_C>
+      <ConformanceMode>false</ConformanceMode>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>bungle.lib;eclipse.lib;gucci.lib;redshirt.lib;soundgarden.lib;vanbakel.lib;irclib.lib;sdl.lib;SDL_mixer.lib;libtiff.lib;gltt.lib;freetype221MT_d.lib;tcp4w32.lib;dbghelp.lib;opengl32.lib;glu32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\lib\bin;..\..\contrib\bin;..\..\contrib\tcp4u.331\tcp4w32;..\..\contrib\tiff-3.7.2\libtiff;..\..\contrib\gltt-2.5;..\..\contrib\freetype-2.2.1\objs;..\..\contrib\SDL-1.2.11_dev\VisualC\SDL\Release;..\..\contrib\SDL_mixer-1.2.7_patched\VisualC\Release;..\..\contrib\FTGL-2.1.2\win32_vcpp\Build;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <IgnoreSpecificDefaultLibraries>libcd.lib;libc.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <AdditionalDependencies>bungle.lib;eclipse.lib;gucci.lib;redshirt.lib;soundgarden.lib;vanbakel.lib;irclib.lib;tcp4w32.lib;imm32.lib;winmm.lib;dbghelp.lib;SetupAPI.lib;cfgmgr32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\lib\bin;..\..\contrib\bin;..\..\contrib\tcp4u.331\tcp4w32;..\..\contrib\gltt-2.5;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -137,16 +159,17 @@
     </CustomBuildStep>
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
-      <AdditionalIncludeDirectories>.;..\..\lib\mmgr;..\..\lib\tosser;..\..\lib\eclipse;..\..\lib\bungle;..\..\lib\gucci;..\..\lib\redshirt;..\..\lib\soundgarden;..\..\lib\vanbakel;..\..\lib\common;..\..\contrib\tcp4u.331\include;..\..\contrib\irclib;..\..\contrib\XCrashReport;..\..\contrib\SDL-1.2.11\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;..\..\lib\mmgr;..\..\lib\tosser;..\..\lib\eclipse;..\..\lib\bungle;..\..\lib\gucci;..\..\lib\redshirt;..\..\lib\soundgarden;..\..\lib\vanbakel;..\..\lib\common;..\..\contrib\tcp4u.331\include;..\..\contrib\irclib;..\..\contrib\XCrashReport;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>USE_SDL;WIN32;_CRT_SECURE_NO_DEPRECATE;FULLGAME;NODRM;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4996; 4800;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>bungle.lib;eclipse.lib;gucci.lib;redshirt.lib;soundgarden.lib;vanbakel.lib;irclib.lib;sdl.lib;SDL_mixer.lib;libtiff.lib;gltt.lib;freetype221.lib;tcp4w32.lib;dbghelp.lib;opengl32.lib;glu32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bungle.lib;eclipse.lib;gucci.lib;redshirt.lib;soundgarden.lib;vanbakel.lib;irclib.lib;tcp4w32.lib;dbghelp.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\lib\bin;..\..\contrib\bin;..\..\contrib\tcp4u.331\tcp4w32;..\..\contrib\tiff-3.7.2\libtiff;..\..\contrib\gltt-2.5;..\..\contrib\freetype-1.3.1;..\..\contrib\SDL-1.2.11_dev\VisualC\SDL\Release;..\..\contrib\SDL_mixer-1.2.7_patched\VisualC\Release;..\..\contrib\freetype-2.2.1\objs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>MSVCRT.lib;libcd.lib;libc.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -171,9 +194,10 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4996; 4800;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>bungle.lib;eclipse.lib;gucci.lib;redshirt.lib;soundgarden.lib;vanbakel.lib;irclib.lib;sdl.lib;SDL_mixer.lib;tcp4w32.lib;libtiff.lib;gltt.lib;freetype.lib;dbghelp.lib;opengl32.lib;glu32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bungle.lib;eclipse.lib;gucci.lib;redshirt.lib;soundgarden.lib;vanbakel.lib;irclib.lib;SDL_mixer.lib;gltt.lib;tcp4w32.lib;dbghelp.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\lib\bin;..\..\contrib\bin;..\..\contrib\tcp4u.331\tcp4w32;..\..\contrib\tiff-3.7.2\libtiff;..\..\contrib\gltt-2.5;..\..\contrib\freetype-1.3.1;..\..\contrib\SDL-1.2.11_dev\VisualC\SDL\Release;..\..\contrib\SDL_mixer-1.2.7_patched\VisualC\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcd.lib;libc.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -204,9 +228,10 @@ xcopy "$(OutDir)$(Configuration)\*.exe" "$(ProjectDir)\..\..\Installer\Data\" /Y
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4996; 4800;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>bungle.lib;eclipse.lib;gucci.lib;redshirt.lib;soundgarden.lib;vanbakel.lib;irclib.lib;sdl.lib;SDL_mixer.lib;tcp4w32.lib;libtiff.lib;gltt.lib;freetype.lib;dbghelp.lib;opengl32.lib;glu32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bungle.lib;eclipse.lib;gucci.lib;redshirt.lib;soundgarden.lib;vanbakel.lib;irclib.lib;SDL_mixer.lib;gltt.lib;tcp4w32.lib;dbghelp.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\lib\bin;..\..\contrib\bin;..\..\contrib\tcp4u.331\tcp4w32;..\..\contrib\tiff-3.7.2\libtiff;..\..\contrib\gltt-2.5;..\..\contrib\freetype-1.3.1;..\..\contrib\SDL-1.2.11_dev\VisualC\SDL\Release;..\..\contrib\SDL_mixer-1.2.7_patched\VisualC\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>libcd.lib;libc.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -233,9 +258,10 @@ xcopy "$(OutDir)$(Configuration)\*.exe" "$(ProjectDir)\..\..\Installer\Data\" /Y
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <DisableSpecificWarnings>4996; 4800;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>bungle.lib;eclipse.lib;gucci.lib;redshirt.lib;soundgarden.lib;vanbakel.lib;irclib.lib;sdl.lib;SDL_mixer.lib;tcp4w32.lib;libtiff.lib;gltt.lib;freetype.lib;dbghelp.lib;opengl32.lib;glu32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>bungle.lib;eclipse.lib;gucci.lib;redshirt.lib;soundgarden.lib;vanbakel.lib;irclib.lib;SDL_mixer.lib;gltt.lib;tcp4w32.lib;dbghelp.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\lib\bin;..\..\contrib\bin;..\..\contrib\tcp4u.331\tcp4w32;..\..\contrib\tiff-3.7.2\libtiff;..\..\contrib\gltt-2.5;..\..\contrib\freetype-1.3.1;..\..\contrib\SDL-1.2.11_dev\VisualC\SDL\Release;..\..\contrib\SDL_mixer-1.2.7_patched\VisualC\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcd.lib;libc.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -712,7 +738,19 @@ xcopy "$(OutDir)$(Configuration)\*.exe" "$(ProjectDir)\..\..\Installer\Data\" /Y
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+    <None Include="vcpkg.json" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="packages\vcpkg.C.Tools.vcpkg.1.0.0\build\native\vcpkg.C.Tools.vcpkg.targets" Condition="Exists('packages\vcpkg.C.Tools.vcpkg.1.0.0\build\native\vcpkg.C.Tools.vcpkg.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\vcpkg.C.Tools.vcpkg.1.0.0\build\native\vcpkg.C.Tools.vcpkg.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\vcpkg.C.Tools.vcpkg.1.0.0\build\native\vcpkg.C.Tools.vcpkg.props'))" />
+    <Error Condition="!Exists('packages\vcpkg.C.Tools.vcpkg.1.0.0\build\native\vcpkg.C.Tools.vcpkg.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\vcpkg.C.Tools.vcpkg.1.0.0\build\native\vcpkg.C.Tools.vcpkg.targets'))" />
+  </Target>
 </Project>

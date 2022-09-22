@@ -1,5 +1,7 @@
 #if !defined __DOS2UNIX_H
 
+#define __DOS2UNIX_H
+
 #include <iostream>
 #include <fstream>
 
@@ -7,11 +9,7 @@ using namespace std;
 
 class dos2unixbuf : public streambuf {
 public:
-#ifdef WIN32
-	typedef ios::open_mode openmode;
-#else
 	typedef ios::openmode openmode;
-#endif
 
   dos2unixbuf(const char *filename, openmode mode);
   virtual ~dos2unixbuf();

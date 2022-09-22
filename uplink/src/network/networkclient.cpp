@@ -183,9 +183,9 @@ void NetworkClient::Handle_ClientCommsData ( char *buffer )
 	for ( int i = 0; i < numrelays; ++i ) {
 
 	    int x, y;
-	    char *ip = new char [64];
+		std::string ip;
 
-	    msgstream >> x >> y >> ip ;
+	    msgstream >> x >> y >> ip;
 /*
 	    if ( ! ((ClientCommsInterface *) screen)->locations.LookupTree (ip) ) {
 
@@ -199,9 +199,9 @@ void NetworkClient::Handle_ClientCommsData ( char *buffer )
 
 	    }
 */
-	    UplinkAssert ( ((ClientCommsInterface *) screen)->locations.LookupTree (ip) );
+	    UplinkAssert(((ClientCommsInterface *) screen)->locations.LookupTree(ip.c_str()));
 
-	    ((ClientCommsInterface *) screen)->connection.PutData ( ip );
+	    ((ClientCommsInterface *) screen)->connection.PutData(const_cast<char*>(ip.c_str()));
 	}
 
     }

@@ -5,7 +5,7 @@
   */
 
 #ifndef WIN32
-#ifndef USE_SDL
+#ifdef USE_UNIX
 
 #include "tosser.h"
 #include "soundgarden.h"

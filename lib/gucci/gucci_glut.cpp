@@ -1,4 +1,4 @@
-#ifndef USE_SDL
+#ifdef USE_GLUT
 #include <GL/glut.h>
 #include <stdio.h>
 #include <string.h>

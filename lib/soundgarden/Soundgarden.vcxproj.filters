@@ -38,5 +38,13 @@
     <ClCompile Include="soundgarden_win32.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="soundgarden_sdl2mixer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vcpkg.json">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

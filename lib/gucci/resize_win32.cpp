@@ -1,4 +1,4 @@
-#ifndef USE_SDL
+#ifdef USE_GLUT
 #ifdef WIN32
 
 #include <windows.h>

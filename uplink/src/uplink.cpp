@@ -974,6 +974,7 @@ void Init_Options ( int argc, char **argv )
 
     if ( app->GetOptions ()->GetOptionValue ( "graphics_safemode" ) == 1 ) {
         app->GetOptions ()->SetOptionValue ( "graphics_fullscreen", false );
+		app->GetOptions()->SetOptionValue("graphics_borderless", false);
         app->GetOptions ()->SetOptionValue ( "graphics_screenrefresh", -1 );
         app->GetOptions ()->SetOptionValue ( "graphics_screendepth", -1 );
         app->GetOptions ()->SetOptionValue ( "graphics_softwaremouse", true );

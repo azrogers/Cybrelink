@@ -63,51 +63,82 @@
     <OutDir>..\bin\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Label="Vcpkg">
+    <VcpkgEnableManifest>true</VcpkgEnableManifest>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
+  <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Unoptimised|Win32'">
+    <VcpkgUseStatic>true</VcpkgUseStatic>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;..\..\contrib\FTGL-2.1.2\include;..\..\contrib\tiff-3.7.2\libtiff;..\..\contrib\glut-3.7.6-bin;..\..\contrib\SDL-1.2.11\include;..\..\contrib\freetype-2.2.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_SDL;WIN32;_CRT_SECURE_NO_DEPRECATE;USE_FTGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;..\..\contrib\FTGL-2.1.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_SDL2;WIN32;_CRT_SECURE_NO_DEPRECATE;USE_FTGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <TranslateIncludes>false</TranslateIncludes>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>..\..\contrib\FTGL-2.1.2\win32_vcpp\Build;..\..\contrib\freetype-2.2.1\objs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ftgl_static_MTd_d.lib;freetype221MT_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\contrib\FTGL-2.1.2\win32_vcpp\Build</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ftgl_static_MTd_d.lib</AdditionalDependencies>
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;..\..\contrib\FTGL-2.1.2\include;..\..\contrib\tiff-3.7.2\libtiff;..\..\contrib\glut-3.7.6-bin;..\..\contrib\SDL-1.2.11\include;..\..\contrib\freetype-2.2.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_SDL;WIN32;_CRT_SECURE_NO_DEPRECATE;USE_FTGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;..\..\contrib\FTGL-2.1.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_SDL2;WIN32;_CRT_SECURE_NO_DEPRECATE;USE_FTGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>ftgl_static_MT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ftgl_static_MT.lib</AdditionalDependencies>
     </Lib>
     <Lib>
-      <AdditionalLibraryDirectories>..\..\contrib\FTGL-2.1.2\win32_vcpp\Build;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\contrib\FTGL-2.1.2\win32_vcpp\Build</AdditionalLibraryDirectories>
     </Lib>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Unoptimised|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\tosser;..\common;..\..\contrib\gltt-2.5;..\..\contrib\tiff-3.7.2\libtiff;..\..\contrib\glut-3.7.6-bin;..\..\contrib\SDL-1.2.11\include;..\mmgr;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_SDL;WIN32;_CRT_SECURE_NO_DEPRECATE;USE_GLTT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;..\..\contrib\FTGL-2.1.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_SDL2;WIN32;_CRT_SECURE_NO_DEPRECATE;USE_GLTT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib>
+      <AdditionalLibraryDirectories>..\..\contrib\FTGL-2.1.2\win32_vcpp\Build</AdditionalLibraryDirectories>
+      <AdditionalDependencies>ftgl_static_MT.lib</AdditionalDependencies>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="gucci.h" />
@@ -118,9 +149,13 @@
     <ClCompile Include="gucci.cpp" />
     <ClCompile Include="gucci_glut.cpp" />
     <ClCompile Include="gucci_sdl.cpp" />
+    <ClCompile Include="gucci_sdl2.cpp" />
     <ClCompile Include="image.cpp" />
     <ClCompile Include="resize_unix.cpp" />
     <ClCompile Include="resize_win32.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="vcpkg.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

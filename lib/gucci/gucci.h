@@ -64,10 +64,11 @@ void GciDeleteAllTrueTypeFonts ();
 
 
 /* Graphics flags */
-#define GCI_DOUBLE     0x1
-#define GCI_RGB        0x2
-#define GCI_FULLSCREEN 0x4
-#define GCI_DEBUGSTART 0x8
+#define GCI_DOUBLE     (0x01 << 0)
+#define GCI_RGB        (0x01 << 1)
+#define GCI_FULLSCREEN (0x01 << 2)
+#define GCI_DEBUGSTART (0x01 << 3)
+#define GCI_BORDERLESS (0x01 << 4)
 
 char *GciInitGraphicsLibrary ( int graphics_flags );
 char *GciInitGraphics( const char *caption,
@@ -75,6 +76,7 @@ char *GciInitGraphics( const char *caption,
 		      int screenWidth, int screenHeight, 
 		      int screenDepth, int screenRefreshRate,
 		      int argc, char *argv[] );
+void GciCleanupGraphics();
 
 void GciMainLoop();
 
@@ -142,7 +144,8 @@ void GciTimerFunc(unsigned int millis, GciCallbackT *callback, int value);
 struct GciScreenMode {
 	unsigned w;    // Width
 	unsigned h;    // Height
-//	unsigned bpp;  // Bits per pixel
+	unsigned bpp;  // Bits per pixel
+	unsigned refreshRate;
 };
 
 typedef DArray<GciScreenMode *> GciScreenModeList;
@@ -150,7 +153,8 @@ typedef DArray<GciScreenMode *> GciScreenModeList;
 GciScreenModeList *GciListScreenModes();
 void GciDeleteScreenModeArrayData(GciScreenModeList *);
 
-GciScreenMode *GciGetClosestScreenMode ( int width, int height );
+GciScreenMode *GciGetClosestScreenMode(int width, int height);
+GciScreenMode* GciGetClosestBorderlessMode();
 
 void GciSaveScreenshot( const char * file );
 

@@ -88,12 +88,15 @@ void opengl_initialise(int argc, char **argv)
 	int screenHeight = app->GetOptions()->GetOptionValue("graphics_screenheight");
 	bool runFullScreen = app->GetOptions()->IsOptionEqualTo("graphics_fullscreen", 1) &&
 		!app->GetOptions()->IsOptionEqualTo("graphics_safemode", 1);
+	bool runBorderless = app->GetOptions()->IsOptionEqualTo("graphics_borderless", 1) &&
+		!app->GetOptions()->IsOptionEqualTo("graphics_safemode", 1);
 	int screenDepth = app->GetOptions()->GetOptionValue("graphics_screendepth");
 	int screenRefresh = app->GetOptions()->GetOptionValue("graphics_screenrefresh");
 
 	int graphics_flags = GCI_DOUBLE |
 		GCI_RGB |
-		(runFullScreen ? GCI_FULLSCREEN : 0) |
+		((runFullScreen || runBorderless) ? GCI_FULLSCREEN : 0) |
+		(runBorderless ? GCI_BORDERLESS : 0) | 
 		(debugging ? GCI_DEBUGSTART : 0);
 
 	char *errorMessageInitLib = GciInitGraphicsLibrary(graphics_flags);
@@ -103,6 +106,11 @@ void opengl_initialise(int argc, char **argv)
 	}
 
 	GciScreenMode *mode = GciGetClosestScreenMode(screenWidth, screenHeight);
+	if (runBorderless)
+	{
+		delete mode;
+		mode = GciGetClosestBorderlessMode();
+	}
 	if(mode->w != screenWidth || mode->h != screenHeight)
 	{
 		app->GetOptions()->SetOptionValue("graphics_screenwidth", mode->w);
@@ -144,7 +152,7 @@ void opengl_close()
 {
 
 	GciRestoreScreenSize();
-
+	GciCleanupGraphics();
 }
 
 #ifdef WIN32
