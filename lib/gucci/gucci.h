@@ -20,6 +20,7 @@
 // Image library -----------------------------------
 
 #include "image.h"
+#include "geom_types.h"
 
 // Screen resolution functions ---------------------
 
@@ -44,8 +45,19 @@ void GciRestoreGlut();
 
 void GciSetDefaultFont ( int STYLE );
 
-void GciDrawText ( int x, int y, char *text );								// Uses default
-void GciDrawText ( int x, int y, char *text, int STYLE );					// STYLE can be a ttf index if ttf is enabled
+class GucciTextDrawingOptions
+{
+public:
+	int FontIndex;
+	UColor Color;
+	int MaxWidth;
+
+	GucciTextDrawingOptions() : FontIndex(-1), MaxWidth(0), Color(1.0f, 1.0f, 1.0f, 1.0f) { }
+};
+
+int GciDrawText ( int x, int y, char *text );								// Uses default
+int GciDrawText ( int x, int y, char *text, int STYLE, unsigned int bufferId = -1);					// STYLE can be a ttf index if ttf is enabled
+int GciDrawText(UPoint point, char* text, const GucciTextDrawingOptions& options, unsigned int bufferId = -1);
 
 int GciTextWidth ( char *text );                           
 int GciTextWidth ( char *text, int STYLE );

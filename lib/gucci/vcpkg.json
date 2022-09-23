@@ -5,6 +5,12 @@
   "dependencies": [
     "tiff",
     "freetype",
-    "sdl2"
+    "freetype-gl",
+    "xxhash",
+    "sdl2",
+    "soil2",
+    "blend2d",
+    "glm",
+    "glew"
   ]
 }

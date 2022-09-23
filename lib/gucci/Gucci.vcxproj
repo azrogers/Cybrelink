@@ -79,7 +79,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;..\..\contrib\FTGL-2.1.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_SDL2;WIN32;_CRT_SECURE_NO_DEPRECATE;USE_FTGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_SDL2;USE_FTGL;WIN32;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -95,16 +95,16 @@
     </ClCompile>
     <Lib>
       <AdditionalLibraryDirectories>..\..\contrib\FTGL-2.1.2\win32_vcpp\Build</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ftgl_static_MTd_d.lib</AdditionalDependencies>
+      <AdditionalDependencies>freetype-gl.lib;xxhash.lib;soil2.lib;ftgl_static_MTd_d.lib;glew32d.lib</AdditionalDependencies>
     </Lib>
     <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;..\..\contrib\FTGL-2.1.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_SDL2;WIN32;_CRT_SECURE_NO_DEPRECATE;USE_FTGL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_SDL2;USE_FTGL;WIN32;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
@@ -112,20 +112,20 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Lib>
-      <AdditionalDependencies>ftgl_static_MT.lib</AdditionalDependencies>
+      <AdditionalDependencies>freetype-gl.lib;xxhash.lib;soil2.lib;ftgl_static_MT.lib;glew32.lib</AdditionalDependencies>
     </Lib>
     <Lib>
       <AdditionalLibraryDirectories>..\..\contrib\FTGL-2.1.2\win32_vcpp\Build</AdditionalLibraryDirectories>
     </Lib>
     <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Unoptimised|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;..\..\contrib\FTGL-2.1.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_SDL2;WIN32;_CRT_SECURE_NO_DEPRECATE;USE_GLTT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>USE_SDL2;USE_FTGL;WIN32;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader />
       <WarningLevel>Level3</WarningLevel>
@@ -133,19 +133,23 @@
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <ProjectReference>
-      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <Lib>
       <AdditionalLibraryDirectories>..\..\contrib\FTGL-2.1.2\win32_vcpp\Build</AdditionalLibraryDirectories>
-      <AdditionalDependencies>ftgl_static_MT.lib</AdditionalDependencies>
+      <AdditionalDependencies>freetype-gl.lib;xxhash.lib;soil2.lib;ftgl_static_MT.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="draw.h" />
     <ClInclude Include="gucci.h" />
     <ClInclude Include="gucci_internal.h" />
     <ClInclude Include="image.h" />
+    <ClInclude Include="geom_types.h" />
+    <ClInclude Include="vertex_buffer_pool.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="draw.cpp" />
     <ClCompile Include="gucci.cpp" />
     <ClCompile Include="gucci_glut.cpp" />
     <ClCompile Include="gucci_sdl.cpp" />
@@ -153,6 +157,8 @@
     <ClCompile Include="image.cpp" />
     <ClCompile Include="resize_unix.cpp" />
     <ClCompile Include="resize_win32.cpp" />
+    <ClCompile Include="geom_types.cpp" />
+    <ClCompile Include="vertex_buffer_pool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />

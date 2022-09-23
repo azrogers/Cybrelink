@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 
 #ifdef WIN32
 #include <windows.h>
@@ -12,6 +13,7 @@
 
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include <SOIL2/SOIL2.h>
 
 #include "tiff.h"
 #include "tiffio.h"
@@ -69,13 +71,7 @@ void Image::LoadRAW(char* filename, int sizex, int sizey)
 	width = sizex;
 	height = sizey;
 
-	if (rgb_pixels) {
-		delete[] rgb_pixels;
-		rgb_pixels = NULL;
-	}
-
-	if (pixels)
-		delete[] pixels;
+	CleanupIfNeeded();
 	pixels = new unsigned char[sizex * sizey * 4];
 
 	FILE* file = fopen(filename, "rb");
@@ -130,13 +126,7 @@ void Image::LoadTIF(char* filename)
 	width = img.width;
 	height = img.height;
 
-	if (rgb_pixels) {
-		delete[] rgb_pixels;
-		rgb_pixels = NULL;
-	}
-
-	if (pixels)
-		delete[] pixels;
+	CleanupIfNeeded();
 	pixels = (unsigned char*)raster;
 
 	// Close down all those horrible TIF structures
@@ -144,6 +134,26 @@ void Image::LoadTIF(char* filename)
 	TIFFRGBAImageEnd(&img);
 	TIFFClose(tif);
 
+}
+
+void Image::Load(const char* filename)
+{
+	std::string fileStr(filename);
+	if (fileStr.substr(fileStr.find_last_of(".") + 1) == "tif")
+	{
+		LoadTIF(const_cast<char*>(filename));
+		return;
+	}
+
+	CleanupIfNeeded();
+
+	int w, h, channels;
+	unsigned char* raster = SOIL_load_image(filename, &w, &h, &channels, SOIL_LOAD_RGBA);
+	width = w;
+	height = h;
+	pixels = new unsigned char[w * h * channels];
+	memcpy(pixels, raster, w * h * channels);
+	SOIL_free_image_data(raster);
 }
 
 void Image::SetAlpha(float newalpha)
@@ -239,12 +249,7 @@ void Image::FlipAroundH()
 
 		}
 
-		if (rgb_pixels) {
-			delete[] rgb_pixels;
-			rgb_pixels = NULL;
-		}
-
-		delete[] pixels;
+		CleanupIfNeeded();
 		pixels = newpixels;
 
 	}
@@ -274,12 +279,7 @@ void Image::Scale(int newwidth, int newheight)
 		int result = gluScaleImage(GL_RGBA, width, height, GL_UNSIGNED_BYTE, pixels, newwidth, newheight, GL_UNSIGNED_BYTE, newpixels);
 		char* resultc = (char*)gluErrorString((GLenum)result);
 
-		if (rgb_pixels) {
-			delete[] rgb_pixels;
-			rgb_pixels = NULL;
-		}
-
-		delete[] pixels;
+		CleanupIfNeeded();
 		pixels = newpixels;
 
 		width = newwidth;
@@ -323,6 +323,69 @@ void Image::Draw(int x, int y)
 
 }
 
+void Image::DrawGL(URect screenRect, URect uvRect)
+{
+	GLuint texId = GetGLTextureId();
+
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, texId);
+
+	glBegin(GL_QUADS);
+	glTexCoord2f(uvRect.TopLeft.X, uvRect.TopLeft.Y);
+	glVertex2i(screenRect.TopLeft.X, screenRect.TopLeft.Y);
+	glTexCoord2f(uvRect.BottomRight.X, uvRect.TopLeft.Y);
+	glVertex2i(screenRect.BottomRight.X, screenRect.TopLeft.Y);
+	glTexCoord2f(uvRect.BottomRight.X, uvRect.BottomRight.Y);
+	glVertex2i(screenRect.BottomRight.X, screenRect.BottomRight.Y);
+	glTexCoord2f(uvRect.TopLeft.X, uvRect.BottomRight.Y);           
+	glVertex2i(screenRect.TopLeft.X, screenRect.BottomRight.Y);
+	glEnd();
+
+	glDisable(GL_TEXTURE_2D);
+}
+
+GLuint Image::GetGLTextureId()
+{
+	if (textureId == -1)
+	{
+		glEnable(GL_TEXTURE_2D);
+		glGenTextures(1, &textureId);
+
+		glBindTexture(GL_TEXTURE_2D, textureId);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, GetRGBPixels());
+	}
+
+	return textureId;
+}
+
+void Image::CleanupIfNeeded()
+{
+	if (rgb_pixels) 
+	{
+		delete[] rgb_pixels;
+		rgb_pixels = nullptr;
+	}
+
+	if (pixels)
+	{
+		delete[] pixels;
+		pixels = nullptr;
+	}
+
+	if (textureId >= 0)
+	{
+		glDeleteTextures(1, &textureId);
+		textureId = -1;
+	}
+}
+
 unsigned char* Image::GetRGBPixels()
 {
 
@@ -346,7 +409,8 @@ unsigned char* Image::GetRGBPixels()
 void Image::DrawBlend(int x, int y)
 {
 
-	if (pixels) {
+	if (pixels) 
+	{
 
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 
@@ -384,13 +448,7 @@ void Image::CreateErrorBitmap()
 		}
 	}
 
-	if (rgb_pixels) {
-		delete[] rgb_pixels;
-		rgb_pixels = NULL;
-	}
-
-	if (pixels)
-		delete[] pixels;
+	CleanupIfNeeded();
 	pixels = (unsigned char*)newimage;
 
 }

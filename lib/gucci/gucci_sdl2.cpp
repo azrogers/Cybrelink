@@ -10,12 +10,15 @@
 #include <list>
 #include <chrono>
 #include <iostream>
+#include <gl/glew.h>
+#include <gl/GL.h>
 
 #include <SDL2/SDL.h>
-#include <GL/gl.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include "draw.h"
 
 #include "gucci.h"
 #include "gucci_internal.h"
@@ -25,7 +28,6 @@ using namespace std;
 #include "mmgr.h"
 
 #define GciAbs(num) (((num)>0)?(num):-(num))
-
 
 static SDL_Surface* GlobalSurface = NULL;
 static SDL_Window* GlobalWindow = NULL;
@@ -215,6 +217,17 @@ char* GciInitGraphics(const char* caption, int graphics_flags, int screenWidth, 
 	}
 	if (debugging) printf("done\n ");
 
+	GLenum status = glewInit();
+	if (status != GLEW_OK)
+	{
+		printf("GLEW error: %s", glewGetErrorString(status));
+		return nullptr;
+	}
+
+	printf("using GLEW %s", glewGetString(GLEW_VERSION));
+
+	GciInitializePostGl();
+
 	return NULL;
 }
 
@@ -356,6 +369,8 @@ void GciTimerFunc(unsigned int millis, GciCallbackT * callback, int value)
 	timerEvents.push_back(new Callback(millis, callback, value));
 }
 
+static unsigned long lastGcTick = 0;
+
 void GciMainLoop()
 {
 	finished = false;
@@ -373,6 +388,14 @@ void GciMainLoop()
 		//       lastFrameTime = now;
 		if (gciDisplayHandlerP)
 			(*gciDisplayHandlerP)();
+
+#ifdef USE_FREETYPEGL
+		if ((SDL_GetTicks64() - lastGcTick) > 30 * 1000)
+		{
+			lastGcTick = SDL_GetTicks64();
+			GciGarbageCollectTick();
+		}
+#endif
 
 		SDL_Event event;
 
@@ -448,6 +471,7 @@ void GciMainLoop()
 					int type = (event.wheel.y > 0 ? GCI_UP : GCI_DOWN);
 					(*gciMouseHandlerP)(button, type, event.button.x, event.button.y);
 				}
+				break;
 			case SDL_QUIT:
 				finished = true;
 				break;
@@ -455,6 +479,7 @@ void GciMainLoop()
 				switch (event.window.event)
 				{
 				case SDL_WINDOWEVENT_RESIZED:
+					//Draw2D::pool.OnScreenResized(event.window.data1, event.window.data2);
 				case SDL_WINDOWEVENT_EXPOSED:
 					displayDamaged = true;
 					break;
@@ -482,6 +507,7 @@ void GciMainLoop()
 		}
 	}
 
+	GciCleanup();
 	SDL_Quit();
 }
 
@@ -674,6 +700,14 @@ void GciDeleteScreenModeArrayData(GciScreenModeList * modes)
 			if (modes->GetData(i))
 				delete modes->GetData(i);
 	modes->Empty();
+}
+
+URect GciGetScreenRect()
+{
+	int width, height;
+	SDL_GetWindowSize(GlobalWindow, &width, &height);
+
+	return URect(UPoint(0, 0), width, height);
 }
 
 void GciSaveScreenshot(const char* file)

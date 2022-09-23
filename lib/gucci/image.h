@@ -11,6 +11,12 @@
 #endif
 */
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+#include <GL/gl.h>
+#include "geom_types.h"
 
 class Image  
 {
@@ -34,8 +40,10 @@ public:
 
 	void LoadRAW ( char *filename, int sizex, int sizey );
 	void LoadTIF ( char *filename );
+	// loads images using SOIL (falls back to LoadTIF when called with a .tif)
+	void Load(const char* filename);
 	
-        unsigned char *GetRGBPixels();
+    unsigned char *GetRGBPixels();
 	
 	void  SetAlpha ( float newalpha );
 	void  SetAlphaBorder ( float newalpha, float r, float g, float b );
@@ -50,6 +58,7 @@ public:
 
 	void Draw ( int x, int y );
 	void DrawBlend ( int x, int y );
+	void DrawGL(URect screenRect, URect uvRect = URect::Identity);
 
 	void CreateErrorBitmap ();						// Makes the image into an error cross
 
@@ -57,6 +66,11 @@ public:
 	char GetPixelG ( int x, int y );
 	char GetPixelB ( int x, int y );
 
+private:
+	GLuint textureId = -1;
+
+	void CleanupIfNeeded();
+	GLuint GetGLTextureId();
 };
 
 #endif
