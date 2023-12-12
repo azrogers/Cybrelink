@@ -18,6 +18,7 @@
 
 #ifdef USE_FREETYPEGL
 #include <freetype-gl/freetype-gl.h>
+#include <freetype-gl/texture-font.h>
 static std::map<int, texture_font_t*> fonts;
 static std::map<int, texture_atlas_t*> atlases;
 
@@ -233,8 +234,23 @@ int GciTextWidth(char* text, int STYLE)
 		return (int)(fabs(llx - urx) + 0.5);
 #endif
 #ifdef USE_FREETYPEGL
-		// ensure that all the font's glyphs are loaded
-		int missedGlyphs = texture_font_load_glyphs(fonts[STYLE], text);
+		// check that all relevant glyphs are loaded, without forcing a reload
+		int missedGlyphs = 0;
+		for (int i = 0; i < strlen(text); i++)
+		{
+			if (texture_font_find_glyph(fonts[STYLE], text + i) == 0)
+			{
+				missedGlyphs++;
+			}
+		}
+
+		// we're missing some glyphs - load em all
+		if (missedGlyphs > 0)
+		{
+			missedGlyphs = texture_font_load_glyphs(fonts[STYLE], text);
+		}
+
+		// some glyphs can't fit
 		if (missedGlyphs > 0)
 		{
 			// double the atlas size and try again
@@ -298,9 +314,32 @@ bool GciLoadTrueTypeFont(int index, char* fontname, char* filename, int size)
 		fonts[index] = font;
 
 #else  
-		int pointSize = size;
-		texture_atlas_t* atlas = texture_atlas_new(512, 512, 1);
-		texture_font_t* font = texture_font_new_from_file(atlas, pointSize, filename);
+		int pointSize = int(size * 1.3f);// int(size * 72.0 / 96.0 + 0.5);
+		texture_atlas_t* atlas = texture_atlas_new(1024, 1024, 1);
+		texture_font_t* font = texture_font_new_from_file(atlas, size, filename);
+
+		if (font != nullptr)
+		{
+			font->size = size;
+			font->rendermode = RENDER_SIGNED_DISTANCE_FIELD;
+		}
+		
+		/*if (font != nullptr)
+		{
+			font->hinting = 1;
+			font->filtering = 1;
+
+			float primary = 1.0f / 3.0f;
+			float secondary = 1.0f / 3.0f;
+			float tertiary = 0.0f / 3.0f;
+			float norm = 1.0f / (primary + 2.0f * secondary + 2.0f * tertiary);
+
+			font->lcd_weights[0] = (unsigned char)(tertiary * norm * 255);
+			font->lcd_weights[1] = (unsigned char)(secondary * norm * 255);
+			font->lcd_weights[2] = (unsigned char)(primary * norm * 255);
+			font->lcd_weights[3] = (unsigned char)(secondary * norm * 255);
+			font->lcd_weights[4] = (unsigned char)(tertiary * norm * 255);
+		}*/
 
 		GciDeleteTrueTypeFont(index);
 		fonts[index] = font;

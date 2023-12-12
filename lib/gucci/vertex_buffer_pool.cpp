@@ -16,23 +16,28 @@ typedef struct {
 const char* vertexShaderSource = "uniform mat4 model;\n"
 	"uniform mat4 view;\n"
 	"uniform mat4 projection;\n"
+	"uniform vec2 pixel;\n"
 	"attribute vec3 vertex;\n"
 	"attribute vec2 tex_coord;\n"
 	"attribute vec4 color;\n"
 	"void main()\n"
 	"{\n"
-	"	gl_TexCoord[0].xy = tex_coord.xy;\n"
+	"	gl_TexCoord[0].xy = tex_coord.xy + pixel * vec2(0.5f, 0.5f);\n"
 	"	gl_FrontColor = color;\n"
 	"	gl_Position = projection * (view * (model * vec4(vertex, 1.0)));\n"
 	"}";
 
-const char* fragShaderSource = "uniform sampler2D texture;\n"
+/*const char* fragShaderSource = "uniform sampler2D texture;\n"
 	"uniform vec4 tint;\n"
 	"void main()\n"
 	"{\n"
 	"	float a = texture2D(texture, gl_TexCoord[0].xy).r; \n"
 	"	gl_FragColor = vec4(tint.rgb, a * tint.a); \n"
-	"}\n";
+	"}\n";*/
+
+const char* fragShaderSource =
+#include "text_sdf_frag.txt"
+;
 
 VertexBufferPool::VertexBufferPool()
 {
@@ -221,10 +226,10 @@ void VertexBufferPool::AddTextToBuffer(
 			float y1 = y0 - glyph->height;
 			// color is handled in the shader
 			vertex_t vertices[] = {
-				{ x0, y0, 0, glyph->s0, glyph->t0, 1.0f, 1.0f, 1.0f, 1.0f },
-				{ x0, y1, 0, glyph->s0, glyph->t1, 1.0f, 1.0f, 1.0f, 1.0f },
-				{ x1, y1, 0, glyph->s1, glyph->t1, 1.0f, 1.0f, 1.0f, 1.0f },
-				{ x1, y0, 0, glyph->s1, glyph->t0, 1.0f, 1.0f, 1.0f, 1.0f }
+				{ x0, y0 - 0.5f, 0, glyph->s0, glyph->t0, 1.0f, 1.0f, 1.0f, 1.0f },
+				{ x0, y1 - 0.5f, 0, glyph->s0, glyph->t1, 1.0f, 1.0f, 1.0f, 1.0f },
+				{ x1, y1 - 0.5f, 0, glyph->s1, glyph->t1, 1.0f, 1.0f, 1.0f, 1.0f },
+				{ x1, y0 - 0.5f, 0, glyph->s1, glyph->t0, 1.0f, 1.0f, 1.0f, 1.0f }
 			};
 
 			vertex_buffer_push_back(buffer, vertices, 4, indices, 6);
@@ -276,11 +281,11 @@ void VertexBufferPool::RenderBuffer(
 		glTexImage2D(
 			GL_TEXTURE_2D, 
 			0, 
-			GL_RED, 
+			GL_RED,
 			font->atlas->width, 
 			font->atlas->height, 
 			0,
-			GL_RED, 
+			GL_RED,
 			GL_UNSIGNED_BYTE, 
 			font->atlas->data);	
 	}
@@ -297,6 +302,7 @@ void VertexBufferPool::RenderBuffer(
 	glUseProgram(shaderProgram);
 	{
 		glUniform1i(textureParamId, 0);
+		glUniform2f(glGetUniformLocation(shaderProgram, "pixel"), 1.0f / font->atlas->width, 1.0f / font->atlas->height);
 		glUniform4f(tintParamId, options.Color.R, options.Color.G, options.Color.B, options.Color.A);
 		glUniformMatrix4fv(modelParamId, 1, 0, glm::value_ptr(model));
 		glUniformMatrix4fv(viewParamId, 1, 0, glm::value_ptr(view));
