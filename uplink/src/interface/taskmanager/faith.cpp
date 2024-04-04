@@ -18,7 +18,7 @@
 #include "interface/remoteinterface/remoteinterface.h"
 #include "interface/taskmanager/faith.h"
 
-#include "mmgr.h"
+
 
 
 void Faith::Initialise ()

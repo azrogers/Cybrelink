@@ -10,11 +10,13 @@
 #ifndef _included_network_h
 #define _included_network_h
 
-// ============================================================================
+  // ============================================================================
 
 #include <time.h>
 
+#if ENABLE_NETWORK
 #include <tcp4u.h>
+#endif
 
 #include "network/networkserver.h"
 #include "network/networkclient.h"
@@ -31,7 +33,7 @@
 // ============================================================================
 
 
-class Network : public UplinkObject  
+class Network : public UplinkObject
 {
 
 protected:
@@ -48,29 +50,29 @@ public:
 	Network();
 	virtual ~Network();
 
-	void SetStatus ( int newSTATUS );
+	void SetStatus(int newSTATUS);
 
-	NetworkServer *GetServer ();					// MUST be in correct STATUS
-	NetworkClient *GetClient ();					// before accessing
+	NetworkServer* GetServer();					// MUST be in correct STATUS
+	NetworkClient* GetClient();					// before accessing
 
-	char *GetLocalHost ();
-	char *GetLocalIP ();
+	char* GetLocalHost();
+	char* GetLocalIP();
 
-	void StartServer ();
-	void StopServer ();
+	void StartServer();
+	void StopServer();
 
-	void StartClient ( char *ip );
-	void StopClient ();
+	void StartClient(char* ip);
+	void StopClient();
 
-	bool IsActive ();
+	bool IsActive();
 
 	// Common functions
 
-	bool Load   ( FILE *file );
-	void Save   ( FILE *file );
-	void Print  ();
-	void Update ();
-	char *GetID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
+	char* GetID();
 
 };
 

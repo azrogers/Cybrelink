@@ -28,7 +28,7 @@
 #include "interface/remoteinterface/remoteinterface.h"
 #include "interface/remoteinterface/contactscreen_interface.h"
 
-#include "mmgr.h"
+
 
 
 #define		NUMLINES		14

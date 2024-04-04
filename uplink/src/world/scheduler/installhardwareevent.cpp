@@ -16,7 +16,7 @@
 #include "world/computer/gatewaydef.h"
 #include "world/scheduler/installhardwareevent.h"
 
-#include "mmgr.h"
+
 
 
 InstallHardwareEvent::InstallHardwareEvent ()

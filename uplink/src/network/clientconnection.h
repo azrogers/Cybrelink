@@ -11,12 +11,18 @@
 #ifndef _included_clientconnection_h
 #define _included_clientconnection_h
 
+#if ENABLE_NETWORK
 #include <tcp4u.h>
+#endif
 
 #include "app/uplinkobject.h"
 
 #include "world/rating.h"
 #include "world/date.h"
+
+#ifndef ENABLE_NETWORK
+#define SOCKET uint32_t
+#endif
 
 
 class ClientConnection : public UplinkObject  

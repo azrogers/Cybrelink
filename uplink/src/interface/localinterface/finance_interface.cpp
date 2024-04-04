@@ -39,7 +39,7 @@
 #include "world/computer/recordbank.h"
 #include "world/computer/bankaccount.h"
 
-#include "mmgr.h"
+
 
 
 FinanceInterface::FinanceInterface()

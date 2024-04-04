@@ -30,7 +30,7 @@
 #include "network/clientconnection.h"
 #include "network/networkclient.h"
 
-#include "mmgr.h"
+
 
 
 //////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ int ClientConnection::TimeActive ()
 
 void ClientConnection::Handle_ClientCommsInterface ()
 {
-
+#if ENABLE_NETWORK
 	Connection *conn = &(game->GetWorld ()->GetPlayer ()->connection);
 	LList <char *> *links = &(game->GetWorld ()->GetPlayer ()->links);
 
@@ -225,12 +225,13 @@ void ClientConnection::Handle_ClientCommsInterface ()
 		connectionsize = conn->GetSize ();
 
 	}
+#endif
 
 }
 
 void ClientConnection::Handle_ClientStatusInterface ()
 {
-
+#if ENABLE_NETWORK
 	Player *player = game->GetWorld ()->GetPlayer ();
 	UplinkAssert (player);
 
@@ -485,7 +486,7 @@ void ClientConnection::Handle_ClientStatusInterface ()
 		lastnewsdate.SetDate ( &(latest->date) );
 
 	}
-
+#endif
 }
 
 
@@ -510,7 +511,7 @@ void ClientConnection::Print  ()
 
 void ClientConnection::Update ()
 {
-
+#if ENABLE_NETWORK
 	if ( socket != -1 ) {
 
 		// Read any input from the client
@@ -581,7 +582,7 @@ void ClientConnection::Update ()
 		}
 
 	}
-
+#endif
 }
 
 void ClientConnection::SetIndex ( int newindex )

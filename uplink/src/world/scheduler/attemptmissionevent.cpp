@@ -14,7 +14,7 @@
 #include "world/company/mission.h"
 #include "world/scheduler/attemptmissionevent.h"
 
-#include "mmgr.h"
+
 
 
 AttemptMissionEvent::AttemptMissionEvent ()

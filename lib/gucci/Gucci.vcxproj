@@ -68,6 +68,8 @@
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
+    <VcpkgUseMD>false</VcpkgUseMD>
+    <VcpkgConfiguration>Debug</VcpkgConfiguration>
   </PropertyGroup>
   <PropertyGroup Label="Vcpkg" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <VcpkgUseStatic>true</VcpkgUseStatic>
@@ -78,8 +80,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;..\..\contrib\FTGL-2.1.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>USE_SDL2;USE_FREETYPEGL;WIN32;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\mmgr;..\tosser;..\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>USE_SDL2;USE_FTGL;WIN32;_CRT_SECURE_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -94,8 +96,9 @@
       <TranslateIncludes>false</TranslateIncludes>
     </ClCompile>
     <Lib>
-      <AdditionalLibraryDirectories>..\..\contrib\FTGL-2.1.2\win32_vcpp\Build</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freetype-gl.lib;xxhash.lib;soil2.lib;ftgl_static_MTd_d.lib;glew32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
+      <AdditionalDependencies>xxhash.lib;soil2.lib;glew32d.lib;ftgld.lib</AdditionalDependencies>
     </Lib>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
@@ -163,9 +166,11 @@
     <ClCompile Include="vertex_buffer_pool.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="text_basic_vert.txt" />
     <None Include="vcpkg.json" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="text_basic_frag.txt" />
     <Text Include="text_lcd_frag.txt" />
     <Text Include="text_lcd_vert.txt" />
     <Text Include="text_sdf_frag.txt" />

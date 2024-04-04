@@ -23,7 +23,7 @@
 #include "world/computer/computer.h"
 #include "world/computer/computerscreen/disconnectedscreen.h"
 
-#include "mmgr.h"
+
 
 
 void DisconnectedScreenInterface::Click ( Button *button )

@@ -68,10 +68,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="vcpkg.json" />
+    <None Include="text_basic_vert.txt" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="text_lcd_vert.txt" />
     <Text Include="text_lcd_frag.txt" />
     <Text Include="text_sdf_frag.txt" />
+    <Text Include="text_basic_frag.txt" />
   </ItemGroup>
 </Project>

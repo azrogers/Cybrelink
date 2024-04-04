@@ -30,7 +30,7 @@
 #include "world/player.h"
 #include "world/computer/logbank.h"
 
-#include "mmgr.h"
+
 
 static int numlogtypes = 9 - 1;					// (-1 to 7)
 

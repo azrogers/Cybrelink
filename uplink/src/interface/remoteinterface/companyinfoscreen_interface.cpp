@@ -15,7 +15,7 @@
 #include "interface/remoteinterface/remoteinterface.h"
 #include "interface/remoteinterface/companyinfoscreen_interface.h"
 
-#include "mmgr.h"
+
 
 
 CompanyInfoScreenInterface::CompanyInfoScreenInterface ()

@@ -8,7 +8,7 @@
 #include "interface/taskmanager/taskmanager.h"
 #include "interface/taskmanager/uplinktask.h"
 
-#include "mmgr.h"
+
 
 
 //////////////////////////////////////////////////////////////////////

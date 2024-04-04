@@ -16,7 +16,7 @@
 #include "tchar.h"
 #include "GetWinVer.h"
 
-#include "mmgr.h"
+
 
 
 // from winbase.h

@@ -6,7 +6,7 @@
 
 #include "world/scheduler/warningevent.h"
 
-#include "mmgr.h"
+
 
 
 WarningEvent::WarningEvent ()

@@ -26,7 +26,7 @@
 #include "world/computer/computer.h"
 #include "world/computer/computerscreen/genericscreen.h"
 
-#include "mmgr.h"
+
 
 
 void ProtovisionScreenInterface::Close ( Button *button )

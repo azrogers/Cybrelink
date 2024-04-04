@@ -28,7 +28,7 @@
 #include "interface/remoteinterface/remoteinterface.h"
 #include "interface/remoteinterface/radiotransmitterscreen_interface.h"
 
-#include "mmgr.h"
+
 
 int RadioTransmitterScreenInterface::frequencyGhz = 160;
 int RadioTransmitterScreenInterface::frequencyMhz = 0;

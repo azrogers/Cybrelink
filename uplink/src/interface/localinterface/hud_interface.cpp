@@ -40,7 +40,7 @@
 #include "world/company/mission.h"
 #include "world/vlocation.h"
 
-#include "mmgr.h"
+
 
 
 HUDInterfaceUpgrade HUDInterface::hudUpgrades[8] = {

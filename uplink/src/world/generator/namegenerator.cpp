@@ -16,7 +16,7 @@
 #include "world/generator/namegenerator.h"
 #include "world/generator/numbergenerator.h"
 
-#include "mmgr.h"
+
 
 
 LList <char *> NameGenerator::fornames;

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "uplink",
+  "version": "10.0.0",
+  "dependencies": [
+    "tiff",
+    "freetype",
+    "xxhash",
+    "sdl2",
+    "sdl2-mixer",
+    "soil2",
+    "glm",
+    "glew",
+    "cpptrace",
+    "cppfs"
+  ]
+}

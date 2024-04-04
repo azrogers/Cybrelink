@@ -22,7 +22,7 @@
 
 #include "interface/taskmanager/motionsensor.h"
 
-#include "mmgr.h"
+
 
 
 void MotionSensor::SensorDraw ( Button *button, bool highlighted, bool clicked )

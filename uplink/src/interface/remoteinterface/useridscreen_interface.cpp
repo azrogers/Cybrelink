@@ -37,7 +37,7 @@
 #include "world/computer/recordbank.h"
 #include "world/computer/computerscreen/useridscreen.h"
 
-#include "mmgr.h"
+
 
 void UserIDScreenInterface::BypassClick ( Button *button )
 {

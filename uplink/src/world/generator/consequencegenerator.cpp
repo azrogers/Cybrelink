@@ -32,7 +32,7 @@
 #include "world/scheduler/shotbyfedsevent.h"
 #include "world/scheduler/seizegatewayevent.h"
 
-#include "mmgr.h"
+
 
 
 void ConsequenceGenerator::Initialise ()

@@ -54,7 +54,7 @@
 #include "world/scheduler/changegatewayevent.h"
 #include "world/scheduler/bankrobberyevent.h"
 
-#include "mmgr.h"
+
 
 #define min(a,b) (((a) < (b)) ? (a) : (b))
 

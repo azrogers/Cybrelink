@@ -18,7 +18,7 @@
 #include "world/computer/computer.h"
 #include "world/computer/computerscreen/messagescreen.h"
 
-#include "mmgr.h"
+
 
 
 void MessageScreenInterface::Click ( Button *button )

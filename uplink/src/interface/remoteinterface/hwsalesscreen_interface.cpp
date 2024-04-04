@@ -36,7 +36,7 @@
 #include "interface/remoteinterface/remoteinterface.h"
 #include "interface/remoteinterface/hwsalesscreen_interface.h"
 
-#include "mmgr.h"
+
 
 
 // === Initialise static variables ============================================

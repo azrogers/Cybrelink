@@ -1,0 +1,67 @@
+# CMake file adapted from https://github.com/CesiumGS/cesium-native/blob/main/CMakeLists.txt, used under Apache license
+
+cmake_minimum_required(VERSION 3.15)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+if(WIN32)
+    set(VCPKG_TARGET_TRIPLET x64-windows-static)
+elseif(APPLE)
+    set(VCPKG_TARGET_TRIPLET x64-osx-static)
+else()
+    set(VCPKG_TARGET_TRIPLET x64-linux-static)
+endif(WIN32)
+
+set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /MT")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+set(CMAKE_CXX_STANDARD 17)
+
+project(uplink
+	VERSION 10.0
+	LANGUAGES CXX C
+)
+
+set(UPLINK_DEBUG_POSTFIX "d")
+set(UPLINK_RELEASE_POSTFIX "")
+
+set(CMAKE_DEBUG_POSTFIX ${UPLINK_DEBUG_POSTFIX})
+set(CMAKE_RELEASE_POSTFIX ${UPLINK_RELEASE_POSTFIX})
+set(CMAKE_MINSIZEREL_POSTFIX ${UPLINK_RELEASE_POSTFIX})
+set(CMAKE_RELWITHDEBINFO_POSTFIX ${UPLINK_RELEASE_POSTFIX})
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/uplink/bin)
+
+function(uplink_glob_files out_var_name regexes)
+    set(files "")
+    foreach(arg ${ARGV})
+        list(APPEND regexes_only "${arg}")
+    endforeach()
+    list(POP_FRONT regexes_only)
+    if (GLOB_USE_CONFIGURE_DEPENDS)
+        file(GLOB_RECURSE files CONFIGURE_DEPENDS ${regexes_only})
+    else()
+        file(GLOB files ${regexes_only})
+    endif()
+    set(${ARGV0} "${files}" PARENT_SCOPE)
+endfunction()
+
+function(configure_uplink_component targetName)
+	set_target_properties(${targetName} PROPERTIES 
+		CXX_STANDARD 17 
+		CXX_STANDARD_REQUIRED YES 
+		CXX_EXTENSIONS NO)
+
+	target_compile_definitions(${targetName} PRIVATE
+		$<IF:$<CONFIG:Debug>,VERSION_NAME_INT="DEBUG",VERSION_NAME_INT="RELEASE">
+		VERSION_NUMBER_INT="${CMAKE_PROJECT_VERSION}"
+        WIN32_LEAN_AND_MEAN
+	)
+
+    if(MSVC)
+        target_compile_options(${targetName} PRIVATE /wd4477)
+    endif()
+endfunction()
+
+add_subdirectory(lib)
+add_subdirectory(uplink)

@@ -32,7 +32,7 @@
 #include "interface/remoteinterface/remoteinterface.h"
 #include "interface/remoteinterface/nuclearwarscreen_interface.h"
 
-#include "mmgr.h"
+
 
 
 NuclearWarScreenInterface::NuclearWarScreenInterface ()

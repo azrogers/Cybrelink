@@ -35,7 +35,7 @@
 #include "interface/taskmanager/tutorial.h"
 #include "interface/taskmanager/filecopier.h"
 
-#include "mmgr.h"
+
 
 
 Tutorial::Tutorial ()

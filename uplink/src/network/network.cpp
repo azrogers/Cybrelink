@@ -2,8 +2,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#if ENABLE_NETWORK
 #include <tcp4u.h>
 #include <smtp4u.h>
+#endif
 
 #include "gucci.h"
 
@@ -13,7 +15,7 @@
 
 #include "network/network.h"
 
-#include "mmgr.h"
+
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -24,17 +26,19 @@ Network::Network()
 
 	// Initialise the TCP library
 
-		
+
 	STATUS = NETWORK_NONE;
+#if ENABLE_NETWORK
 
-	int initresult = Tcp4uInit ();
+	int initresult = Tcp4uInit();
 
-	if ( initresult != TCP4U_SUCCESS ) {
+	if (initresult != TCP4U_SUCCESS) {
 
-		printf ( "Network error : failed to initialise TCP\n" );
+		printf("Network error : failed to initialise TCP\n");
 		return;
 
 	}
+#endif
 
 
 #ifdef DOCLABRELEASE
@@ -43,34 +47,34 @@ Network::Network()
 	// Prepare a message to send back to me
 	//
 
-	char from		[] = "uplink@doc.ic.ac.uk";
-	char to			[] = "uplink@introversion.co.uk"; 
-	char smtpserver [] = "hex.doc.ic.ac.uk";
-	char domain		[] = "doc.ic.ac.uk";
-	char message	[128];
+	char from[] = "uplink@doc.ic.ac.uk";
+	char to[] = "uplink@introversion.co.uk";
+	char smtpserver[] = "hex.doc.ic.ac.uk";
+	char domain[] = "doc.ic.ac.uk";
+	char message[128];
 
-	char currentuser [32];
-	char computer	 [32];
+	char currentuser[32];
+	char computer[32];
 
 #ifdef WIN32
-	UplinkStrncpy ( currentuser, getenv ( "USERNAME" ), sizeof ( currentuser ) );
-	UplinkStrncpy ( computer, getenv ( "COMPUTERNAME" ), sizeof ( computer ) );
+	UplinkStrncpy(currentuser, getenv("USERNAME"), sizeof(currentuser));
+	UplinkStrncpy(computer, getenv("COMPUTERNAME"), sizeof(computer));
 #else
-	UplinkStrncpy ( currentuser, getenv ( "USER" ), sizeof ( currentuser ) );
-	UplinkStrncpy ( computer, getenv ( "HOST" ), sizeof ( computer ) );
+	UplinkStrncpy(currentuser, getenv("USER"), sizeof(currentuser));
+	UplinkStrncpy(computer, getenv("HOST"), sizeof(computer));
 #endif
 
 	// 
 	// Build and send the message
 	//
 
-	UplinkSnprintf ( message, sizeof ( message ), "To:%s\r\n"
-												   "Subject: User %s used Doc release of Uplink\r\n\r\n"
-												   "Username : %s\r\n"
-												   "Computer : %s\r\n", 
-													to, currentuser, currentuser, computer );
+	UplinkSnprintf(message, sizeof(message), "To:%s\r\n"
+		"Subject: User %s used Doc release of Uplink\r\n\r\n"
+		"Username : %s\r\n"
+		"Computer : %s\r\n",
+		to, currentuser, currentuser, computer);
 
-	int result = SmtpSendMessage ( from, to, message, smtpserver, domain );
+	int result = SmtpSendMessage(from, to, message, smtpserver, domain);
 
 #endif
 
@@ -79,149 +83,156 @@ Network::Network()
 Network::~Network()
 {
 
-	Tcp4uCleanup ();
-
+#if ENABLE_NETWORK
+	Tcp4uCleanup();
+#endif
 }
 
-NetworkServer *Network::GetServer ()
+NetworkServer* Network::GetServer()
 {
 
-	UplinkAssert ( STATUS == NETWORK_SERVER );
+	UplinkAssert(STATUS == NETWORK_SERVER);
 	return &server;
 
 }
 
-NetworkClient *Network::GetClient ()
+NetworkClient* Network::GetClient()
 {
 
-	UplinkAssert ( STATUS == NETWORK_CLIENT );
+	UplinkAssert(STATUS == NETWORK_CLIENT);
 	return &client;
 
 }
 
-void Network::SetStatus ( int newSTATUS )
+void Network::SetStatus(int newSTATUS)
 {
 
 	STATUS = newSTATUS;
 
 }
 
-char *Network::GetLocalHost ()
+char* Network::GetLocalHost()
 {
 
+#if ENABLE_NETWORK
 	DWORD ip;
-	char *host = new char [128];
-	int result = TcpGetLocalID ( host, 128, &ip );
-			     
-	if ( result == TCP4U_SUCCESS ) 
+	char* host = new char[128];
+	int result = TcpGetLocalID(host, 128, &ip);
+
+	if (result == TCP4U_SUCCESS)
 		return host;
 
 	else {
-		printf ( "Network::GetLocalHost, failed to get local host\n" );
+		printf("Network::GetLocalHost, failed to get local host\n");
 		return NULL;
 	}
-
+#else
+	return NULL;
+#endif
 }
 
-char *Network::GetLocalIP ()
+char* Network::GetLocalIP()
 {
-
+#if ENABLE_NETWORK
 	DWORD ip;
-	char *sip = (char *) &ip;
-	char *host = new char [128];
-	int result = TcpGetLocalID ( host, 128, &ip );
+	char* sip = (char*)&ip;
+	char* host = new char[128];
+	int result = TcpGetLocalID(host, 128, &ip);
 
 	size_t fullipsize = 64;
-	char *fullip = new char [fullipsize];
-	UplinkSnprintf ( fullip, fullipsize, "%u.%u.%u.%u", sip [0], sip [1], sip [2], sip [3] );
+	char* fullip = new char[fullipsize];
+	UplinkSnprintf(fullip, fullipsize, "%u.%u.%u.%u", sip[0], sip[1], sip[2], sip[3]);
 
-	delete [] host;
+	delete[] host;
 
-	if ( result == TCP4U_SUCCESS ) 
+	if (result == TCP4U_SUCCESS)
 		return fullip;
 
 	else {
-		printf ( "Network::GetLocalIP, failed to get local ip\n" );
+		printf("Network::GetLocalIP, failed to get local ip\n");
 		return NULL;
 	}
+#else
+	return NULL;
+#endif
 
 }
 
-void Network::StartServer ()
+void Network::StartServer()
 {
 
-	if ( STATUS == NETWORK_NONE ) {
+	if (STATUS == NETWORK_NONE) {
 
-		int result = server.StartServer ();
+		int result = server.StartServer();
 
-		if ( result )
+		if (result)
 			STATUS = NETWORK_SERVER;
 
 		else
-			printf ( "Network::StartServer, failed to start server\n" );
+			printf("Network::StartServer, failed to start server\n");
 
 	}
-	else if ( STATUS == NETWORK_CLIENT ) {
+	else if (STATUS == NETWORK_CLIENT) {
 
-		printf ( "Network::StartServer, Cannot start server when running as a client\n" );
+		printf("Network::StartServer, Cannot start server when running as a client\n");
 
 	}
-	else if ( STATUS == NETWORK_SERVER ) {
+	else if (STATUS == NETWORK_SERVER) {
 
-		printf ( "Network::StartServer, Cannot start server when server is already running\n" );
-	
+		printf("Network::StartServer, Cannot start server when server is already running\n");
+
 	}
 
 }
 
-void Network::StopServer ()
+void Network::StopServer()
 {
 
-	if ( STATUS == NETWORK_SERVER ) {
+	if (STATUS == NETWORK_SERVER) {
 
-		server.StopServer ();
+		server.StopServer();
 		STATUS = NETWORK_NONE;
 
 	}
 
 }
 
-void Network::StartClient ( char *ip )
+void Network::StartClient(char* ip)
 {
 
-	if ( STATUS == NETWORK_NONE ) {
+	if (STATUS == NETWORK_NONE) {
 
-		int result = client.StartClient (ip);
+		int result = client.StartClient(ip);
 
-		if ( result )
+		if (result)
 			STATUS = NETWORK_CLIENT;
 
 		else
-			printf ( "Network::StartClient, failed to start client\n" );
+			printf("Network::StartClient, failed to start client\n");
 
 	}
-	else if ( STATUS == NETWORK_CLIENT ) {
+	else if (STATUS == NETWORK_CLIENT) {
 
-		printf ( "Network::StartClient, Cannot start client when running as a client\n" );
+		printf("Network::StartClient, Cannot start client when running as a client\n");
 
 	}
-	else if ( STATUS == NETWORK_SERVER ) {
+	else if (STATUS == NETWORK_SERVER) {
 
-		printf ( "Network::StartClient, Cannot start client when server is already running\n" );
-	
+		printf("Network::StartClient, Cannot start client when server is already running\n");
+
 	}
 
 }
 
-void Network::StopClient ()
+void Network::StopClient()
 {
 
-	if ( STATUS == NETWORK_CLIENT ) {
+	if (STATUS == NETWORK_CLIENT) {
 
-		int result = GetClient ()->StopClient ();
+		int result = GetClient()->StopClient();
 
-		if ( !result )
-			printf ( "Network::StopClient, failed to stop client\n" );
+		if (!result)
+			printf("Network::StopClient, failed to stop client\n");
 
 		else
 			STATUS = NETWORK_NONE;
@@ -230,60 +241,60 @@ void Network::StopClient ()
 
 }
 
-bool Network::IsActive ()
+bool Network::IsActive()
 {
 
-	return ( STATUS != NETWORK_NONE );
+	return (STATUS != NETWORK_NONE);
 
 }
 
-bool Network::Load ( FILE *file )
+bool Network::Load(FILE* file)
 {
 	// not needed
 	return true;
 }
 
-void Network::Save ( FILE *file )
+void Network::Save(FILE* file)
 {
 
 	// not needed
 
 }
 
-void Network::Print ()
+void Network::Print()
 {
 
-	printf ( "============== N E T W O R K ===============================\n" );
-	
-	printf ( "Status:%d\n", STATUS );
+	printf("============== N E T W O R K ===============================\n");
 
-	if ( STATUS == NETWORK_SERVER )
-		GetServer ()->Print ();
+	printf("Status:%d\n", STATUS);
 
-	else if ( STATUS == NETWORK_CLIENT ) 
-		GetClient ()->Print ();
+	if (STATUS == NETWORK_SERVER)
+		GetServer()->Print();
 
-	printf ( "============== E N D  O F  N E T W O R K ===================\n" );
+	else if (STATUS == NETWORK_CLIENT)
+		GetClient()->Print();
+
+	printf("============== E N D  O F  N E T W O R K ===================\n");
 
 }
 
-void Network::Update ()
+void Network::Update()
 {
 
-	if ( STATUS == NETWORK_SERVER ) {
+	if (STATUS == NETWORK_SERVER) {
 
-		GetServer ()->Update ();
+		GetServer()->Update();
 
 	}
-	else if ( STATUS == NETWORK_CLIENT ) {
-		
-		GetClient ()->Update ();
+	else if (STATUS == NETWORK_CLIENT) {
+
+		GetClient()->Update();
 
 	}
 
 }
 
-char *Network::GetID ()
+char* Network::GetID()
 {
 
 	return "NETWORK";

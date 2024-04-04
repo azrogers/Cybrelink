@@ -24,7 +24,7 @@
 
 #include "interface/scrollbox.h"
 
-#include "mmgr.h"
+
 
 local int tooltipanimindex = -1;                // Index of animation running on tooltip button
 local char currentbuttonname [512] = {0};       // Button mouse is currently over

@@ -13,7 +13,7 @@
 #include "network/networkclient.h"
 #include "network/clientconnection.h"
 
-#include "mmgr.h"
+
 
 
 //////////////////////////////////////////////////////////////////////
@@ -22,7 +22,9 @@
 
 NetworkServer::NetworkServer()
 {
+#if ENABLE_NETWORK
 	listensocket = -1;
+#endif
 	listening = false;
 }
 
@@ -36,6 +38,7 @@ NetworkServer::~NetworkServer()
 bool NetworkServer::StartServer ()
 {
 
+#if ENABLE_NETWORK
 	// Establish a listen socket
 
 	unsigned short portnum = 31337;
@@ -47,12 +50,16 @@ bool NetworkServer::StartServer ()
 	
 	else 
 		return true;
+#else
+	return false;
+#endif
 
 }
 
 void NetworkServer::StopServer ()
 {
 
+#if ENABLE_NETWORK
 	// Close all open sockets
 
 	for ( int i = 0; i < clients.Size (); ++i ) {
@@ -68,12 +75,13 @@ void NetworkServer::StopServer ()
 
 	DeleteDArrayData ( (DArray <UplinkObject *> *) &clients );
 	clients.Empty ();
+#endif
 
 }
 
 char *NetworkServer::GetRemoteHost ( int socketindex )
 {
-
+#if ENABLE_NETWORK
 	UplinkAssert ( clients.ValidIndex (socketindex) );	
 
 	DWORD ip;
@@ -87,12 +95,14 @@ char *NetworkServer::GetRemoteHost ( int socketindex )
 		printf ( "NetworkServer::GetRemoteHost, failed to get remote host\n" );
 		return NULL;
 	}
-
+#else
+	return NULL;
+#endif
 }
 
 char *NetworkServer::GetRemoteIP ( int socketindex )
 {
-
+#if ENABLE_NETWORK
 	UplinkAssert ( clients.ValidIndex (socketindex) );
 
 	DWORD ip;
@@ -113,6 +123,9 @@ char *NetworkServer::GetRemoteIP ( int socketindex )
 		printf ( "NetworkServer::GetRemoteIP, failed to get remote ip\n" );
 		return NULL;
 	}
+#else
+	return NULL;
+#endif
 
 }
 
@@ -143,16 +156,17 @@ void NetworkServer::Save ( FILE *file )
 
 void NetworkServer::Print ()
 {
-
+#if ENABLE_NETWORK
 	printf ( "NetworkServer : listensocket:%d, lastlisten:%d\n", listensocket, lastlisten );
 
 	PrintDArray ( (DArray <UplinkObject *> *) &clients );
-
+#endif
 }
 
 void NetworkServer::Update ()
 {
 
+#if ENABLE_NEWORK
 	// Check the listen socket for new connections every 5 seconds
 
 	if ( listening && listensocket != -1 ) {
@@ -186,7 +200,7 @@ void NetworkServer::Update ()
 	// And send out the neccisary data
 
 	UpdateDArray ( (DArray <UplinkObject *> *) &clients );
-
+#endif
 }
 
 char *NetworkServer::GetID ()

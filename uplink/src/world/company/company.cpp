@@ -14,7 +14,7 @@
 #include "world/company/company.h"
 #include "world/generator/numbergenerator.h"
 
-#include "mmgr.h"
+
 
 
 Company::Company()

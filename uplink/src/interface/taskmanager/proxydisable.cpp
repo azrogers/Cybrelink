@@ -25,7 +25,7 @@
 #include "world/computer/computer.h"
 #include "world/computer/securitysystem.h"
 
-#include "mmgr.h"
+
 
 
 void ProxyDisable::BorderDraw ( Button *button, bool highlighted, bool clicked )

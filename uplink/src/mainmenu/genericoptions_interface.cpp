@@ -21,7 +21,7 @@
 #include "mainmenu/genericoptions_interface.h"
 #include "mainmenu/login_interface.h"
 
-#include "mmgr.h"
+
 
 
 void GenericOptionsInterface::ReturnToMainMenuClick ( Button *button )

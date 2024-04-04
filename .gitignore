@@ -383,3 +383,5 @@ MigrationBackup/
 *.lastbuildstate
 *.lib.recipe
 vcpkg_installed/
+
+out/

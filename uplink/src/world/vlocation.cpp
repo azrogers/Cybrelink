@@ -14,7 +14,7 @@
 #include "world/vlocation.h"
 #include "world/computer/computer.h"
 
-#include "mmgr.h"
+
 
 
 VLocation::VLocation()

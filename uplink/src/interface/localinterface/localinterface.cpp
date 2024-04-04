@@ -41,7 +41,7 @@
 #include "interface/localinterface/lan_interface.h"
 #include "interface/localinterface/mail_view_interface.h"
 
-#include "mmgr.h"
+
 
 
 // ============================================================================

@@ -25,8 +25,8 @@
 #error "One of FULLGAME DEMOGAME or TESTGAME must be defined"
 #endif
 
-#define     VERSION_NUMBER_INT      "10.0"                       // Only the 2 first digit after the . are effective
-#define     VERSION_NAME_INT        "RELEASE"
+/*#define     VERSION_NUMBER_INT      "10.0"                       // Only the 2 first digit after the . are effective
+#define     VERSION_NAME_INT        "RELEASE"*/
 
 #if defined(DEMOGAME)
 #define     VERSION_NUMBER          VERSION_NUMBER_INT "DEMO"

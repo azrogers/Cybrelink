@@ -12,7 +12,7 @@
 #include "interface/remoteinterface/remoteinterface.h"
 #include "interface/remoteinterface/faithscreen_interface.h"
 
-#include "mmgr.h"
+
 
 
 void FaithScreenInterface::CloseClick ( Button *button )

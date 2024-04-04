@@ -29,7 +29,7 @@
 #include "world/computer/computer.h"
 #include "world/computer/computerscreen/shareslistscreen.h"
 
-#include "mmgr.h"
+
 
 
 int SharesListScreenInterface::baseoffset = 0;

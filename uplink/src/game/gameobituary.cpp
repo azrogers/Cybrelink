@@ -15,7 +15,7 @@
 #include "world/computer/gatewaydef.h"
 #include "world/generator/numbergenerator.h"
 
-#include "mmgr.h"
+
 
 GameObituary::GameObituary ()
 {

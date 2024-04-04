@@ -14,7 +14,8 @@
 
   */
 
-#define CRASH_REPORTS
+//TODO: re-implement exception handling at some point probably
+//#define CRASH_REPORTS
 
 #if defined(WIN32) && defined(CRASH_REPORTS)
 #define _WIN32_WINDOWS 0x0500	// for IsDebuggerPresent
@@ -70,7 +71,7 @@
 #include "game/scriptlibrary.h"
 #include "game/game.h"
 
-#include "mmgr.h"
+
 
 // ============================================================================
 // Initialisation functions

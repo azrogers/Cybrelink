@@ -30,7 +30,7 @@ bool SendMailInterface::changed = false;	        // Has m changed?
 // These have to be initialised above to stop them from being reset
 // everytime a sendmailinterface is created
 
-#include "mmgr.h"
+
 
 
 SendMailInterface::SendMailInterface ()

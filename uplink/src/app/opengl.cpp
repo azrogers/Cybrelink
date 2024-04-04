@@ -49,7 +49,7 @@
 #include "world/world.h"
 #include "world/player.h"
 
-#include "mmgr.h"
+
 #include "game/data/data.h"
 
 #define CHEATMODES_ENABLED

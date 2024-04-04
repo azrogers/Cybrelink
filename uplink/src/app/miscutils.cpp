@@ -2,24 +2,18 @@
 
 #include "stdafx.h"
 
-#ifdef WIN32
-#include <direct.h>
-#include <io.h>
-#else
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <dirent.h>
-#endif
-
-#include <GL/gl.h>
-
-#include <GL/glu.h> /* glu extention library */
-
 #include "redshirt.h"
 
 #include "gucci.h"
+
+#include <GL/gl.h>
+#include <GL/glu.h> /* glu extention library */
+
+#include <cpptrace/cpptrace.hpp>
+#include <cppfs/fs.h>
+#include <cppfs/FileHandle.h>
+#include <cppfs/FileIterator.h>
+#include <cppfs/FilePath.h>
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -27,483 +21,313 @@
 
 #include "options/options.h"
 
-#include "mmgr.h"
 
-
-char *GetFilePath ( const char *filename )
+char* GetFilePath(const char* filename)
 {
 
-	UplinkAssert (filename);
+	UplinkAssert(filename);
 
-	size_t newstringsize = strlen (filename) + 1;
-    char *newstring = new char [newstringsize];
-    UplinkStrncpy ( newstring, filename, newstringsize );
-/*    
-    char *p = newstring;
-    
-    while ( strchr ( p, '/' ) )	
-		p = strchr ( p, '/' ) + 1;
-	    
-    if (p) *p = '\x0';
-  */
-    
-    char     *p = strrchr ( newstring, '/' );
-    if ( !p ) p = strrchr ( newstring, '\\' );
+	size_t newstringsize = strlen(filename) + 1;
+	char* newstring = new char[newstringsize];
+	UplinkStrncpy(newstring, filename, newstringsize);
+	/*
+		char *p = newstring;
 
-    if ( p ) *(p+1) = '\x0';
-    else     UplinkStrncpy ( newstring, "./", newstringsize );
+		while ( strchr ( p, '/' ) )
+			p = strchr ( p, '/' ) + 1;
 
-    return newstring;    
-    
+		if (p) *p = '\x0';
+	  */
+
+	char* p = strrchr(newstring, '/');
+	if (!p) p = strrchr(newstring, '\\');
+
+	if (p) *(p + 1) = '\x0';
+	else     UplinkStrncpy(newstring, "./", newstringsize);
+
+	return newstring;
+
 }
 
-char *LowerCaseString ( const char *thestring )
+char* LowerCaseString(const char* thestring)
 {
 
-	UplinkAssert (thestring);
-	
-	char *thecopy = new char [strlen(thestring)+1];
-	UplinkSafeStrcpy ( thecopy, thestring );
+	UplinkAssert(thestring);
 
-	for ( char *p = thecopy; *p != '\x0'; ++p )
-		if ( *p >= 'A' && *p <= 'Z' )
+	char* thecopy = new char[strlen(thestring) + 1];
+	UplinkSafeStrcpy(thecopy, thestring);
+
+	for (char* p = thecopy; *p != '\x0'; ++p)
+		if (*p >= 'A' && *p <= 'Z')
 			*p += 'a' - 'A';
 
 	return thecopy;
 
 }
 
-char *StripCarriageReturns ( const char *thestring )
+char* StripCarriageReturns(const char* thestring)
 {
 
-    UplinkAssert (thestring);
+	UplinkAssert(thestring);
 
-    // Is there a cr?
+	// Is there a cr?
 
-    const char *firstcr = strchr ( thestring, '\n' );
+	const char* firstcr = strchr(thestring, '\n');
 
-    if ( !firstcr ) {
+	if (!firstcr) {
 
-        // No cr found - copy string and return it
-     
-        char *result = new char [strlen(thestring)+1];
-        UplinkSafeStrcpy ( result, thestring );
-        return result;
+		// No cr found - copy string and return it
 
-    }
-    else {
+		char* result = new char[strlen(thestring) + 1];
+		UplinkSafeStrcpy(result, thestring);
+		return result;
 
-        // Found a cr - so shorten string to that point
+	}
+	else {
 
-        size_t newlength = firstcr - thestring;
-        char *result = new char [newlength+1];
-        strncpy ( result, thestring, newlength );
-        result [newlength] = '\x0';
-        return result;
+		// Found a cr - so shorten string to that point
 
-    }
+		size_t newlength = firstcr - thestring;
+		char* result = new char[newlength + 1];
+		strncpy(result, thestring, newlength);
+		result[newlength] = '\x0';
+		return result;
+
+	}
 
 }
 
-char *TrimSpaces ( const char *thestring )
+char* TrimSpaces(const char* thestring)
 {
 
-    UplinkAssert (thestring);
+	UplinkAssert(thestring);
 
-	char *retstring;
+	char* retstring;
 
 	int indexfirstnospace = -1;
 	int indexlastnospace = -1;
 
-	for ( int i = 0; thestring [ i ] != '\0'; i++ ) {
-		if ( indexlastnospace == -1 )
+	for (int i = 0; thestring[i] != '\0'; i++) {
+		if (indexlastnospace == -1)
 			indexfirstnospace = i;
-		if ( thestring [ i ] != ' ' )
+		if (thestring[i] != ' ')
 			indexlastnospace = i;
 	}
 
 	int lenretstring;
-	if ( indexfirstnospace == -1 || indexlastnospace == -1 )
+	if (indexfirstnospace == -1 || indexlastnospace == -1)
 		lenretstring = 0;
 	else
-		lenretstring = ( indexlastnospace - indexfirstnospace ) + 1;
+		lenretstring = (indexlastnospace - indexfirstnospace) + 1;
 
-	retstring = new char [ lenretstring + 1 ];
-	if ( lenretstring > 0 )
-		memcpy ( retstring, thestring + indexfirstnospace, lenretstring );
-	retstring [ lenretstring ] = '\0';
+	retstring = new char[lenretstring + 1];
+	if (lenretstring > 0)
+		memcpy(retstring, thestring + indexfirstnospace, lenretstring);
+	retstring[lenretstring] = '\0';
 
 	return retstring;
 
 }
 
-void MakeDirectory ( const char *dirname )
+void MakeDirectory(const char* dirname)
 {
-
-#ifdef WIN32
-  _mkdir ( dirname );
-#else
-  mkdir ( dirname, 0700 );
-#endif
-
+	MakeDirectory(std::string(dirname));
 }
 
-
-bool DoesFileExist ( const char *filename )
+void MakeDirectory(std::string directory)
 {
-
-    return access(filename, 0) == 0;
-
+	cppfs::FileHandle handle = cppfs::fs::open(directory);
+	if (!handle.isDirectory())
+	{
+		handle.createDirectory();
+		handle.setPermissions(0700);
+	}
 }
 
-void EmptyDirectory ( const char *directory )
+bool DoesFileExist(const char* filename)
 {
+	return DoesFileExist(std::string(filename));
+}
 
-#ifdef WIN32
+bool DoesFileExist(std::string filename)
+{
+	return cppfs::fs::open(filename).exists();
+}
 
-	char searchstring [_MAX_PATH + 1];
-	UplinkSnprintf ( searchstring, sizeof ( searchstring ), "%s*", directory ); 
+void EmptyDirectory(const char* directory)
+{
+	EmptyDirectory(std::string(directory));
+}
 
-	_finddata_t thisfile;
-	intptr_t fileindex = _findfirst ( searchstring, &thisfile );
-
-	int exitmeplease = 0;
-
-	while ( fileindex != -1 && !exitmeplease ) {
-
-		if ( strcmp ( thisfile.name, "." ) != 0 && strcmp ( thisfile.name, ".." ) != 0 ) {
-			char newname [_MAX_PATH + 1];
-			UplinkSnprintf ( newname, sizeof ( newname ), "%s%s", directory, thisfile.name );      
-			_unlink ( newname );
+void EmptyDirectory(std::string directory)
+{
+	cppfs::FileHandle dir = cppfs::fs::open(directory);
+	if (dir.isDirectory())
+	{
+		for (cppfs::FileIterator it = dir.begin(); it != dir.end(); ++it)
+		{
+			RemoveFile(*it);
 		}
-		exitmeplease = _findnext ( fileindex, &thisfile );
-
 	}
-
-	if ( fileindex != -1 )
-		_findclose ( fileindex );
-
-#else
-
-	char userdir [256];
-	UplinkStrncpy ( userdir, directory, sizeof ( userdir ) );
-	DIR *dir = opendir( userdir );
-	if (dir != NULL) {
-	    struct dirent *entry = readdir ( dir );
-
-	    while (entry != NULL) {
-	    
-			if ( strcmp ( entry->d_name, "." ) != 0 && strcmp ( entry->d_name, ".." ) != 0 ) {
-				char newname [256];
-				UplinkSnprintf ( newname, sizeof ( newname ), "%s%s", directory, entry->d_name );      
-				unlink ( newname );
-			}
-		    entry = readdir ( dir );
-	    
-	    }
-	  
-	    closedir( dir );
-	}
-#endif
-
 }
 
-bool CopyFilePlain ( const char *oldfilename, const char *newfilename )
+bool CopyFilePlain(const char* oldfilename, const char* newfilename)
+{
+	return CopyFilePlain(std::string(oldfilename), std::string(newfilename));
+}
+
+bool CopyFilePlain(std::string oldFilename, std::string newFilename)
+{
+	cppfs::FileHandle oldFile = cppfs::fs::open(oldFilename);
+	if (!oldFile.isFile())
+	{
+		return false;
+	}
+
+	cppfs::FileHandle newFile = cppfs::fs::open(newFilename);
+	return oldFile.copy(newFile);
+}
+
+bool CopyFileUplink(const char* oldfilename, const char* newfilename)
 {
 
 	bool success = false;
-	FILE *fileread = fopen ( oldfilename, "rb" );
-	FILE *filewrite = fopen ( newfilename, "wb" );
+	FILE* fileread = RsFileOpen(const_cast<char*>(oldfilename));
+	FILE* filewrite = fopen(newfilename, "wb");
 
-	if ( fileread && filewrite ) {
-		char buffer [256];
+	if (fileread && filewrite) {
+		char buffer[256];
 		size_t sizeread;
 
-		while ( ( sizeread = fread ( buffer, 1, sizeof ( buffer ), fileread ) ) > 0 ) {
-			fwrite ( buffer, 1, sizeread, filewrite );
+		while ((sizeread = fread(buffer, 1, sizeof(buffer), fileread)) > 0) {
+			fwrite(buffer, 1, sizeread, filewrite);
 		}
 
 		success = true;
 	}
 
-	if ( filewrite )
-		fclose ( filewrite );
-	if ( fileread )
-		fclose ( fileread );
+	if (filewrite)
+		fclose(filewrite);
+	if (fileread)
+		RsFileClose(const_cast<char*>(oldfilename), fileread);
 
 	return success;
 
 }
 
-bool CopyFileUplink ( const char *oldfilename, const char *newfilename )
+bool CopyFileUplink(std::string oldFilename, std::string newFilename)
 {
-
-	bool success = false;
-	FILE *fileread = RsFileOpen ( const_cast<char *>( oldfilename ) );
-	FILE *filewrite = fopen ( newfilename, "wb" );
-
-	if ( fileread && filewrite ) {
-		char buffer [256];
-		size_t sizeread;
-
-		while ( ( sizeread = fread ( buffer, 1, sizeof ( buffer ), fileread ) ) > 0 ) {
-			fwrite ( buffer, 1, sizeread, filewrite );
-		}
-
-		success = true;
-	}
-
-	if ( filewrite )
-		fclose ( filewrite );
-	if ( fileread )
-		RsFileClose ( const_cast<char *>( oldfilename ), fileread );
-
-	return success;
-
+	return CopyFileUplink(oldFilename.c_str(), newFilename.c_str());
 }
 
-bool RemoveFile ( const char *filename )
+bool RemoveFile(const char* filename)
 {
-
-#ifdef WIN32
-	return ( _unlink ( filename ) == 0 );
-#else
-	return ( unlink ( filename ) == 0 );
-#endif
-
+	return RemoveFile(std::string(filename));
 }
 
-DArray <char *> *ListDirectory  ( char *directory, char *filter )
+bool RemoveFile(std::string filename)
 {
-
-    //
-    // Start with a listing from Redshirt archives
-
-    DArray <char *> *result = RsListArchive ( directory, filter );
-
-    //
-    // Now add on all files found locally
-
-#ifdef WIN32
-
-	char searchstring [_MAX_PATH + 1];
-	UplinkSnprintf ( searchstring, sizeof ( searchstring ), "%s%s*%s", app->path, directory, filter ); 
-
-	_finddata_t thisfile;
-	intptr_t fileindex = _findfirst ( searchstring, &thisfile );
-
-	int exitmeplease = 0;
-
-	while ( fileindex != -1 && !exitmeplease ) {
-
-		size_t newnamesize = _MAX_PATH + 1;
-		char *newname = new char [newnamesize];
-		UplinkSnprintf ( newname, newnamesize, "%s%s", directory, thisfile.name );      
-        result->PutData ( newname );
-		exitmeplease = _findnext ( fileindex, &thisfile );
-
+	cppfs::FileHandle handle = cppfs::fs::open(filename);
+	if (!handle.exists())
+	{
+		return true;
 	}
 
-	if ( fileindex != -1 )
-		_findclose ( fileindex );
-
-#else
-
-	char userdir [256];
-	//UplinkStrncpy ( userdir, directory, sizeof ( userdir ) );
-	UplinkSnprintf ( userdir, sizeof ( userdir ), "%s%s", app->path, directory ); 
-	DIR *dir = opendir( userdir );
-	if (dir != NULL) {
-	    struct dirent *entry = readdir ( dir );
-
-	    while (entry != NULL) {
-	    
-		    char *p = strstr(entry->d_name, filter);
-		    if ( p ) {
-				size_t newnamesize = 256;
-		        char *newname = new char [newnamesize];
-		        UplinkSnprintf ( newname, newnamesize, "%s%s", directory, entry->d_name );
-		        result->PutData ( newname );
-		    }
-	        
-		    entry = readdir ( dir );
-	    
-	    }
-	  
-	    closedir( dir );
-	}
-#endif
-
-    //
-    // Now make absolutely sure there are no duplicates
-
-    for ( int i = 0; i < result->Size(); ++i ) {
-        if ( result->ValidIndex(i) ) {
-
-            for ( int j = i + 1; j < result->Size(); ++j ) {
-                if ( result->ValidIndex(j) ) {
-
-                    char *resultI = result->GetData(i);
-                    char *resultJ = result->GetData(j);
-
-					if ( strcmp ( resultI, resultJ ) == 0 ) {
-						delete [] resultJ;
-                        result->RemoveData( j );
-					}
-
-                }
-            }
-
-        }
-    }
-
-    //
-    // All done
-
-    return result;
-
+	return handle.remove();
 }
 
-DArray <char *> *ListSubdirs ( char *directory )
+DArray <char*>* ListDirectory(char* directory, char* filter)
 {
+	//
+	// Start with a listing from Redshirt archives
 
-    DArray <char *> *result = new DArray <char *> ();
+	DArray<char*>* result = RsListArchive(directory, filter);
 
-    //
-    // Now add on all files found locally
+	std::string path(app->path);
+	path.append(directory);
 
-#ifdef WIN32
+	cppfs::FileHandle handle = cppfs::fs::open(path);
 
-	_finddata_t thisfile;
-	char filter[256];
-	UplinkSnprintf ( filter, sizeof ( filter ), "%s*.*", directory );
-	intptr_t fileindex = _findfirst ( filter, &thisfile );
-
-	int exitmeplease = 0;
-
-	while ( fileindex != -1 && !exitmeplease ) {
-		if ( thisfile.attrib & _A_SUBDIR &&
-			 strcmp ( thisfile.name, "." ) != 0 &&
-			 strcmp ( thisfile.name, ".." ) != 0 ) {		
-
-			size_t newnamesize = 256;
-			char *newname = new char [newnamesize];
-			UplinkStrncpy ( newname, thisfile.name, newnamesize );
-			result->PutData ( newname );
-
-		}
-		exitmeplease = _findnext ( fileindex, &thisfile );
+	if (!handle.isDirectory())
+	{
+		return result;
 	}
 
-	if ( fileindex != -1 )
-		_findclose ( fileindex );
-
-#else
-
-	DIR *dir = opendir(directory);
-	if (dir != NULL) {
-		for (struct dirent *d; (d = readdir(dir)) != NULL;) {
-			char fullfilename[256];
-			struct stat info;
-
-			UplinkSnprintf(fullfilename, sizeof ( fullfilename ), "%s/%s", directory, d->d_name);
-			
-			if (stat(fullfilename, &info) == 0 
-				&& S_ISDIR(info.st_mode) 
-				&& d->d_name[0] != '.') { 
-					char *newname = new char [strlen(d->d_name) + 1];
-					UplinkSafeStrcpy(newname, d->d_name);
-					result->PutData( newname );
-			}
+	for (cppfs::FileIterator it = handle.begin(); it != handle.end(); ++it)
+	{
+		std::string filename = *it;
+		if (filename.find(filter) != std::string::npos)
+		{
+			char* data = new char[filename.length() + 1];
+			UplinkSafeStrcpy(data, filename.c_str());
+			result->PutData(data);
 		}
-		closedir(dir);
 	}
-#endif
 
 	return result;
-
 }
 
-void SetColour ( char *colourName )
+std::vector<std::string> ListDirectoryVector(std::string directory, std::string filter)
 {
-
-    if ( !app || 
-         !app->GetOptions () || 
-         !app->GetOptions()->GetColour( colourName ) ) {
-
-        printf ( "SetColour WARNING : Failed to find colour %s\n", colourName );
-        glColor3f ( 0.0f, 0.0f, 0.0f );
-        return;
-
-    }
-
-    ColourOption *col = app->GetOptions ()->GetColour ( colourName );
-    UplinkAssert (col);
-    glColor3f ( col->r, col->g, col->b );
-
+	return ConsumeToStringVector(ListDirectory(const_cast<char*>(directory.c_str()), const_cast<char*>(filter.c_str())));
 }
 
-
-unsigned *getRetAddress(unsigned *mBP)
+std::vector<std::string> ListSubdirs(std::string directory)
 {
-#ifdef WIN32
-	unsigned *retAddr;
+	std::vector<std::string> result;
 
-	__asm {
-		mov eax, [mBP]
-		mov eax, ss:[eax+4];
-		mov [retAddr], eax
+	cppfs::FileHandle dir = cppfs::fs::open(directory);
+	if (!dir.isDirectory())
+	{
+		return result;
 	}
 
-	return retAddr;
-#else
-	unsigned **p = (unsigned **) mBP;
-	return p[1];
-#endif
+	for (cppfs::FileIterator it = dir.begin(); it != dir.end(); ++it)
+	{
+		std::string filename = *it;
+		cppfs::FileHandle handle = cppfs::fs::open(filename);
+		if (handle.isDirectory())
+		{
+			result.push_back(filename);
+		}
+	}
+	
+	return result;
+}
+
+void SetColour(char* colourName)
+{
+
+	if (!app ||
+		!app->GetOptions() ||
+		!app->GetOptions()->GetColour(colourName)) {
+
+		printf("SetColour WARNING : Failed to find colour %s\n", colourName);
+		glColor3f(0.0f, 0.0f, 0.0f);
+		return;
+
+	}
+
+	ColourOption* col = app->GetOptions()->GetColour(colourName);
+	UplinkAssert(col);
+	glColor3f(col->r, col->g, col->b);
+
 }
 
 void PrintStackTrace()
 {
-
-	// Get our frame pointer, chain upwards
-	unsigned *framePtr;
-    unsigned *previousFramePtr = NULL;
-
-    
-#ifdef WIN32
-	__asm { 
-		mov [framePtr], ebp
-	}
-#else
-	asm (
-	    "movl %%ebp, %0;"
-	    :"=r"(framePtr)
-	    );
-#endif
-	while(framePtr) {
-		                
-		printf("retAddress = %p\n", getRetAddress(framePtr));
-		framePtr = *(unsigned **)framePtr;
-
-	    // Frame pointer must be aligned on a
-	    // DWORD boundary.  Bail if not so.
-	    if ( (unsigned long) framePtr & 3 )   
-		break;                    
-
-        if ( framePtr <= previousFramePtr )
-            break;
-
-        // Can two DWORDs be read from the supposed frame address?          
-#ifdef WIN32
-        if ( IsBadWritePtr(framePtr, sizeof(PVOID)*2) ||
-             IsBadReadPtr(framePtr, sizeof(PVOID)*2) )
-            break;
-#endif
-
-        previousFramePtr = framePtr;
-    
-    }
-	
-
+	cpptrace::generate_trace().print();
 }
 
+std::vector<std::string> ConsumeToStringVector(DArray<char*>* sourceArray)
+{
+	std::vector<std::string> result(sourceArray->NumUsed());
+	for (int i = 0; i < sourceArray->NumUsed(); i++)
+	{
+		result[i] = std::string(sourceArray->GetData(i));
+		delete sourceArray->GetData(i);
+	}
+
+	delete sourceArray;
+	return result;
+}

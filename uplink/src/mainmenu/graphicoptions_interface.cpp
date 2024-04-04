@@ -25,7 +25,7 @@
 #include "mainmenu/graphicoptions_interface.h"
 #include "mainmenu/login_interface.h"
 
-#include "mmgr.h"
+
 
 
 int GraphicOptionsInterface::newScreenWidth = 0;
@@ -457,6 +457,7 @@ void GraphicOptionsInterface::Create()
 
 		std::set<int> colorDepths;
 		std::set<int> refreshRates;
+		std::set<std::pair<int, int>> resolutions;
 		for (int i = 0; i < modes->Size(); i++)
 		{
 			if (modes->ValidIndex(i))
@@ -464,11 +465,12 @@ void GraphicOptionsInterface::Create()
 				GciScreenMode* mode = modes->GetData(i);
 				colorDepths.insert(mode->bpp);
 				refreshRates.insert(mode->refreshRate);
+				resolutions.insert(std::pair(mode->w, mode->h));
 			}
 		}
 
-		int numModes = modes->NumUsed();
-		if (modes->NumUsed() > 0) {
+		int numModes = resolutions.size();
+		if (!resolutions.empty()) {
 			printf("Using gathered resolutions.\n");
 			startY = screenh - (numModes * 20) - 50;
 			RegisterButton(50, startY, 100, 15, "RESOLUTION", "Select your screen resolution", "graphic_screenrestitle");
@@ -477,17 +479,13 @@ void GraphicOptionsInterface::Create()
 			int vert_offset = 30;
 			char cap[48];
 			char nm[48];
-			for (int i = 0; i < modes->Size(); ++i) {
-				if (modes->ValidIndex(i)) {
-					GciScreenMode* mode = modes->GetData(i);
-					if (mode != NULL) {
-						UplinkSnprintf(cap, sizeof(cap), "%dx%d", mode->w, mode->h);
-						UplinkSnprintf(nm, sizeof(nm), "graphic 1 %d %d", mode->w, mode->h);
-						RegisterButton(50, startY + vert_offset, 100, 15, cap, "Choose this resolution", nm);
-						EclRegisterButtonCallbacks(nm, ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
-						vert_offset += 20;
-					}
-				}
+			for (auto it = resolutions.begin(); it != resolutions.end(); ++it) {
+				std::pair<int, int> resolution = *it;
+				UplinkSnprintf(cap, sizeof(cap), "%dx%d", resolution.first, resolution.second);
+				UplinkSnprintf(nm, sizeof(nm), "graphic 1 %d %d", resolution.first, resolution.second);
+				RegisterButton(50, startY + vert_offset, 100, 15, cap, "Choose this resolution", nm);
+				EclRegisterButtonCallbacks(nm, ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
+				vert_offset += 20;
 			}
 		}
 		else {

@@ -38,7 +38,7 @@
 #include "world/company/mission.h"
 #include "world/message.h"
 
-#include "mmgr.h"
+
 
 Image *MailViewInterface::iclose_tif = NULL;
 Image *MailViewInterface::iclose_h_tif = NULL;

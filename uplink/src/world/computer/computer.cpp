@@ -32,7 +32,7 @@
 #include "interface/interface.h"
 #include "interface/remoteinterface/remoteinterface.h"
 
-#include "mmgr.h"
+
 
 
 Computer::Computer()

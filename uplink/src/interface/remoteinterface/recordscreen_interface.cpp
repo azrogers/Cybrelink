@@ -18,7 +18,7 @@
 #include "interface/remoteinterface/remoteinterface.h"
 #include "interface/remoteinterface/recordscreen_interface.h"
 
-#include "mmgr.h"
+
 
 
 int RecordScreenInterface::recordindex = 0;
