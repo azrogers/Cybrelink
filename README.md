@@ -1,8 +1,8 @@
 # Cybrelink
 
-This is a small Uplink mod to make important quality of life improvements to the game. I don't have any particular goals here, other than to make the game a bit more fun to play without modifying the core gameplay. 
+This is an Uplink mod I started to make small quality-of-life changes for things that got a bit grating after fifty hours of play. At this point, it's an aimless spare-time project to refactor as much of Uplink's source code as I can.
 
-## Improvements
+## Gameplay Changes
 
 #### Hotkeys / Shortcuts
 * Middle clicking on links (like on the main screen) will load your saved bounce path before connecting. If you're connecting to a central mainframe computer, it will connect through that company's internal services system if you've discovered it.
@@ -27,4 +27,17 @@ This is a small Uplink mod to make important quality of life improvements to the
 
 ## Building
 
-I have gotten this building on Windows in Visual Studio. Building for any other platforms or on other IDEs I can't help you with.
+The project has been upgraded to use CMake for building and vcpkg for dependencies. To build the project, have both CMake 3.15+ and vcpkg in your path and run the following commands in the project's root directory:
+```
+cmake -B out -S .
+# to make a debug FULLGAME build
+cmake --build out --config debug
+# to make a debug DEMOGAME build
+cmake --build out --config debug -DUPLINK_BUILD_TYPE=demo
+# to make a debug TESTGAME build
+cmake --build out --config debug -DUPLINK_BUILD_TYPE=test
+# to make a release FULLGAME build
+cmake --build out --config release
+```
+
+This will write uplink-game.exe to the uplink/bin directory. This is where you should put the contents of your game directory in order to test the build.

@@ -1,50 +1,82 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\soundgarden\src\sgplaylist.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\soundgarden\src\soundgarden.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\soundgarden\src\soundgarden_sdl2mixer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\soundgarden\src\soundgarden_sdlmixer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\soundgarden\src\soundgarden_unix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\soundgarden\src\soundgarden_win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\soundgarden\src\sgplaylist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\soundgarden\src\soundgarden.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\redshirt\src\hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\redshirt\src\redshirt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\eclipse\src\animation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\eclipse\src\button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\eclipse\src\eclipse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\draw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\geom_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\gucci.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\gucci_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\vertex_buffer_pool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\soundgarden\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\data\text_basic_frag.txt" />
+    <None Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\data\text_basic_vert.txt" />
+    <None Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\data\text_lcd_frag.txt" />
+    <None Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\data\text_lcd_vert.txt" />
+    <None Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\data\text_sdf_frag.txt" />
+  </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+      <UniqueIdentifier>{4D561217-13F0-3627-9B94-1417450FC7C8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <UniqueIdentifier>{45D512D4-6F54-32BE-89BE-F64B2B643F41}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="sgplaylist.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="soundgarden.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="sgplaylist.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="soundgarden.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="soundgarden_sdlmixer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="soundgarden_unix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="soundgarden_win32.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="soundgarden_sdl2mixer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="vcpkg.json">
-      <Filter>Source Files</Filter>
-    </None>
   </ItemGroup>
 </Project>

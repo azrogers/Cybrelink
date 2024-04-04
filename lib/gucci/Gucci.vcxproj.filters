@@ -1,79 +1,154 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\draw.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\geom_types.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\gucci.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\gucci_glut.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\gucci_sdl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\gucci_sdl2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\image.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\resize_unix.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\resize_win32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\vertex_buffer_pool.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\draw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\geom_types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\gucci.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\gucci_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\src\vertex_buffer_pool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTBBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTBitmapGlyph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTCharToGlyphIndexMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTCharmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTContour.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTExtrdGlyph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTFace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTFont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTGLBitmapFont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTGLExtrdFont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTGLOutlineFont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTGLPixmapFont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTGLPolygonFont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTGLTextureFont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTGlyph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTGlyphContainer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTLibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTOutlineGlyph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTPixmapGlyph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTPolyGlyph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTSize.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTTextureGlyph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTVector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\ftgl\include\FTGL\FTVectoriser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\data\text_basic_frag.txt" />
+    <None Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\data\text_basic_vert.txt" />
+    <None Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\data\text_lcd_frag.txt" />
+    <None Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\data\text_lcd_vert.txt" />
+    <None Include="C:\Users\Ashley\Projects\Visual Studio\Cybrelink\lib\gucci\data\text_sdf_frag.txt" />
+  </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
+      <UniqueIdentifier>{4D561217-13F0-3627-9B94-1417450FC7C8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <UniqueIdentifier>{45D512D4-6F54-32BE-89BE-F64B2B643F41}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="gucci.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gucci_internal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="geom_types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="draw.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="vertex_buffer_pool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="gucci.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gucci_glut.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gucci_sdl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="image.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="resize_unix.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="resize_win32.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gucci_sdl2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="geom_types.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="draw.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="vertex_buffer_pool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="vcpkg.json" />
-    <None Include="text_basic_vert.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="text_lcd_vert.txt" />
-    <Text Include="text_lcd_frag.txt" />
-    <Text Include="text_sdf_frag.txt" />
-    <Text Include="text_basic_frag.txt" />
   </ItemGroup>
 </Project>

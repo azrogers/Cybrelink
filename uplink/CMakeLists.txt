@@ -18,7 +18,8 @@ uplink_glob_files(UPLINK_GAME_SOURCES
 	${CMAKE_CURRENT_LIST_DIR}/src/**/**/**/*.cpp
 	${CMAKE_CURRENT_LIST_DIR}/src/**/**/*.cpp
 	${CMAKE_CURRENT_LIST_DIR}/src/**/*.cpp
-	${CMAKE_CURRENT_LIST_DIR}/src/*.cpp)
+	${CMAKE_CURRENT_LIST_DIR}/src/*.cpp
+	${CMAKE_CURRENT_LIST_DIR}/src/resources.rc)
 
 uplink_glob_files(UPLINK_GAME_HEADERS
 	${CMAKE_CURRENT_LIST_DIR}/src/**/**/**/*.h
