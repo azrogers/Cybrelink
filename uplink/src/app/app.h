@@ -14,89 +14,83 @@
 
 #include "app/uplinkobject.h"
 
-
 class Options;
 class Network;
 class MainMenu;
 class PhoneDialler;
 
-
-#define SIZE_APP_PATH    256
+#define SIZE_APP_PATH 256
 #define SIZE_APP_VERSION 32
-#define SIZE_APP_TYPE    32
-#define SIZE_APP_DATE    32
-#define SIZE_APP_TITLE   64
+#define SIZE_APP_TYPE 32
+#define SIZE_APP_DATE 32
+#define SIZE_APP_TITLE 64
 #define SIZE_APP_RELEASE 256
 
 // ============================================================================
 
+class App : public UplinkObject {
 
-class App : public UplinkObject
-{
+public:
+	char path[SIZE_APP_PATH];
+	char userpath[SIZE_APP_PATH];
+	char usertmppath[SIZE_APP_PATH]; // Used by the crash reporter to store the current .usr
+	char userretirepath[SIZE_APP_PATH]; // Used to store old agents ( .usr / .tmp )
+	char version[SIZE_APP_VERSION];
+	char type[SIZE_APP_TYPE];
+	char date[SIZE_APP_DATE];
+	char title[SIZE_APP_TITLE];
+	char release[SIZE_APP_RELEASE];
 
-public :
+	int starttime;
+	bool closed;
 
-    char path    [SIZE_APP_PATH];
-    char userpath [SIZE_APP_PATH];
-    char usertmppath [SIZE_APP_PATH]; // Used by the crash reporter to store the current .usr
-    char userretirepath [SIZE_APP_PATH]; // Used to store old agents ( .usr / .tmp )
-    char version [SIZE_APP_VERSION];
-    char type    [SIZE_APP_TYPE];
-    char date    [SIZE_APP_DATE];
-    char title   [SIZE_APP_TITLE];
-    char release [SIZE_APP_RELEASE];          
+	Options* options;
+	Network* network;
+	MainMenu* mainmenu;
+	PhoneDialler* phoneDial;
 
-    int starttime;
-    bool closed;
-
-    Options *options;
-	Network *network;
-	MainMenu *mainmenu;
-	PhoneDialler *phoneDial;
-
-	char *nextLoadGame;
+	char* nextLoadGame;
 
 	bool askCodeCard;
 
 public:
+	App();
+	~App();
 
-    App ();
-    ~App ();
-    
-    void Set ( char *newpath, char *newversion, char *newtype,
-			   char *newdate, char *newtitle );
-    
-	void Initialise ();	
-	void Close ();			// Shuts down the app	
-    bool Closed ();         // True if in the process of shutting down
+	void Set(const char* newpath,
+			 const char* newversion,
+			 const char* newtype,
+			 const char* newdate,
+			 const char* newtitle);
 
-	void SetNextLoadGame ( const char *username );       // Set the username to load with the next call to LoadGame
-	void LoadGame ();                                    // Use the username set with SetNextLoadGame
-	void LoadGame ( char *username );
-	void SaveGame ( char *username );
-	void RetireGame ( char *username );
-	static DArray <char *> *ListExistingGames ();
+	void Initialise();
+	void Close(); // Shuts down the app
+	bool Closed(); // True if in the process of shutting down
 
-	Options *GetOptions ();
-	Network *GetNetwork ();
-	MainMenu *GetMainMenu ();
-	void RegisterPhoneDialler ( PhoneDialler *phoneDiallerScreen );
-	void UnRegisterPhoneDialler ( PhoneDialler *phoneDiallerScreen );
+	void SetNextLoadGame(const char* username); // Set the username to load with the next call to LoadGame
+	void LoadGame(); // Use the username set with SetNextLoadGame
+	void LoadGame(char* username);
+	void SaveGame(char* username);
+	void RetireGame(const char* username);
+	static DArray<char*>* ListExistingGames();
 
-    static void CoreDump ();             
+	Options* GetOptions();
+	Network* GetNetwork();
+	MainMenu* GetMainMenu();
+	void RegisterPhoneDialler(PhoneDialler* phoneDiallerScreen);
+	void UnRegisterPhoneDialler(PhoneDialler* phoneDiallerScreen);
+
+	static void CoreDump();
 
 	// Common functions
 
-	bool Load   ( FILE *file );
-	void Save   ( FILE *file );
-	void Print  ();
-	void Update ();
-	char *GetID ();
-
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
+	std::string GetID();
 };
 
-extern App *app;
+extern App* app;
 
 #endif
-
-

@@ -8,46 +8,41 @@
 #ifndef _included_dialogscreeninterface_h
 #define _included_dialogscreeninterface_h
 
-
 // ============================================================================
 
 #include "interface/remoteinterface/remoteinterfacescreen.h"
 
+class Computer;
 class ComputerScreen;
 class DialogScreen;
 class DialogScreenWidget;
 
 // ============================================================================
 
-
-class DialogScreenInterface : public RemoteInterfaceScreen  
-{
+class DialogScreenInterface : public RemoteInterfaceScreen {
 
 protected:
+	static void PasswordBoxDraw(Button* button, bool highlighted, bool clicked);
 
-	static void PasswordBoxDraw		( Button *button, bool highlighted, bool clicked );
+	static void NextPageClick(Button* button);
+	static void ScriptButtonClick(Button* button);
 
-	static void NextPageClick		( Button *button );
-	static void ScriptButtonClick	( Button *button );
-	
 public:
-
 	DialogScreenInterface();
 	virtual ~DialogScreenInterface();
 
-	bool ReturnKeyPressed ();
-    bool EscapeKeyPressed ();
+	bool ReturnKeyPressed();
+	bool EscapeKeyPressed();
 
-	void Create ( ComputerScreen *newcs );
-	void Remove ();
-	bool IsVisible ();
+	void Create(ComputerScreen* newcs);
+	void Remove();
+	bool IsVisible();
 
-	int  ScreenID ();			
+	int ScreenID();
 
-	DialogScreen *GetComputerScreen ();				// Should override this with correct data type
+	DialogScreen* GetComputerScreen(); // Should override this with correct data type
 
-	static void RemoveWidget ( DialogScreenWidget *dsw, Computer *comp );
-
+	static void RemoveWidget(DialogScreenWidget* dsw, Computer* comp);
 };
 
 #endif

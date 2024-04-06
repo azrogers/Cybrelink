@@ -13,8 +13,8 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef	EXCEPTIONHANDLER_H
-#define	EXCEPTIONHANDLER_H
+#ifndef EXCEPTIONHANDLER_H
+#define EXCEPTIONHANDLER_H
 
 // We forward declare PEXCEPTION_POINTERS so that the function
 // prototype doesn't needlessly require windows.h.
@@ -22,9 +22,8 @@
 
 typedef struct _EXCEPTION_POINTERS EXCEPTION_POINTERS, *PEXCEPTION_POINTERS;
 
-int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data, const char *Message);
+int __cdecl RecordExceptionInfo(PEXCEPTION_POINTERS data, const char* Message);
 #endif
-
 
 /*
 // Sample usage - put the code that used to be in main into HandledMain.

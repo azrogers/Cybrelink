@@ -10,244 +10,189 @@
 
 #include "world/computer/computerscreen/menuscreen.h"
 
-
-
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-MenuScreen::MenuScreen()
+MenuScreen::MenuScreen() { }
+
+MenuScreen::~MenuScreen() { DeleteLListData((LList<UplinkObject*>*)&options); }
+
+void MenuScreen::AddOption(const char* caption, const char* tooltip, int nextpage, int security, int index)
 {
 
+	MenuScreenOption* mso = new MenuScreenOption();
+	mso->SetCaption(caption);
+	mso->SetTooltip(tooltip);
+	mso->SetNextPage(nextpage);
+	mso->SetSecurity(security);
+
+	if (index == -1) {
+		options.PutData(mso);
+	}
+
+	else {
+		options.PutDataAtIndex(mso, index);
+	}
 }
 
-MenuScreen::~MenuScreen()
-{
-    
-    DeleteLListData ( (LList <UplinkObject *> *) &options );
+int MenuScreen::NumOptions() { return options.Size(); }
 
+char* MenuScreen::GetCaption(int index)
+{
+
+	UplinkAssert(options.ValidIndex(index));
+
+	return options.GetData(index)->caption;
 }
 
-void MenuScreen::AddOption ( char *caption, char *tooltip, int nextpage, int security, int index )
+char* MenuScreen::GetTooltip(int index)
 {
 
-	MenuScreenOption *mso = new MenuScreenOption ();
-	mso->SetCaption ( caption );
-	mso->SetTooltip ( tooltip );
-	mso->SetNextPage ( nextpage );
-	mso->SetSecurity ( security );
+	UplinkAssert(options.ValidIndex(index));
 
-	if ( index == -1 )
-		options.PutData ( mso );
-
-	else
-		options.PutDataAtIndex ( mso, index );
-
+	return options.GetData(index)->tooltip;
 }
 
-int MenuScreen::NumOptions  ()
+int MenuScreen::GetNextPage(int index)
 {
 
-	return options.Size ();
+	UplinkAssert(options.ValidIndex(index));
 
+	return options.GetData(index)->nextpage;
 }
 
-char *MenuScreen::GetCaption ( int index )
+int MenuScreen::GetSecurity(int index)
 {
 
-	UplinkAssert ( options.ValidIndex ( index ) );
+	UplinkAssert(options.ValidIndex(index));
 
-	return options.GetData (index)->caption;
-
+	return options.GetData(index)->security;
 }
 
-char *MenuScreen::GetTooltip ( int index )
+bool MenuScreen::Load(FILE* file)
 {
 
-	UplinkAssert ( options.ValidIndex ( index ) );
+	LoadID(file);
 
-	return options.GetData (index)->tooltip;
-	
-}
+	if (!ComputerScreen::Load(file)) {
+		return false;
+	}
 
-int MenuScreen::GetNextPage ( int index )
-{
+	if (!LoadLList((LList<UplinkObject*>*)&options, file)) {
+		return false;
+	}
 
-	UplinkAssert ( options.ValidIndex ( index ) );
-
-	return options.GetData (index)->nextpage;
-
-}
-
-int MenuScreen::GetSecurity ( int index )
-{
-
-	UplinkAssert ( options.ValidIndex ( index ) );
-
-	return options.GetData (index)->security;
-
-}
-
-bool MenuScreen::Load ( FILE *file )
-{
-
-	LoadID ( file );
-
-	if ( !ComputerScreen::Load ( file ) ) return false;
-
-	if ( !LoadLList ( (LList <UplinkObject *> *) &options, file ) ) return false;
-
-	LoadID_END ( file );
+	LoadID_END(file);
 
 	return true;
-
 }
 
-void MenuScreen::Save ( FILE *file )
+void MenuScreen::Save(FILE* file)
 {
 
-	SaveID ( file );
+	SaveID(file);
 
-	ComputerScreen::Save ( file );
+	ComputerScreen::Save(file);
 
-	SaveLList ( (LList <UplinkObject *> *) &options, file );
+	SaveLList((LList<UplinkObject*>*)&options, file);
 
-	SaveID_END ( file );
-
+	SaveID_END(file);
 }
 
-void MenuScreen::Print ()
+void MenuScreen::Print()
 {
 
-	printf ( "MenuScreen : \n" );
-	
-	ComputerScreen::Print ();
-	
-	PrintLList ( (LList <UplinkObject *> *) &options );
+	printf("MenuScreen : \n");
 
+	ComputerScreen::Print();
+
+	PrintLList((LList<UplinkObject*>*)&options);
 }
 
-char *MenuScreen::GetID ()
-{
+std::string MenuScreen::GetID() { return "SCR_MENU"; }
 
-	return "SCR_MENU";
-
-}
-
-int MenuScreen::GetOBJECTID ()
-{
-
-	return OID_MENUSCREEN;
-
-}
-
-
+int MenuScreen::GetOBJECTID() { return OID_MENUSCREEN; }
 
 // ============================================================================
 
-
-
-MenuScreenOption::MenuScreenOption ()
+MenuScreenOption::MenuScreenOption()
 {
 
-	UplinkStrncpy ( caption, "", sizeof ( caption ) );
-	UplinkStrncpy ( tooltip, "", sizeof ( tooltip ) );
+	UplinkStrncpy(caption, "", sizeof(caption));
+	UplinkStrncpy(tooltip, "", sizeof(tooltip));
 	nextpage = -1;
 	security = 10;
-
 }
 
-MenuScreenOption::~MenuScreenOption ()
+MenuScreenOption::~MenuScreenOption() { }
+
+void MenuScreenOption::SetCaption(const char* newcaption)
 {
+
+	UplinkAssert(strlen(newcaption) < SIZE_MENUSCREENOPTION_CAPTION);
+	UplinkStrncpy(caption, newcaption, sizeof(caption));
 }
 
-void MenuScreenOption::SetCaption ( char *newcaption )
+void MenuScreenOption::SetTooltip(const char* newtooltip)
 {
 
-	UplinkAssert ( strlen(newcaption) < SIZE_MENUSCREENOPTION_CAPTION );
-	UplinkStrncpy ( caption, newcaption, sizeof ( caption ) );
-
+	UplinkAssert(strlen(newtooltip) < SIZE_MENUSCREENOPTION_TOOLTIP);
+	UplinkStrncpy(tooltip, newtooltip, sizeof(tooltip));
 }
 
-void MenuScreenOption::SetTooltip ( char *newtooltip )
+void MenuScreenOption::SetNextPage(int newnextpage) { nextpage = newnextpage; }
+
+void MenuScreenOption::SetSecurity(int newsecurity) { security = newsecurity; }
+
+bool MenuScreenOption::Load(FILE* file)
 {
 
-	UplinkAssert ( strlen(newtooltip) < SIZE_MENUSCREENOPTION_TOOLTIP );
-	UplinkStrncpy ( tooltip, newtooltip, sizeof ( tooltip ) );
+	LoadID(file);
 
-}
+	if (!LoadDynamicStringStatic(caption, SIZE_MENUSCREENOPTION_CAPTION, file)) {
+		return false;
+	}
+	if (!LoadDynamicStringStatic(tooltip, SIZE_MENUSCREENOPTION_TOOLTIP, file)) {
+		return false;
+	}
 
-void MenuScreenOption::SetNextPage ( int newnextpage )
-{
+	if (!FileReadData(&nextpage, sizeof(nextpage), 1, file)) {
+		return false;
+	}
+	if (!FileReadData(&security, sizeof(security), 1, file)) {
+		return false;
+	}
 
-	nextpage = newnextpage;
-
-}
-
-void MenuScreenOption::SetSecurity ( int newsecurity )
-{
-
-	security = newsecurity;
-
-}
-
-bool MenuScreenOption::Load ( FILE *file )
-{
-
-	LoadID ( file );
-
-	if ( !LoadDynamicStringStatic ( caption, SIZE_MENUSCREENOPTION_CAPTION, file ) ) return false;
-	if ( !LoadDynamicStringStatic ( tooltip, SIZE_MENUSCREENOPTION_TOOLTIP, file ) ) return false;
-
-	if ( !FileReadData ( &nextpage, sizeof(nextpage), 1, file ) ) return false;
-	if ( !FileReadData ( &security, sizeof(security), 1, file ) ) return false;
-
-	LoadID_END ( file );
+	LoadID_END(file);
 
 	return true;
-
 }
 
-void MenuScreenOption::Save ( FILE *file )
+void MenuScreenOption::Save(FILE* file)
 {
 
-	SaveID ( file );
+	SaveID(file);
 
-	SaveDynamicString ( caption, SIZE_MENUSCREENOPTION_CAPTION, file );
-	SaveDynamicString ( tooltip, SIZE_MENUSCREENOPTION_TOOLTIP, file );
+	SaveDynamicString(caption, SIZE_MENUSCREENOPTION_CAPTION, file);
+	SaveDynamicString(tooltip, SIZE_MENUSCREENOPTION_TOOLTIP, file);
 
-	fwrite ( &nextpage, sizeof(nextpage), 1, file );
-	fwrite ( &security, sizeof(security), 1, file );
+	fwrite(&nextpage, sizeof(nextpage), 1, file);
+	fwrite(&security, sizeof(security), 1, file);
 
-	SaveID_END ( file );
-
+	SaveID_END(file);
 }
 
-void MenuScreenOption::Print ()
+void MenuScreenOption::Print()
 {
 
-	printf ( "MenuScreenOption : \n" );
-	printf ( "\tNextPage = %d, Caption = %s\n", nextpage, caption );
-	printf ( "\tTooltip = %s, security = %d\n", tooltip, security );
-
+	printf("MenuScreenOption : \n");
+	printf("\tNextPage = %d, Caption = %s\n", nextpage, caption);
+	printf("\tTooltip = %s, security = %d\n", tooltip, security);
 }
 
-void MenuScreenOption::Update ()
-{
-}
+void MenuScreenOption::Update() { }
 
-char *MenuScreenOption::GetID ()
-{
+std::string MenuScreenOption::GetID() { return "MNUOPT"; }
 
-	return "MNUOPT";
-
-}
-
-int MenuScreenOption::GetOBJECTID ()
-{
-
-	return OID_MENUSCREENOPTION;
-
-}
-
+int MenuScreenOption::GetOBJECTID() { return OID_MENUSCREENOPTION; }

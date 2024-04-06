@@ -5,7 +5,6 @@
 
   */
 
-
 #ifndef _included_academicscreeninterface_h
 #define _included_academicscreeninterface_h
 
@@ -17,48 +16,37 @@ class GenericScreen;
 
 // ============================================================================
 
-
-
-class AcademicScreenInterface : public RemoteInterfaceScreen
-{
+class AcademicScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
-	char *searchname;
+	char* searchname;
 	int recordindex;
 	int lastupdate;
 
 protected:
+	void UpdateScreen(); // Uses recordindex
 
-	void UpdateScreen ();									// Uses recordindex
+	static void DetailsDraw(Button* button, bool highlighted, bool clicked);
 
-	static void DetailsDraw ( Button *button, bool highlighted, bool clicked );
-
-	static void CommitClick			( Button *button );
-	static void CloseClick			( Button *button );
+	static void CommitClick(Button* button);
+	static void CloseClick(Button* button);
 
 public:
+	AcademicScreenInterface();
+	~AcademicScreenInterface();
 
-	AcademicScreenInterface ();
-	~AcademicScreenInterface ();
+	bool EscapeKeyPressed();
 
-    bool EscapeKeyPressed ();
+	void SetSearchName(char* newsearchname);
 
-	void SetSearchName ( char *newsearchname );
+	void Create(ComputerScreen* cs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
+	int ScreenID();
 
-	void Create ( ComputerScreen *cs );
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
-
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
-
-
 #endif
-

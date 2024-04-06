@@ -10,22 +10,18 @@
 #ifndef _included_networkscreen_h
 #define _included_networkscreen_h
 
-
-class NetworkScreen
-{
+class NetworkScreen {
 
 public:
-
 	NetworkScreen();
 	virtual ~NetworkScreen();
 
-	virtual void Create ();
-	virtual void Remove ();
-	virtual void Update ();
-	virtual bool IsVisible ();
+	virtual void Create();
+	virtual void Remove();
+	virtual void Update();
+	virtual bool IsVisible();
 
-	virtual int  ScreenID ();			
-
+	virtual int ScreenID();
 };
 
 #endif

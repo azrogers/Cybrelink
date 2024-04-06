@@ -1,62 +1,45 @@
-#include "FTFace.h"
 #include "FTCharmap.h"
+#include "FTFace.h"
 
-
-FTCharmap::FTCharmap( FTFace* face)
-:   ftFace( *(face->Face())),
-    err(0)
+FTCharmap::FTCharmap(FTFace* face) :
+	ftFace(*(face->Face())),
+	err(0)
 {
-    if( !ftFace->charmap)
-    {
-        err = FT_Set_Charmap( ftFace, ftFace->charmaps[0]);
-    }
-    
-    ftEncoding = ftFace->charmap->encoding;
+	if (!ftFace->charmap) {
+		err = FT_Set_Charmap(ftFace, ftFace->charmaps[0]);
+	}
+
+	ftEncoding = ftFace->charmap->encoding;
 }
 
+FTCharmap::~FTCharmap() { charMap.clear(); }
 
-FTCharmap::~FTCharmap()
+bool FTCharmap::CharMap(FT_Encoding encoding)
 {
-    charMap.clear();
+	if (ftEncoding == encoding) {
+		return true;
+	}
+
+	err = FT_Select_Charmap(ftFace, encoding);
+
+	if (!err) {
+		ftEncoding = encoding;
+	} else {
+		ftEncoding = ft_encoding_none;
+	}
+
+	charMap.clear();
+	return !err;
 }
 
+unsigned int FTCharmap::GlyphListIndex(unsigned int characterCode) { return charMap.find(characterCode); }
 
-bool FTCharmap::CharMap( FT_Encoding encoding)
+unsigned int FTCharmap::FontIndex(unsigned int characterCode)
 {
-    if( ftEncoding == encoding)
-    {
-        return true;
-    }
-    
-    err = FT_Select_Charmap( ftFace, encoding );
-    
-    if( !err)
-    {
-        ftEncoding = encoding;
-    }
-    else
-    {
-        ftEncoding = ft_encoding_none;
-    }
-        
-    charMap.clear();
-    return !err;
+	return FT_Get_Char_Index(ftFace, characterCode);
 }
 
-
-unsigned int FTCharmap::GlyphListIndex( unsigned int characterCode )
+void FTCharmap::InsertIndex(const unsigned int characterCode, const unsigned int containerIndex)
 {
-    return charMap.find( characterCode);
-}
-
-
-unsigned int FTCharmap::FontIndex( unsigned int characterCode )
-{
-    return FT_Get_Char_Index( ftFace, characterCode);
-}
-
-
-void FTCharmap::InsertIndex( const unsigned int characterCode, const unsigned int containerIndex)
-{
-    charMap.insert( characterCode, containerIndex);
+	charMap.insert(characterCode, containerIndex);
 }

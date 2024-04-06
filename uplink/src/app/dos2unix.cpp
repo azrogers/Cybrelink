@@ -16,70 +16,72 @@ dos2unixbuf::dos2unixbuf(const char* filename, dos2unixbuf::openmode mode)
 
 dos2unixbuf::~dos2unixbuf()
 {
-	if (buffer)
-		delete[](buffer - 1);
+	if (buffer) {
+		delete[] (buffer - 1);
+	}
 }
 
 void dos2unixbuf::close()
 {
-	if (buffer)
-		delete[](buffer - 1);
+	if (buffer) {
+		delete[] (buffer - 1);
+	}
 	buffer = NULL;
 	inner.close();
 }
 
-int dos2unixbuf::overflow(int c)
-{
-	return c != EOF ? inner.sputc(c) : EOF;
-}
+int dos2unixbuf::overflow(int c) { return c != EOF ? inner.sputc(c) : EOF; }
 
 int dos2unixbuf::underflow()
 {
-	if (gptr() < egptr())
+	if (gptr() < egptr()) {
 		return *(unsigned char*)gptr();
+	}
 
 	char* b = buffer;
 
 	while (b < buffer + BUFLEN) {
 		int ch = inner.sbumpc();
 
-		if (ch == '\r')
+		if (ch == '\r') {
 			continue;
-		else if (ch == EOF)
+		} else if (ch == EOF) {
 			break;
-		else
+		} else {
 			*b++ = ch;
+		}
 	}
 
 	setg(NULL, buffer, b);
 
-	if (b == buffer)
+	if (b == buffer) {
 		return EOF;
-	else
+	} else {
 		return *(unsigned char*)buffer;
+	}
 }
 
-int dos2unixbuf::uflow() {
+int dos2unixbuf::uflow()
+{
 	int ch = underflow();
 	if (ch != EOF) {
 		return sbumpc();
-	}
-	else
+	} else {
 		return ch;
+	}
 }
 
-int dos2unixbuf::pbackfail(int c) {
+int dos2unixbuf::pbackfail(int c)
+{
 	if (gptr() > pbase()) {
 		setg(NULL, gptr() - 1, egptr());
 		return c;
-	}
-	else
+	} else {
 		return EOF;
+	}
 }
 
-int dos2unixbuf::sync() {
-	return inner.pubsync();
-}
+int dos2unixbuf::sync() { return inner.pubsync(); }
 
 void idos2unixstream::close()
 {
@@ -87,7 +89,4 @@ void idos2unixstream::close()
 	buf->close();
 }
 
-idos2unixstream::~idos2unixstream()
-{
-	delete rdbuf();
-}
+idos2unixstream::~idos2unixstream() { delete rdbuf(); }

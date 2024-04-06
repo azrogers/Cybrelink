@@ -4,10 +4,9 @@
   Nuclear War screen interface
 
 	Run from the Protovision system
-    Plays as a basic version of Asteroids
+	Plays as a basic version of Asteroids
 
   */
-
 
 #ifndef _included_nuclearwarscreeninterface_h
 #define _included_nuclearwarscreeninterface_h
@@ -17,57 +16,47 @@
 class GenericScreen;
 struct NuclearWar_Nuke;
 
-
-class NuclearWarScreenInterface : public RemoteInterfaceScreen
-{
+class NuclearWarScreenInterface : public RemoteInterfaceScreen {
 
 protected:
+	static void DrawBlack(Button* button, bool highlighted, bool clicked);
 
-	static void DrawBlack ( Button *button, bool highlighted, bool clicked );
+	static void DrawLocation(Button* button, bool highlighted, bool clicked);
+	static void ClickLocation(Button* button);
 
-	static void DrawLocation ( Button *button, bool highlighted, bool clicked );
-	static void ClickLocation ( Button *button );
+	static void DrawMainMap(Button* button, bool highlighted, bool clicked);
 
-    static void DrawMainMap ( Button *button, bool highlighted, bool clicked );
-
-    static void CloseClick ( Button *button );
+	static void CloseClick(Button* button);
 
 protected:
-
-    LList <NuclearWar_Nuke *> nukes;
+	LList<NuclearWar_Nuke*> nukes;
 
 public:
+	NuclearWarScreenInterface();
+	~NuclearWarScreenInterface();
 
-	NuclearWarScreenInterface ();
-	~NuclearWarScreenInterface ();
+	bool ReturnKeyPressed();
 
-	bool ReturnKeyPressed ();
+	void Create(ComputerScreen* newcs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ( ComputerScreen *newcs );
-	void Remove ();
-    void Update ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
+struct NuclearWar_Nuke {
 
-struct NuclearWar_Nuke
-{
+	int sx;
+	int sy;
 
-    int sx;
-    int sy;
+	int x;
+	int y;
+	int time;
 
-    int x;
-    int y;
-    int time;
-
-    bool sound;
-    
+	bool sound;
 };
 
 #endif
-

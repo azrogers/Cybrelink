@@ -6,105 +6,87 @@
 #include "world/computer/security.h"
 #include "world/computer/securitysystem.h"
 
+Security::Security() { }
 
+Security::~Security() { DeleteDArrayData((DArray<UplinkObject*>*)&systems); }
 
-
-Security::Security ()
+void Security::AddSystem(SecuritySystem* newsystem, int index)
 {
+
+	if (index == -1) {
+		systems.PutData(newsystem);
+	}
+
+	else {
+		systems.PutData(newsystem, index);
+	}
 }
 
-Security::~Security ()
+void Security::AddSystem(int TYPE, int level, int index)
 {
 
-    DeleteDArrayData ( (DArray <UplinkObject *> *) &systems );
+	SecuritySystem* ss = new SecuritySystem();
+	ss->SetTYPE(TYPE);
+	ss->SetLevel(level);
+	ss->Enable();
 
+	AddSystem(ss, index);
 }
 
+void Security::RemoveAllSystems() { systems.Empty(); }
 
-void Security::AddSystem ( SecuritySystem *newsystem, int index )
+SecuritySystem* Security::GetSystem(int index)
 {
 
-	if ( index == -1 )
-		systems.PutData (newsystem);
+	if (systems.ValidIndex(index)) {
+		return systems.GetData(index);
+	}
 
-	else
-		systems.PutData (newsystem, index);
-
-}
-
-void Security::AddSystem ( int TYPE, int level, int index )
-{
-
-	SecuritySystem *ss = new SecuritySystem ();
-	ss->SetTYPE ( TYPE );
-	ss->SetLevel ( level );
-	ss->Enable ();
-
-	AddSystem ( ss, index );
-
-}
-
-void Security::RemoveAllSystems ()
-{
-
-    systems.Empty ();
-
-}
-
-SecuritySystem *Security::GetSystem (int index)
-{
-
-	if ( systems.ValidIndex (index) )
-		return systems.GetData (index);
-
-	else
+	else {
 		return NULL;
-
+	}
 }
 
-int Security::NumSystems ()
-{
+int Security::NumSystems() { return systems.Size(); }
 
-	return systems.Size ();
-
-}
-
-int Security::NumRunningSystems ()
+int Security::NumRunningSystems()
 {
 
 	int numsystems = 0;
 
-	for ( int i = 0; i < systems.Size (); ++i )
-		if ( systems.ValidIndex (i) )
-			if ( systems.GetData (i)->enabled &&
-				!systems.GetData (i)->bypassed )
+	for (int i = 0; i < systems.Size(); ++i) {
+		if (systems.ValidIndex(i)) {
+			if (systems.GetData(i)->enabled && !systems.GetData(i)->bypassed) {
 				++numsystems;
+			}
+		}
+	}
 
 	return numsystems;
-
 }
 
-bool Security::IsRunning ( int TYPE )
+bool Security::IsRunning(int TYPE)
 {
 
-	for ( int i = 0; i < systems.Size (); ++i ) 
-		if ( systems.ValidIndex (i) )
-			if ( systems.GetData (i) )
-				if ( systems.GetData (i)->TYPE == TYPE )
-					if ( systems.GetData (i)->enabled && 
-						!systems.GetData (i)->bypassed )
+	for (int i = 0; i < systems.Size(); ++i) {
+		if (systems.ValidIndex(i)) {
+			if (systems.GetData(i)) {
+				if (systems.GetData(i)->TYPE == TYPE) {
+					if (systems.GetData(i)->enabled && !systems.GetData(i)->bypassed) {
 						return true;
+					}
+				}
+			}
+		}
+	}
 
 	return false;
-
 }
 
 bool Security::HasSystem(int TYPE)
 {
-	for(int i = 0; i < NumSystems(); i++)
-	{
-		if(GetSystem(i)->TYPE == TYPE)
-		{
+	for (int i = 0; i < NumSystems(); i++) {
+		if (GetSystem(i)->TYPE == TYPE) {
 			return true;
 		}
 	}
@@ -114,112 +96,86 @@ bool Security::HasSystem(int TYPE)
 
 int Security::GetTypeIndex(int TYPE)
 {
-	for(int i = 0; i < NumSystems(); i++)
-	{
-		if(GetSystem(i)->TYPE == TYPE)
-		{
+	for (int i = 0; i < NumSystems(); i++) {
+		if (GetSystem(i)->TYPE == TYPE) {
 			return i;
 		}
 	}
 
 	return -1;
 }
-	
-bool Security::IsRunning_Proxy ()
+
+bool Security::IsRunning_Proxy() { return IsRunning(SECURITY_TYPE_PROXY); }
+
+bool Security::IsRunning_Firewall() { return IsRunning(SECURITY_TYPE_FIREWALL); }
+
+bool Security::IsRunning_Encryption() { return IsRunning(SECURITY_TYPE_ENCRYPTION); }
+
+bool Security::IsRunning_Monitor() { return IsRunning(SECURITY_TYPE_MONITOR); }
+
+bool Security::IsAnythingEnabled()
 {
 
-	return IsRunning ( SECURITY_TYPE_PROXY );
-
-}
-
-bool Security::IsRunning_Firewall ()
-{
-	
-	return IsRunning ( SECURITY_TYPE_FIREWALL );
-
-}
-
-bool Security::IsRunning_Encryption ()
-{
-
-	return IsRunning ( SECURITY_TYPE_ENCRYPTION );
-
-}
-
-bool Security::IsRunning_Monitor ()
-{
-
-	return IsRunning ( SECURITY_TYPE_MONITOR );
-
-}
-
-bool Security::IsAnythingEnabled ()
-{
-
-	for ( int i = 0; i < systems.Size (); ++i ) 
-		if ( systems.ValidIndex (i) )
-			if ( systems.GetData (i) )
-				if ( systems.GetData (i)->enabled == true )
+	for (int i = 0; i < systems.Size(); ++i) {
+		if (systems.ValidIndex(i)) {
+			if (systems.GetData(i)) {
+				if (systems.GetData(i)->enabled == true) {
 					return true;
+				}
+			}
+		}
+	}
 
 	return false;
-
 }
 
-bool Security::IsAnythingDisabled ()
+bool Security::IsAnythingDisabled()
 {
 
-	for ( int i = 0; i < systems.Size (); ++i ) 
-		if ( systems.ValidIndex (i) )
-			if ( systems.GetData (i) )
-				if ( systems.GetData (i)->enabled == false )
+	for (int i = 0; i < systems.Size(); ++i) {
+		if (systems.ValidIndex(i)) {
+			if (systems.GetData(i)) {
+				if (systems.GetData(i)->enabled == false) {
 					return true;
+				}
+			}
+		}
+	}
 
 	return false;
-
 }
 
-bool Security::Load  ( FILE *file )
+bool Security::Load(FILE* file)
 {
 
-	LoadID ( file );
+	LoadID(file);
 
-	if ( !LoadDArray ( (DArray <UplinkObject *> *) &systems, file ) ) return false;
+	if (!LoadDArray((DArray<UplinkObject*>*)&systems, file)) {
+		return false;
+	}
 
-	LoadID_END ( file );
+	LoadID_END(file);
 
 	return true;
-
 }
 
-void Security::Save  ( FILE *file )
+void Security::Save(FILE* file)
 {
 
-	SaveID ( file );
+	SaveID(file);
 
-	SaveDArray ( (DArray <UplinkObject *> *) &systems, file );
+	SaveDArray((DArray<UplinkObject*>*)&systems, file);
 
-	SaveID_END ( file );
-
+	SaveID_END(file);
 }
 
-void Security::Print ()
+void Security::Print()
 {
 
-	printf ( "Security : \n" );
-	PrintDArray ( (DArray <UplinkObject *> *) &systems );
-
+	printf("Security : \n");
+	PrintDArray((DArray<UplinkObject*>*)&systems);
 }
 
-void Security::Update ()
-{
-	
-}
+void Security::Update() { }
 
-char *Security::GetID ()
-{
-
-	return "SECUR";
-
-}
-
+std::string Security::GetID() { return "SECUR"; }

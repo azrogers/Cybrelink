@@ -8,7 +8,6 @@
 
   */
 
-
 #ifndef _included_securityscreeninterface_h
 #define _included_securityscreeninterface_h
 
@@ -20,34 +19,27 @@ class GenericScreen;
 
 // ============================================================================
 
-
-class SecurityScreenInterface : public RemoteInterfaceScreen
-{
+class SecurityScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
 	static time_t lastupdate;
 
-	static void SystemTitleDraw ( Button *button, bool highlighted, bool clicked );
-	static void StatusClick ( Button *button );
+	static void SystemTitleDraw(Button* button, bool highlighted, bool clicked);
+	static void StatusClick(Button* button);
 
-	static void CloseClick ( Button *button );
+	static void CloseClick(Button* button);
 
 public:
+	bool EscapeKeyPressed();
 
-    bool EscapeKeyPressed ();
+	void Create(ComputerScreen* newcs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ( ComputerScreen *newcs );
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
-
 #endif
-

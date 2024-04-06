@@ -1,12 +1,11 @@
 
 /*
-	
+
 	Uplink Event object
 
 	Base class for all Future Events that can occur
 
   */
-
 
 #ifndef _included_uplinkevent_h
 #define _included_uplinkevent_h
@@ -19,40 +18,31 @@
 
 // ============================================================================
 
-
-
-class UplinkEvent : public UplinkObject
-{
+class UplinkEvent : public UplinkObject {
 
 public:
-	
 	Date rundate;
 
 public:
+	UplinkEvent();
+	~UplinkEvent();
 
-	UplinkEvent ();
-	~UplinkEvent ();
-	
-	void SetRunDate ( Date *newrundate );
-	
-	virtual void Run ();					// You must override this
-	virtual void RunWarning ();				// You can override this
+	void SetRunDate(Date* newrundate);
 
+	virtual void Run(); // You must override this
+	virtual void RunWarning(); // You can override this
 
-	virtual char *GetShortString ();
-	virtual char *GetLongString ();
+	virtual char* GetShortString();
+	virtual char* GetLongString();
 
 	// Common functions
 
-	bool Load  ( FILE *file );
-	void Save  ( FILE *file );
-	void Print ();
-	
-	char *GetID ();							// You must override this
-	int   GetOBJECTID ();					// You must override this
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
 
+	std::string GetID(); // You must override this
+	int GetOBJECTID(); // You must override this
 };
 
-
 #endif
-

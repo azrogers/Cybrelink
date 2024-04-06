@@ -7,131 +7,118 @@
 
   */
 
-
 #ifndef _included_databank_h
 #define _included_databank_h
-
 
 #include "app/uplinkobject.h"
 
 class Data;
 
-
-
-class DataBank : public UplinkObject  
-{
+class DataBank : public UplinkObject {
 
 protected:
-
-	DArray <Data *> data;					// All files
-	DArray <int>	memory;					// indexes into data (ie FAT)
-
-public:
-
-	bool formatted;							// Set if databank was recently wiped
+	DArray<Data*> data; // All files
+	DArray<int> memory; // indexes into data (ie FAT)
 
 public:
+	bool formatted; // Set if databank was recently wiped
 
+public:
 	DataBank();
 	virtual ~DataBank();
 
-	void SetSize ( int newsize );
-	int  GetSize ();										
-	
-	int  NumDataFiles ();
-	int  GetDataSize ();
+	void SetSize(int newsize);
+	int GetSize();
 
-	bool PutData ( Data *newdata );                                 // Return true if the data was inserted
-    void InsertData ( Data *newdata );                              // Inserts at a random position
-    void PutData ( Data *newdata, int memoryindex );				// Overwrites 
-    
-	void RemoveData ( int memoryindex );							// Removes the file from data as well
-	void RemoveDataFile ( int dataindex );							// Removes all references in memory as well
+	int NumDataFiles();
+	int GetDataSize();
 
-	int IsValidPlacement ( Data *newdata, int memoryindex );		// 0 = yes, 1 = will overwrite, 2 = no
-	int FindValidPlacement ( Data *newdata );						// -1 = failure
+	bool PutData(Data* newdata); // Return true if the data was inserted
+	void InsertData(Data* newdata); // Inserts at a random position
+	void PutData(Data* newdata, int memoryindex); // Overwrites
 
-	Data *GetData     ( int memoryindex );
-	Data *GetDataFile ( int dataindex );
-	Data *GetData     ( char *title );
-	bool ContainsData ( char *title, float version = -1.0f );
+	void RemoveData(int memoryindex); // Removes the file from data as well
+	void RemoveDataFile(int dataindex); // Removes all references in memory as well
 
-	int GetDataIndex ( int memoryindex );						// Returns index of data in this memory block
-	int GetMemoryIndex ( int dataindex );						// Finds first memory index pointing to the data
+	int IsValidPlacement(Data* newdata, int memoryindex); // 0 = yes, 1 = will overwrite, 2 = no
+	int FindValidPlacement(Data* newdata); // -1 = failure
 
-	void Format ();												// Wipes everything
+	Data* GetData(int memoryindex);
+	Data* GetDataFile(int dataindex);
+	Data* GetData(const char* title);
+	bool ContainsData(const char* title, float version = -1.0f);
 
-	void RandomizeDataPlacement ();								// Change the placement of the files on the server
+	int GetDataIndex(int memoryindex); // Returns index of data in this memory block
+	int GetMemoryIndex(int dataindex); // Finds first memory index pointing to the data
+
+	void Format(); // Wipes everything
+
+	void RandomizeDataPlacement(); // Change the placement of the files on the server
 
 	// Common functions
 
-	bool Load  ( FILE *file );			
-	void Save  ( FILE *file );			
-	void Print ();		
-	void Update ();			
-	
-	char *GetID ();	
-	int GetOBJECTID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
-
 
 // ============================================================================
 
+#define SIZE_DATA_TITLE 64
 
-#define SIZE_DATA_TITLE		64
+#define DATATYPE_NONE 0
+#define DATATYPE_DATA 1
+#define DATATYPE_PROGRAM 2
 
+#define SOFTWARETYPE_NONE 0
+#define SOFTWARETYPE_FILEUTIL 1
+#define SOFTWARETYPE_HWDRIVER 2
+#define SOFTWARETYPE_SECURITY 3
+#define SOFTWARETYPE_CRACKERS 4
+#define SOFTWARETYPE_BYPASSER 5
+#define SOFTWARETYPE_LANTOOL 6
+#define SOFTWARETYPE_HUDUPGRADE 9
+#define SOFTWARETYPE_OTHER 10
 
-#define     DATATYPE_NONE			0
-#define     DATATYPE_DATA			1
-#define     DATATYPE_PROGRAM		2
-	
-#define		SOFTWARETYPE_NONE		0
-#define		SOFTWARETYPE_FILEUTIL	1
-#define		SOFTWARETYPE_HWDRIVER	2
-#define		SOFTWARETYPE_SECURITY	3
-#define		SOFTWARETYPE_CRACKERS	4
-#define		SOFTWARETYPE_BYPASSER	5
-#define		SOFTWARETYPE_LANTOOL	6
-#define		SOFTWARETYPE_HUDUPGRADE 9
-#define		SOFTWARETYPE_OTHER		10
-
-
-class Data : public UplinkObject
-{
+class Data : public UplinkObject {
 
 public:
-
-	char title [SIZE_DATA_TITLE];
+	char title[SIZE_DATA_TITLE];
 	int TYPE;
 	int size;
-	int encrypted;						// 0 = not encrypted, >=1 = encrypted
-	int compressed;						// 0 = not compressed, >=1 = compressed 
-	
-	float version;						
-	int softwareTYPE;						
+	int encrypted; // 0 = not encrypted, >=1 = encrypted
+	int compressed; // 0 = not compressed, >=1 = compressed
+
+	float version;
+	int softwareTYPE;
 
 public:
+	Data();
+	Data(Data* copyme);
+	~Data();
 
-	Data ();
-	Data ( Data *copyme );
-	~Data ();
-
-	void SetTitle ( char *newtitle );
-	void SetDetails ( int newTYPE, int newsize, 
-					  int newencrypted = 0, int newcompressed = 0, 
-					  float newversion = 1.0, int newsoftwareTYPE = SOFTWARETYPE_NONE );
+	void SetTitle(const char* newtitle);
+	void SetDetails(int newTYPE,
+					int newsize,
+					int newencrypted = 0,
+					int newcompressed = 0,
+					float newversion = 1.0,
+					int newsoftwareTYPE = SOFTWARETYPE_NONE);
 
 	// Common functions
 
-	bool Load  ( FILE *file );			
-	void Save  ( FILE *file );			
-	void Print ();		
-	void Update ();			
-	
-	char *GetID ();	
-	int GetOBJECTID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
 
+	std::string GetID();
+	;
+	int GetOBJECTID();
 };
 
-#endif 
+#endif

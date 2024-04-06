@@ -17,12 +17,9 @@ class BBSScreen;
 
 // ============================================================================
 
-
-class BBSScreenInterface : public RemoteInterfaceScreen
-{
+class BBSScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
 	static int baseoffset;
 	static int currentselect;
 
@@ -30,35 +27,31 @@ protected:
 	static int previousupdate;
 
 protected:
+	static void DrawBBSButton(Button* button, bool highlighted, bool clicked);
+	static void ClickBBSButton(Button* button);
+	static void MousedownBBSButton(Button* button);
+	static void HighlightBBSButton(Button* button);
 
-	static void DrawBBSButton      ( Button *button, bool highlighted, bool clicked );
-	static void ClickBBSButton     ( Button *button );
-	static void MousedownBBSButton ( Button *button );
-	static void HighlightBBSButton ( Button *button );
-	
-	static void DrawDetails     ( Button *button, bool highlighted, bool clicked );
+	static void DrawDetails(Button* button, bool highlighted, bool clicked);
 
-	static void AcceptClick		( Button *button );
-	static void ContactClick	( Button *button );
-	static void ExitClick		( Button *button );
-	static void ScrollChange    ( char *scrollname, int newValue );
+	static void AcceptClick(Button* button);
+	static void ContactClick(Button* button);
+	static void ExitClick(Button* button);
+	static void ScrollChange(const char* scrollname, int newValue);
 
-    static int NumItemsOnScreen ();
+	static int NumItemsOnScreen();
 
 public:
+	bool EscapeKeyPressed();
 
-    bool EscapeKeyPressed ();
+	void Create(ComputerScreen* cs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ( ComputerScreen *cs );
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	BBSScreen *GetComputerScreen ();				// Should override this with correct data type
-
+	BBSScreen* GetComputerScreen(); // Should override this with correct data type
 };
 
 #endif
-

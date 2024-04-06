@@ -11,7 +11,6 @@
 
   */
 
-
 #ifndef _included_shareslistscreen_h
 #define _included_shareslistscreen_h
 
@@ -19,46 +18,36 @@
 
 #include "world/computer/computerscreen/computerscreen.h"
 
-#define SHARESLISTSCREENTYPE_NONE				0
-#define SHARESLISTSCREENTYPE_ALLSHARES			1
-#define SHARESLISTSCREENTYPE_USERSHARES			2
-#define SHARESLISTSCREENTYPE_SPECIFICSHARES		3
+#define SHARESLISTSCREENTYPE_NONE 0
+#define SHARESLISTSCREENTYPE_ALLSHARES 1
+#define SHARESLISTSCREENTYPE_USERSHARES 2
+#define SHARESLISTSCREENTYPE_SPECIFICSHARES 3
 
 // ============================================================================
 
-
-
-class SharesListScreen : public ComputerScreen
-{
+class SharesListScreen : public ComputerScreen {
 
 public:
-
 	int nextpage;
-	int viewpage;	
+	int viewpage;
 	int SCREENTYPE;
 
 public:
+	SharesListScreen();
+	~SharesListScreen();
 
-	SharesListScreen ();
-	~SharesListScreen ();
-
-	void SetNextPage ( int newnextpage ); 
-	void SetViewPage ( int newviewpage );
-	void SetScreenType ( int newSCREEN_TYPE );
-
+	void SetNextPage(int newnextpage);
+	void SetViewPage(int newviewpage);
+	void SetScreenType(int newSCREEN_TYPE);
 
 	// Common functions
 
-	bool Load  ( FILE *file );			
-	void Save  ( FILE *file );			
-	void Print ();						
-	
-	char *GetID ();						
-	int   GetOBJECTID ();		
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
 
-
-
 #endif
-

@@ -1,6 +1,6 @@
 
 #ifdef WIN32
-#include <windows.h> 
+	#include <windows.h>
 #endif
 
 #include <GL/gl.h>
@@ -9,50 +9,48 @@
 
 #include <math.h>
 
-#include "gucci.h"
 #include "draw.h"
-#include "vanbakel.h"
-#include "soundgarden.h"
+#include "gucci.h"
 #include "redshirt.h"
+#include "soundgarden.h"
+#include "vanbakel.h"
 
 #include "app/app.h"
 #include "app/globals.h"
-#include "app/serialise.h"
 #include "app/opengl.h"
 #include "app/opengl_interface.h"
+#include "app/serialise.h"
 
-#include "game/game.h"
 #include "game/data/data.h"
+#include "game/game.h"
 
 #include "world/world.h"
 
 #include "interface/interface.h"
-#include "interface/localinterface/localinterface.h"
 #include "interface/localinterface/hud_interface.h"
-#include "interface/localinterface/worldmap/worldmap_layout.h"
-#include "interface/localinterface/worldmap/worldmap_interface.h"
-#include "interface/localinterface/worldmap/rectangle.h"
+#include "interface/localinterface/localinterface.h"
 #include "interface/localinterface/phonedialler.h"
+#include "interface/localinterface/worldmap/rectangle.h"
+#include "interface/localinterface/worldmap/worldmap_interface.h"
+#include "interface/localinterface/worldmap/worldmap_layout.h"
 #include "interface/remoteinterface/remoteinterface.h"
 
-#include "world/player.h"
 #include "world/computer/computer.h"
+#include "world/player.h"
 
 #include "options/options.h"
 
-
 #include "best_path.h"
 
-
 static int stippleindex = 0;
-static int STIPPLE[] = { 0x1111,        //        0001000100010001
-						   0x1111,        //        0001000100010001
-						   0x2222,        //        0010001000100010
-						   0x2222,        //        0010001000100010
-						   0x4444,        //        0100010001000100
-						   0x4444,        //        0100010001000100
-						   0x8888,        //        1000100010001000
-						   0x8888 };      //        1000100010001000
+static int STIPPLE[] = { 0x1111, //        0001000100010001
+						 0x1111, //        0001000100010001
+						 0x2222, //        0010001000100010
+						 0x2222, //        0010001000100010
+						 0x4444, //        0100010001000100
+						 0x4444, //        0100010001000100
+						 0x8888, //        1000100010001000
+						 0x8888 }; //        1000100010001000
 
 static int lastupdateaccess = 0;
 static int lastupdate = 0;
@@ -68,15 +66,15 @@ float WorldMapInterface::zoom = 1.0f;
 
 #define MAXZOOM 4.0f
 
-
 void WorldMapInterface::CycleStipplePattern()
 {
 
 	++stippleindex;
-	if (stippleindex > 7) stippleindex = 0;
+	if (stippleindex > 7) {
+		stippleindex = 0;
+	}
 
 	stipplepattern = STIPPLE[stippleindex];
-
 }
 
 void WorldMapInterface::FullScreenClick(Button* button)
@@ -84,7 +82,6 @@ void WorldMapInterface::FullScreenClick(Button* button)
 
 	game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
 	CreateWorldMapInterface(WORLDMAP_LARGE);
-
 }
 
 void WorldMapInterface::LocationClick(Button* button)
@@ -94,28 +91,25 @@ void WorldMapInterface::LocationClick(Button* button)
 
 		char ip[SIZE_VLOCATION_IP];
 
-		if (strncmp(button->name, "worldmaptempcon", sizeof("worldmaptempcon") - 1) == 0) {
-			strncpy(ip, button->caption, SIZE_VLOCATION_IP);
+		if (strncmp(button->name.c_str(), "worldmaptempcon", sizeof("worldmaptempcon") - 1) == 0) {
+			strncpy(ip, button->caption.c_str(), SIZE_VLOCATION_IP);
 			ip[SIZE_VLOCATION_IP - 1] = '\0';
-		}
-		else {
-			//int index;
-			//sscanf ( button->name, "worldmap %s %d", ip, &index );
-			sscanf(button->name, "worldmap %s", ip);
+		} else {
+			// int index;
+			// sscanf ( button->name, "worldmap %s %d", ip, &index );
+			sscanf(button->name.c_str(), "worldmap %s", ip);
 		}
 
 		game->GetWorld()->GetPlayer()->GetConnection()->AddOrRemoveVLocation(ip);
-		//game->GetWorld ()->GetPlayer ()->GetConnection ()->AddVLocation ( ip );
+		// game->GetWorld ()->GetPlayer ()->GetConnection ()->AddVLocation ( ip );
 
 		SgPlaySound(RsArchiveFileOpen("sounds/addlink.wav"), "sounds/addlink.wav", false);
 
+	} else {
+
+		EclRegisterCaptionChange("worldmap_texthelp",
+								 "You cannot modify an existing connection. Disconnect first.");
 	}
-	else {
-
-		EclRegisterCaptionChange("worldmap_texthelp", "You cannot modify an existing connection. Disconnect first.");
-
-	}
-
 }
 
 void WorldMapInterface::ConnectClick(Button* button)
@@ -134,14 +128,13 @@ void WorldMapInterface::ConnectClick(Button* button)
 		game->GetInterface()->GetRemoteInterface()->RunScreen(1);
 
 		if (mapmaximised) {
-			// Re-build the large map 
+			// Re-build the large map
 			// as it is now covered by the new remote interface
 			RemoveWorldMapInterface();
 			CreateWorldMapInterface(WORLDMAP_LARGE);
 		}
 
-	}
-	else {
+	} else {
 
 		if (IsVisibleWorldMapInterface() == WORLDMAP_LARGE) {
 
@@ -151,11 +144,8 @@ void WorldMapInterface::ConnectClick(Button* button)
 
 			PhoneDialler* pd = new PhoneDialler();
 			pd->DialNumber(100, 100, game->GetWorld()->GetPlayer()->GetConnection()->GetTarget(), 3);
-
 		}
-
 	}
-
 }
 
 void WorldMapInterface::AfterPhoneDialler(char* ip, char* info)
@@ -163,67 +153,59 @@ void WorldMapInterface::AfterPhoneDialler(char* ip, char* info)
 
 	game->GetWorld()->GetPlayer()->GetConnection()->Connect();
 	game->GetInterface()->GetRemoteInterface()->RunNewLocation();
-
 }
 
 void WorldMapInterface::ConnectMouseMove(Button* button)
 {
 
-	if (game->GetWorld()->GetPlayer()->IsConnected() ||
-		IsVisibleWorldMapInterface() == WORLDMAP_LARGE) {
+	if (game->GetWorld()->GetPlayer()->IsConnected() || IsVisibleWorldMapInterface() == WORLDMAP_LARGE) {
 
-		if (game->GetWorld()->GetPlayer()->IsConnected())
+		if (game->GetWorld()->GetPlayer()->IsConnected()) {
 			button->SetTooltip("Break the connection to your current remote host");
+		}
 
-		else
+		else {
 			button->SetTooltip("Establish the connection to your current remote host");
+		}
 
 		button_highlight(button);
-
 	}
-
 }
 
 void WorldMapInterface::ConnectMouseDown(Button* button)
 {
 
-	if (game->GetWorld()->GetPlayer()->IsConnected() ||
-		IsVisibleWorldMapInterface() == WORLDMAP_LARGE) {
+	if (game->GetWorld()->GetPlayer()->IsConnected() || IsVisibleWorldMapInterface() == WORLDMAP_LARGE) {
 
 		button_click(button);
-
 	}
-
 }
 
 void WorldMapInterface::ConnectDraw(Button* button, bool highlighted, bool clicked)
 {
 
-	if (game->GetWorld()->GetPlayer()->IsConnected() ||
-		IsVisibleWorldMapInterface() == WORLDMAP_LARGE) {
+	if (game->GetWorld()->GetPlayer()->IsConnected() || IsVisibleWorldMapInterface() == WORLDMAP_LARGE) {
 
-		if (game->GetWorld()->GetPlayer()->IsConnected())
+		if (game->GetWorld()->GetPlayer()->IsConnected()) {
 			button->SetCaption("Disconnect");
+		}
 
-		else
+		else {
 			button->SetCaption("Connect");
+		}
 
 		button_draw(button, highlighted, clicked);
 
-	}
-	else {
+	} else {
 
 		clear_draw(button->x, button->y, button->width, button->height);
-
 	}
-
 }
 
 void WorldMapInterface::AutoClick(Button* button)
 {
 	// if we're already connected, don't do anything
-	if (game->GetWorld()->GetPlayer()->IsConnected())
-	{
+	if (game->GetWorld()->GetPlayer()->IsConnected()) {
 		return;
 	}
 
@@ -239,26 +221,26 @@ void WorldMapInterface::CancelClick(Button* button)
 	// Close the screen if a connection is set up to somewhere else
 	//
 
-	if (game->GetWorld()->GetPlayer()->IsConnected())
+	if (game->GetWorld()->GetPlayer()->IsConnected()) {
 
 		CloseClick(NULL);
-
+	}
 
 	//
 	// Close the screen if we are at home without any half set up connection
 
-	if (strcmp(game->GetWorld()->GetPlayer()->GetRemoteHost()->ip, IP_LOCALHOST) == 0 &&
-		strcmp(game->GetWorld()->GetPlayer()->GetConnection()->GetTarget(), IP_LOCALHOST) == 0)
+	if (strcmp(game->GetWorld()->GetPlayer()->GetRemoteHost()->ip, IP_LOCALHOST) == 0
+		&& strcmp(game->GetWorld()->GetPlayer()->GetConnection()->GetTarget(), IP_LOCALHOST) == 0) {
 
 		CloseClick(NULL);
-
+	}
 
 	//
 	// Cancel any "half set up" connections
 
-	if (!game->GetWorld()->GetPlayer()->IsConnected())
+	if (!game->GetWorld()->GetPlayer()->IsConnected()) {
 		game->GetWorld()->GetPlayer()->GetConnection()->Reset();
-
+	}
 }
 
 void WorldMapInterface::CloseClick(Button* button)
@@ -266,7 +248,6 @@ void WorldMapInterface::CloseClick(Button* button)
 
 	CreateWorldMapInterface(WORLDMAP_SMALL);
 	SgPlaySound(RsArchiveFileOpen("sounds/close.wav"), "sounds/close.wav", false);
-
 }
 
 void WorldMapInterface::SaveConnectionClick(Button* button)
@@ -276,7 +257,6 @@ void WorldMapInterface::SaveConnectionClick(Button* button)
 	UplinkAssert(wmi);
 	wmi->SaveCurrentConnection();
 	EclRegisterCaptionChange("worldmap_texthelp", "Connection saved");
-
 }
 
 void WorldMapInterface::LoadConnectionClick(Button* button)
@@ -285,13 +265,12 @@ void WorldMapInterface::LoadConnectionClick(Button* button)
 	WorldMapInterface* wmi = &(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
 	UplinkAssert(wmi);
 	wmi->LoadConnection();
-
 }
 
 void WorldMapInterface::DrawAllObjects()
 {
-	LList <WorldMapInterfaceObject*>& locations = layout->GetLocations();
-	LList <WorldMapInterfaceLabel*>& labels = layout->GetLabels();
+	LList<WorldMapInterfaceObject*>& locations = layout->GetLocations();
+	LList<WorldMapInterfaceLabel*>& labels = layout->GetLabels();
 
 	// Draw all labels
 
@@ -301,10 +280,7 @@ void WorldMapInterface::DrawAllObjects()
 
 		WorldMapInterfaceLabel* object = labels.GetData(i);
 		UplinkAssert(object);
-		object->Draw((int)(scrollX * mapWidth),
-			(int)(scrollY * mapHeight),
-			zoom);
-
+		object->Draw((int)(scrollX * mapWidth), (int)(scrollY * mapHeight), zoom);
 	}
 
 	// Draw all location Dots
@@ -313,12 +289,8 @@ void WorldMapInterface::DrawAllObjects()
 
 		WorldMapInterfaceObject* object = locations.GetData(il);
 		UplinkAssert(object);
-		object->Draw((int)(scrollX * mapWidth),
-			(int)(scrollY * mapHeight),
-			zoom);
-
+		object->Draw((int)(scrollX * mapWidth), (int)(scrollY * mapHeight), zoom);
 	}
-
 }
 
 void WorldMapInterface::DrawWorldMapSmall(Button* button, bool highlighted, bool clicked)
@@ -348,8 +320,7 @@ void WorldMapInterface::DrawWorldMapSmall(Button* button, bool highlighted, bool
 		glVertex2i(scaledX - 1, scaledY + 2);
 		glEnd();
 
-	}
-	else {
+	} else {
 
 		Connection* connection = game->GetWorld()->GetPlayer()->GetConnection();
 
@@ -366,15 +337,16 @@ void WorldMapInterface::DrawWorldMapSmall(Button* button, bool highlighted, bool
 
 			VLocation* vl = game->GetWorld()->GetVLocation(connection->vlocations.GetData(li));
 			UplinkAssert(vl);
-			glVertex2i(button->x + GetScaledX(vl->x, WORLDMAP_SMALL), button->y + GetScaledY(vl->y, WORLDMAP_SMALL));
+			glVertex2i(button->x + GetScaledX(vl->x, WORLDMAP_SMALL),
+					   button->y + GetScaledY(vl->y, WORLDMAP_SMALL));
 
-			if (connection->TraceInProgress() &&
-				connection->traceprogress == (connection->vlocations.Size() - li - 1) &&
-				game->GetWorld()->GetPlayer()->gateway.HasHUDUpgrade(HUDUPGRADE_MAPSHOWSTRACE)) {
+			if (connection->TraceInProgress()
+				&& connection->traceprogress == (connection->vlocations.Size() - li - 1)
+				&& game->GetWorld()->GetPlayer()->gateway.HasHUDUpgrade(HUDUPGRADE_MAPSHOWSTRACE)) {
 				glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-				glVertex2i(button->x + GetScaledX(vl->x, WORLDMAP_SMALL), button->y + GetScaledY(vl->y, WORLDMAP_SMALL));
+				glVertex2i(button->x + GetScaledX(vl->x, WORLDMAP_SMALL),
+						   button->y + GetScaledY(vl->y, WORLDMAP_SMALL));
 			}
-
 		}
 
 		glEnd();
@@ -400,14 +372,13 @@ void WorldMapInterface::DrawWorldMapSmall(Button* button, bool highlighted, bool
 			glVertex2i(x + 2, y + 2);
 			glVertex2i(x - 1, y + 2);
 
-			if (connection->traceprogress == (connection->vlocations.Size() - di - 1) &&
-				game->GetWorld()->GetPlayer()->gateway.HasHUDUpgrade(HUDUPGRADE_MAPSHOWSTRACE))
+			if (connection->traceprogress == (connection->vlocations.Size() - di - 1)
+				&& game->GetWorld()->GetPlayer()->gateway.HasHUDUpgrade(HUDUPGRADE_MAPSHOWSTRACE)) {
 				glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-
+			}
 		}
 
 		glEnd();
-
 	}
 
 	//
@@ -434,8 +405,9 @@ void WorldMapInterface::DrawWorldMapSmall(Button* button, bool highlighted, bool
 		glVertex2i(x - 3, y + 4);
 
 		revelationColour -= 0.09f;
-		if (revelationColour < 0.0f) revelationColour = 1.0f;
-
+		if (revelationColour < 0.0f) {
+			revelationColour = 1.0f;
+		}
 	}
 
 	glEnd();
@@ -445,31 +417,24 @@ void WorldMapInterface::DrawWorldMapSmall(Button* button, bool highlighted, bool
 		glColor4f(0.4f, 0.4f, 0.8f, 1.0f);
 		border_draw(button);
 
-	}
-	else {
+	} else {
 
 		glColor3ub(81, 138, 215);
 		border_draw(button);
-
 	}
-
 }
 
 class FrameRate {
 public:
-	FrameRate(unsigned desiredFrameRate /* Frames per second */)
-		: frameDuration(1000 / desiredFrameRate),
+	FrameRate(unsigned desiredFrameRate /* Frames per second */) :
+		frameDuration(1000 / desiredFrameRate),
 		lastFrame(0)
 	{
 	}
 
-	void drawingNow() {
-		lastFrame = (int)EclGetAccurateTime();
-	};
+	void drawingNow() { lastFrame = (int)EclGetAccurateTime(); };
 
-	bool shouldDrawNow() {
-		return EclGetAccurateTime() - lastFrame > frameDuration;
-	}
+	bool shouldDrawNow() { return EclGetAccurateTime() - lastFrame > frameDuration; }
 
 private:
 	unsigned lastFrame;
@@ -481,11 +446,12 @@ void WorldMapInterface::DrawWorldMapLarge(Button* button, bool highlighted, bool
 #ifdef LIMIT_FRAMERATE
 	static FrameRate frameRate(10); /* 1 times a second */
 
-	if (!frameRate.shouldDrawNow())
+	if (!frameRate.shouldDrawNow()) {
 		return;
+	}
 
 	frameRate.drawingNow();
-#endif 
+#endif
 
 	UplinkAssert(button);
 
@@ -503,14 +469,8 @@ void WorldMapInterface::DrawWorldMapLarge(Button* button, bool highlighted, bool
 	float windowH = 1.0f / zoom;
 
 	image->DrawGL(
-		URect(
-			UPoint(button->x, button->y), 
-			button->width, 
-			button->height
-		),
-		URect(
-			UPoint(scrollX, 1.0f - scrollY),
-			UPoint(scrollX + windowW, 1.0f - (scrollY + windowH))));
+		URect(UPoint(button->x, button->y), button->width, button->height),
+		URect(UPoint(scrollX, 1.0f - scrollY), UPoint(scrollX + windowW, 1.0f - (scrollY + windowH))));
 
 	//
 	// Gimme a border
@@ -559,9 +519,9 @@ void WorldMapInterface::DrawWorldMapLarge(Button* button, bool highlighted, bool
 		glVertex2i(x - 6, y + 7);
 
 		revelationColour -= 0.09f;
-		if (revelationColour < 0.0f)
+		if (revelationColour < 0.0f) {
 			revelationColour = 1.0f;
-
+		}
 	}
 
 	glEnd();
@@ -571,8 +531,6 @@ void WorldMapInterface::DrawWorldMapLarge(Button* button, bool highlighted, bool
 	//
 
 	Connection* connection = game->GetWorld()->GetPlayer()->GetConnection();
-
-
 
 	glLineWidth(2.0);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -592,57 +550,56 @@ void WorldMapInterface::DrawWorldMapLarge(Button* button, bool highlighted, bool
 
 		glVertex2i(xpos, ypos);
 
-		if (connection->TraceInProgress() &&
-			connection->traceprogress == (connection->vlocations.Size() - i - 1) &&
-			game->GetWorld()->GetPlayer()->gateway.HasHUDUpgrade(HUDUPGRADE_MAPSHOWSTRACE)) {
+		if (connection->TraceInProgress()
+			&& connection->traceprogress == (connection->vlocations.Size() - i - 1)
+			&& game->GetWorld()->GetPlayer()->gateway.HasHUDUpgrade(HUDUPGRADE_MAPSHOWSTRACE)) {
 			glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 			glVertex2i(xpos, ypos);
 		}
-
 	}
 
 	glEnd();
-
 
 	glLineWidth(1.0);
 	glDisable(GL_LINE_STIPPLE);
 	glDisable(GL_SCISSOR_TEST);
 
 	glPopAttrib();
-
 }
 
 void WorldMapInterface::DrawLocation(Button* button, bool highlighted, bool clicked)
 {
 
-	if (!button) return;
+	if (!button) {
+		return;
+	}
 
 	//
 	// Am I visible?
 
 	MapRectangle mapRect = GetLargeMapRect();
 	MapRectangle buttonRect(button->x - 2, button->y - 2, button->width + 4, button->height + 4);
-	if (!mapRect.contains(buttonRect))
+	if (!mapRect.contains(buttonRect)) {
 		return;
+	}
 
 	// Get some useful information about this location
 
 	char ip[SIZE_VLOCATION_IP];
 
-	if (strncmp(button->name, "worldmaptempcon", sizeof("worldmaptempcon") - 1) == 0) {
-		strncpy(ip, button->caption, SIZE_VLOCATION_IP);
+	if (strncmp(button->name.c_str(), "worldmaptempcon", sizeof("worldmaptempcon") - 1) == 0) {
+		strncpy(ip, button->caption.c_str(), SIZE_VLOCATION_IP);
 		ip[SIZE_VLOCATION_IP - 1] = '\0';
-	}
-	else {
-		//int index;
-		//sscanf ( button->name, "worldmap %s %d", ip, &index );
-		sscanf(button->name, "worldmap %s", ip);
+	} else {
+		// int index;
+		// sscanf ( button->name, "worldmap %s %d", ip, &index );
+		sscanf(button->name.c_str(), "worldmap %s", ip);
 	}
 
 	// If the player has an account, draw a surrounding box
 
-	//int accesslevel = game->GetWorld ()->GetPlayer ()->HasAccount (ip);
-	//if ( accesslevel != -1 ) {
+	// int accesslevel = game->GetWorld ()->GetPlayer ()->HasAccount (ip);
+	// if ( accesslevel != -1 ) {
 	int accesslevel = button->userinfo;
 	if (accesslevel > 0) {
 
@@ -670,7 +627,6 @@ void WorldMapInterface::DrawLocation(Button* button, bool highlighted, bool clic
 		glEnd();
 
 		glDisable(GL_LINE_STIPPLE);
-
 	}
 
 	// If the player is highlighting this button, print some text in a box
@@ -710,18 +666,30 @@ void WorldMapInterface::DrawLocation(Button* button, bool highlighted, bool clic
 
 		// Make sure the info box doesn't get clipped
 
-		if (x < 0) x = 0;
-		if (y < 0) y = 0;
-		if (x + w + 2 > largemap->x + largemap->width)  x = largemap->x + largemap->width - w - 2;
-		if (y + h + 2 > largemap->y + largemap->height) y = largemap->y + largemap->height - h - 2;
+		if (x < 0) {
+			x = 0;
+		}
+		if (y < 0) {
+			y = 0;
+		}
+		if (x + w + 2 > largemap->x + largemap->width) {
+			x = largemap->x + largemap->width - w - 2;
+		}
+		if (y + h + 2 > largemap->y + largemap->height) {
+			y = largemap->y + largemap->height - h - 2;
+		}
 
 		// Draw the box
 
 		glBegin(GL_QUADS);
-		glColor3ub(8, 20, 0);		glVertex2i(x, y + h);
-		glColor3ub(8, 20, 124);		glVertex2i(x, y);
-		glColor3ub(8, 20, 0);		glVertex2i(x + w, y);
-		glColor3ub(8, 20, 124);		glVertex2i(x + w, y + h);
+		glColor3ub(8, 20, 0);
+		glVertex2i(x, y + h);
+		glColor3ub(8, 20, 124);
+		glVertex2i(x, y);
+		glColor3ub(8, 20, 0);
+		glVertex2i(x + w, y);
+		glColor3ub(8, 20, 124);
+		glVertex2i(x + w, y + h);
 		glEnd();
 
 		glColor3ub(81, 138, 215);
@@ -733,7 +701,6 @@ void WorldMapInterface::DrawLocation(Button* button, bool highlighted, bool clic
 		glVertex2i(x + w, y + h);
 		glEnd();
 
-
 		// Draw the text
 
 		char line1[64], line2[128];
@@ -744,9 +711,7 @@ void WorldMapInterface::DrawLocation(Button* button, bool highlighted, bool clic
 		GciDrawText(x + 5, y + 20, line2);
 
 		glDisable(GL_SCISSOR_TEST);
-
 	}
-
 }
 
 void WorldMapInterface::CreateWorldMapInterface(int SIZE)
@@ -756,12 +721,14 @@ void WorldMapInterface::CreateWorldMapInterface(int SIZE)
 
 		RemoveWorldMapInterface();
 
-		if (SIZE == WORLDMAP_SMALL)    CreateWorldMapInterface_Small();
-		else if (SIZE == WORLDMAP_LARGE)    CreateWorldMapInterface_Large();
-		else    UplinkWarning("Unrecognised Map size");
-
+		if (SIZE == WORLDMAP_SMALL) {
+			CreateWorldMapInterface_Small();
+		} else if (SIZE == WORLDMAP_LARGE) {
+			CreateWorldMapInterface_Large();
+		} else {
+			UplinkWarning("Unrecognised Map size");
+		}
 	}
-
 }
 
 void WorldMapInterface::CreateWorldMapInterface_Small()
@@ -773,41 +740,48 @@ void WorldMapInterface::CreateWorldMapInterface_Small()
 	int fullsizeX = (int)(screenw * PANELSIZE);
 	int fullsizeY = (int)(100.0 * (fullsizeX / 188.0));
 
-	EclRegisterButton(screenw - fullsizeX - 3, 3, fullsizeX, fullsizeY, "", "Global Communications", "worldmap_smallmap");
-	if (game->GetWorldMapType() == Game::defconworldmap)
+	EclRegisterButton(
+		screenw - fullsizeX - 3, 3, fullsizeX, fullsizeY, "", "Global Communications", "worldmap_smallmap");
+	if (game->GetWorldMapType() == Game::defconworldmap) {
 		button_assignbitmap("worldmap_smallmap", "worldmapsmall_defcon.tif");
-	else
+	} else {
 		button_assignbitmap("worldmap_smallmap", "worldmapsmall.tif");
+	}
 	EclGetButton("worldmap_smallmap")->image_standard->Scale(fullsizeX, fullsizeY);
-	//EclGetButton ( "worldmap_smallmap" )->image_standard->ScaleToOpenGL ();                
-	EclRegisterButtonCallbacks("worldmap_smallmap", DrawWorldMapSmall, FullScreenClick, button_click, button_highlight);
+	// EclGetButton ( "worldmap_smallmap" )->image_standard->ScaleToOpenGL ();
+	EclRegisterButtonCallbacks(
+		"worldmap_smallmap", DrawWorldMapSmall, FullScreenClick, button_click, button_highlight);
 
 	EclRegisterButton(screenw - fullsizeX - 3, fullsizeY + 4, fullsizeX, 15, "", "", "worldmap_connect");
-	EclRegisterButtonCallbacks("worldmap_connect", ConnectDraw, ConnectClick, ConnectMouseDown, ConnectMouseMove);
+	EclRegisterButtonCallbacks(
+		"worldmap_connect", ConnectDraw, ConnectClick, ConnectMouseDown, ConnectMouseMove);
 
 	EclRegisterButton(screenw - 3, 0, 3, 3, "", "Global Communications", "worldmap_toprightclick");
-	EclRegisterButtonCallbacks("worldmap_toprightclick", NULL, FullScreenClick, button_click, button_highlight);
-
+	EclRegisterButtonCallbacks(
+		"worldmap_toprightclick", NULL, FullScreenClick, button_click, button_highlight);
 }
 
 void WorldMapInterface::ZoomInClick(Button* button)
 {
 
-	WorldMapInterface* thisint = (WorldMapInterface*)&(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
+	WorldMapInterface* thisint =
+		(WorldMapInterface*)&(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
 	UplinkAssert(thisint);
 	thisint->ChangeZoom(0.1f);
 }
 
 void WorldMapInterface::ZoomOutClick(Button* button)
 {
-	WorldMapInterface* thisint = (WorldMapInterface*)&(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
+	WorldMapInterface* thisint =
+		(WorldMapInterface*)&(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
 	UplinkAssert(thisint);
 	thisint->ChangeZoom(-0.1f);
 }
 
 void WorldMapInterface::ZoomButtonClick(Button* button)
 {
-	WorldMapInterface* thisint = (WorldMapInterface*)&(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
+	WorldMapInterface* thisint =
+		(WorldMapInterface*)&(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
 	UplinkAssert(thisint);
 
 	float fractionX = (float)(get_mouseX() - button->x) / (float)button->width;
@@ -820,7 +794,7 @@ void WorldMapInterface::ZoomButtonDraw(Button* button, bool highlighted, bool cl
 
 	clear_draw(button->x, button->y, button->width, button->height);
 
-	// 
+	//
 	// Zoom bar
 
 	glColor3ub(81, 138, 215);
@@ -831,7 +805,8 @@ void WorldMapInterface::ZoomButtonDraw(Button* button, bool highlighted, bool cl
 	glVertex2i(button->x + button->width, button->y + 10);
 	glEnd();
 
-	WorldMapInterface* thisint = (WorldMapInterface*)&(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
+	WorldMapInterface* thisint =
+		(WorldMapInterface*)&(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
 	UplinkAssert(thisint);
 
 	//
@@ -846,18 +821,11 @@ void WorldMapInterface::ZoomButtonDraw(Button* button, bool highlighted, bool cl
 	glVertex2f(button->x + sliderX + 1, (float)(button->y + button->height));
 	glVertex2f(button->x + sliderX - 1, (float)(button->y + button->height));
 	glEnd();
-
 }
 
-int WorldMapInterface::GetLargeMapX1()
-{
-	return 23;
-}
+int WorldMapInterface::GetLargeMapX1() { return 23; }
 
-int WorldMapInterface::GetLargeMapY1()
-{
-	return 50;
-}
+int WorldMapInterface::GetLargeMapY1() { return 50; }
 
 int WorldMapInterface::GetLargeMapWidth()
 {
@@ -888,13 +856,13 @@ void WorldMapInterface::RemoveTempConnectionButton()
 		UplinkSnprintf(name, sizeof(name), "worldmaptempcon %d", numtempconbutton);
 		button = EclGetButton(name);
 
-		if (button)
+		if (button) {
 			EclRemoveButton(name);
+		}
 
 		numtempconbutton++;
 
 	} while (button);
-
 }
 
 void WorldMapInterface::ProgramLayoutEngine()
@@ -908,8 +876,8 @@ void WorldMapInterface::ProgramLayoutEngine()
 	// Create all known links
 
 	Player* player = game->GetWorld()->GetPlayer();
-	LList <char*>& conn = player->connection.vlocations;
-	LList <char*>& links = player->links;
+	LList<char*>& conn = player->connection.vlocations;
+	LList<char*>& links = player->links;
 	int numtempconbutton = 0;
 
 	bool isWorldmapLarge = (IsVisibleWorldMapInterface() == WORLDMAP_LARGE);
@@ -922,7 +890,7 @@ void WorldMapInterface::ProgramLayoutEngine()
 		UplinkAssert(vl);
 
 		// Removed to fix missing links in connection
-		//if (vl->displayed) {
+		// if (vl->displayed) {
 
 		float oldZoom = zoom;
 		float oldScrollX = scrollX;
@@ -935,8 +903,10 @@ void WorldMapInterface::ProgramLayoutEngine()
 		bool notDisplayed = i != 0 && (!vl->displayed || !player->HasLink(vl->ip));
 
 		layout->AddLocation(GetScaledX(vl->x, WORLDMAP_LARGE) + GetLargeMapX1() - 3,
-			GetScaledY(vl->y, WORLDMAP_LARGE) + GetLargeMapY1() - 3,
-			vl->computer, vl->ip, notDisplayed);
+							GetScaledY(vl->y, WORLDMAP_LARGE) + GetLargeMapY1() - 3,
+							vl->computer,
+							vl->ip,
+							notDisplayed);
 
 		zoom = oldZoom;
 		scrollX = oldScrollX;
@@ -956,16 +926,20 @@ void WorldMapInterface::ProgramLayoutEngine()
 				UplinkSnprintf(name, sizeof(name), "worldmaptempcon %d", numtempconbutton);
 				UplinkStrncpy(caption, vl->ip, sizeof(caption));
 				UplinkSnprintf(tooltip, sizeof(tooltip), "Connect to IP address %s", vl->ip);
-				EclRegisterButton(GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3, GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3, 7, 7, caption, tooltip, name);
+				EclRegisterButton(GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3,
+								  GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3,
+								  7,
+								  7,
+								  caption,
+								  tooltip,
+								  name);
 				EclRegisterButtonCallbacks(name, DrawLocation, LocationClick, button_click, button_highlight);
 			}
 
 			numtempconbutton++;
-
 		}
 
 		//}
-
 	}
 
 	// Add all the other known links
@@ -986,19 +960,17 @@ void WorldMapInterface::ProgramLayoutEngine()
 			scrollY = 0.0;
 
 			layout->AddLocation(GetScaledX(vl->x, WORLDMAP_LARGE) + GetLargeMapX1() - 3,
-				GetScaledY(vl->y, WORLDMAP_LARGE) + GetLargeMapY1() - 3,
-				vl->computer, vl->ip);
+								GetScaledY(vl->y, WORLDMAP_LARGE) + GetLargeMapY1() - 3,
+								vl->computer,
+								vl->ip);
 
 			zoom = oldZoom;
 			scrollX = oldScrollX;
 			scrollY = oldScrollY;
-
 		}
-
 	}
 
 	UpdateAccessLevel();
-
 }
 
 void WorldMapInterface::ProgramLayoutEnginePartial()
@@ -1011,7 +983,7 @@ void WorldMapInterface::ProgramLayoutEnginePartial()
 	// Add all temporary links in the connection
 
 	Player* player = game->GetWorld()->GetPlayer();
-	LList <char*>& conn = player->connection.vlocations;
+	LList<char*>& conn = player->connection.vlocations;
 	int numtempconbutton = 0;
 
 	bool isWorldmapLarge = (IsVisibleWorldMapInterface() == WORLDMAP_LARGE);
@@ -1032,13 +1004,14 @@ void WorldMapInterface::ProgramLayoutEnginePartial()
 			scrollY = 0.0;
 
 			layout->AddLocation(GetScaledX(vl->x, WORLDMAP_LARGE) + GetLargeMapX1() - 3,
-				GetScaledY(vl->y, WORLDMAP_LARGE) + GetLargeMapY1() - 3,
-				vl->computer, vl->ip, true);
+								GetScaledY(vl->y, WORLDMAP_LARGE) + GetLargeMapY1() - 3,
+								vl->computer,
+								vl->ip,
+								true);
 
 			zoom = oldZoom;
 			scrollX = oldScrollX;
 			scrollY = oldScrollY;
-
 
 			if (isWorldmapLarge) {
 
@@ -1052,19 +1025,21 @@ void WorldMapInterface::ProgramLayoutEnginePartial()
 				UplinkSnprintf(name, sizeof(name), "worldmaptempcon %d", numtempconbutton);
 				UplinkStrncpy(caption, vl->ip, sizeof(caption));
 				UplinkSnprintf(tooltip, sizeof(tooltip), "Connect to IP address %s", vl->ip);
-				EclRegisterButton(GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3, GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3, 7, 7, caption, tooltip, name);
+				EclRegisterButton(GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3,
+								  GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3,
+								  7,
+								  7,
+								  caption,
+								  tooltip,
+								  name);
 				EclRegisterButtonCallbacks(name, DrawLocation, LocationClick, button_click, button_highlight);
-
 			}
 
 			numtempconbutton++;
-
 		}
-
 	}
 
 	UpdateAccessLevel();
-
 }
 
 void WorldMapInterface::SaveCurrentConnection()
@@ -1085,9 +1060,7 @@ void WorldMapInterface::SaveCurrentConnection()
 		UplinkStrncpy(ipcopy, thisip, ipcopysize);
 
 		savedconnection.PutDataAtEnd(ipcopy);
-
 	}
-
 }
 
 void WorldMapInterface::LoadConnection()
@@ -1095,10 +1068,10 @@ void WorldMapInterface::LoadConnection()
 
 	if (game->GetWorld()->GetPlayer()->IsConnected()) {
 
-		EclRegisterCaptionChange("worldmap_texthelp", "You cannot modify an existing connection. Disconnect first.");
+		EclRegisterCaptionChange("worldmap_texthelp",
+								 "You cannot modify an existing connection. Disconnect first.");
 
-	}
-	else {
+	} else {
 
 		game->GetWorld()->GetPlayer()->connection.Reset();
 
@@ -1108,23 +1081,20 @@ void WorldMapInterface::LoadConnection()
 			UplinkAssert(ip);
 
 			// Use a different solution for the missings servers in connection
-			//VLocation *vl = game->GetWorld ()->GetVLocation ( ip );
-			//UplinkAssert (vl);
-			//vl->SetDisplayed (true);
+			// VLocation *vl = game->GetWorld ()->GetVLocation ( ip );
+			// UplinkAssert (vl);
+			// vl->SetDisplayed (true);
 
 			game->GetWorld()->GetPlayer()->connection.AddVLocation(ip);
-
 		}
-
 	}
-
 }
 
 void WorldMapInterface::CreateWorldMapInterface_Large()
 {
 
-	//Removed, wasn't heard when using mikmod
-	//SgPlaySound ( RsArchiveFileOpen ("sounds/openworldmap.wav"), "sounds/openworldmap.wav", false );
+	// Removed, wasn't heard when using mikmod
+	// SgPlaySound ( RsArchiveFileOpen ("sounds/openworldmap.wav"), "sounds/openworldmap.wav", false );
 
 	MapRectangle mapRect = GetLargeMapRect();
 
@@ -1133,7 +1103,8 @@ void WorldMapInterface::CreateWorldMapInterface_Large()
 	int fullsizeX = mapRect.width;
 	int fullsizeY = mapRect.height;
 
-	WorldMapInterface* thisint = (WorldMapInterface*)&(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
+	WorldMapInterface* thisint =
+		(WorldMapInterface*)&(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
 	UplinkAssert(thisint);
 
 	// Create the background bitmap
@@ -1141,55 +1112,84 @@ void WorldMapInterface::CreateWorldMapInterface_Large()
 	int start = (int)EclGetAccurateTime();
 
 	EclRegisterButton(x1, y1, fullsizeX, fullsizeY, "", "", "worldmap_largemap");
-	if (game->GetWorldMapType() == Game::defconworldmap)
+	if (game->GetWorldMapType() == Game::defconworldmap) {
 		button_assignbitmap("worldmap_largemap", "worldmaplarge_defcon.tif");
-	else
+	} else {
 		button_assignbitmap("worldmap_largemap", "worldmaplarge.tif");
+	}
 
 	//    cout << "Large world map graphic created, " << EclGetAccurateTime() - start << " ms\n";
 	start = (int)EclGetAccurateTime();
 
-	//EclGetButton ( "worldmap_largemap" )->image_standard->SetAlpha ( 0.99 );
+	// EclGetButton ( "worldmap_largemap" )->image_standard->SetAlpha ( 0.99 );
 	EclRegisterButtonCallbacks("worldmap_largemap", DrawWorldMapLarge, NULL, NULL, button_highlight);
 
 	VLocation* vl = game->GetWorld()->GetVLocation(game->GetWorld()->GetPlayer()->localhost);
 	UplinkAssert(vl);
-	//EclRegisterButton ( GetScaledX ( vl->x, WORLDMAP_LARGE ) + x1 - 3, GetScaledY ( vl->y, WORLDMAP_LARGE ) + y1 - 3, 7, 7, "Localhost", "Your physical location", "worldmap 127.0.0.1 0" );
-	EclRegisterButton(GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3, GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3, 7, 7, "Localhost", "Your physical location", "worldmap 127.0.0.1");
-	//EclRegisterButtonCallbacks ( "worldmap 127.0.0.1 0", DrawLocation, NULL, NULL, button_highlight );
+	// EclRegisterButton ( GetScaledX ( vl->x, WORLDMAP_LARGE ) + x1 - 3, GetScaledY ( vl->y, WORLDMAP_LARGE )
+	// + y1 - 3, 7, 7, "Localhost", "Your physical location", "worldmap 127.0.0.1 0" );
+	EclRegisterButton(GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3,
+					  GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3,
+					  7,
+					  7,
+					  "Localhost",
+					  "Your physical location",
+					  "worldmap 127.0.0.1");
+	// EclRegisterButtonCallbacks ( "worldmap 127.0.0.1 0", DrawLocation, NULL, NULL, button_highlight );
 	EclRegisterButtonCallbacks("worldmap 127.0.0.1", DrawLocation, NULL, NULL, button_highlight);
 
 	// Create a text box for help messages
 
-	//EclRegisterButton ( 120, y1 + fullsizeY + 3, 340, 25, "", "", "worldmap_texthelp" );
+	// EclRegisterButton ( 120, y1 + fullsizeY + 3, 340, 25, "", "", "worldmap_texthelp" );
 	EclRegisterButton(235, y1 + fullsizeY + 3, 340, 25, "", "", "worldmap_texthelp");
 	EclRegisterButtonCallbacks("worldmap_texthelp", textbutton_draw, NULL, NULL, NULL);
 
 	// Create the control buttons
 
-	EclRegisterButton(20, y1 + fullsizeY + 5, 50, 15, "Save", "Store the current connection settings", "worldmap_saveconnection");
+	EclRegisterButton(20,
+					  y1 + fullsizeY + 5,
+					  50,
+					  15,
+					  "Save",
+					  "Store the current connection settings",
+					  "worldmap_saveconnection");
 	EclRegisterButtonCallback("worldmap_saveconnection", SaveConnectionClick);
 
-	EclRegisterButton(75, y1 + fullsizeY + 5, 50, 15, "Load", "Load previously saved connection settings", "worldmap_loadconnection");
+	EclRegisterButton(75,
+					  y1 + fullsizeY + 5,
+					  50,
+					  15,
+					  "Load",
+					  "Load previously saved connection settings",
+					  "worldmap_loadconnection");
 	EclRegisterButtonCallback("worldmap_loadconnection", LoadConnectionClick);
 
 	EclRegisterButton(150, y1 + fullsizeY + 5, 15, 15, "-", "Zoom out", "worldmap_zoomout");
 	EclRegisterButtonCallback("worldmap_zoomout", ZoomOutClick);
 
 	EclRegisterButton(170, y1 + fullsizeY + 5, 50, 15, "---", "Click to zoom", "worldmap_zoom");
-	EclRegisterButtonCallbacks("worldmap_zoom", ZoomButtonDraw, ZoomButtonClick, button_click, button_highlight);
+	EclRegisterButtonCallbacks(
+		"worldmap_zoom", ZoomButtonDraw, ZoomButtonClick, button_click, button_highlight);
 
 	EclRegisterButton(225, y1 + fullsizeY + 5, 15, 15, "+", "Zoom in", "worldmap_zoomin");
 	EclRegisterButtonCallback("worldmap_zoomin", ZoomInClick);
 
-	EclRegisterButton(380, y1 + fullsizeY + 5, 70, 15, "Auto", "Automatically creates a bounce path.", "worldmap_auto");
+	EclRegisterButton(
+		380, y1 + fullsizeY + 5, 70, 15, "Auto", "Automatically creates a bounce path.", "worldmap_auto");
 	EclRegisterButtonCallback("worldmap_auto", AutoClick);
 
-	EclRegisterButton(455, y1 + fullsizeY + 5, 70, 15, "Cancel", "Cancels changes made to your connection", "worldmap_cancel");
+	EclRegisterButton(455,
+					  y1 + fullsizeY + 5,
+					  70,
+					  15,
+					  "Cancel",
+					  "Cancels changes made to your connection",
+					  "worldmap_cancel");
 	EclRegisterButtonCallback("worldmap_cancel", CancelClick);
 
 	EclRegisterButton(530, y1 + fullsizeY + 5, 70, 15, "", "", "worldmap_connect");
-	EclRegisterButtonCallbacks("worldmap_connect", ConnectDraw, ConnectClick, ConnectMouseDown, ConnectMouseMove);
+	EclRegisterButtonCallbacks(
+		"worldmap_connect", ConnectDraw, ConnectClick, ConnectMouseDown, ConnectMouseMove);
 
 	EclRegisterButton(605, y1 + fullsizeY + 6, 13, 13, "", "Close the World Map screen", "worldmap_close");
 	button_assignbitmaps("worldmap_close", "close.tif", "close_h.tif", "close_c.tif");
@@ -1197,28 +1197,31 @@ void WorldMapInterface::CreateWorldMapInterface_Large()
 
 	// Create all known links
 
-	LList <char*>* links = &(game->GetWorld()->GetPlayer()->links);
+	LList<char*>* links = &(game->GetWorld()->GetPlayer()->links);
 
 	for (int i = 0; i < links->Size(); ++i) {
 
 		VLocation* vl = game->GetWorld()->GetVLocation(links->GetData(i));
 		UplinkAssert(vl);
 
-		if (vl->displayed ||
-			game->GetWorld()->GetPlayer()->connection.LocationIncluded(vl->ip)) {
+		if (vl->displayed || game->GetWorld()->GetPlayer()->connection.LocationIncluded(vl->ip)) {
 
 			char name[128];
 			char caption[128];
 			char tooltip[128];
-			//UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
+			// UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
 			UplinkSnprintf(name, sizeof(name), "worldmap %s", vl->ip);
 			UplinkStrncpy(caption, vl->ip, sizeof(caption));
 			UplinkSnprintf(tooltip, sizeof(tooltip), "Connect to IP address %s", vl->ip);
-			EclRegisterButton(GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3, GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3, 7, 7, caption, tooltip, name);
+			EclRegisterButton(GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3,
+							  GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3,
+							  7,
+							  7,
+							  caption,
+							  tooltip,
+							  name);
 			EclRegisterButtonCallbacks(name, DrawLocation, LocationClick, button_click, button_highlight);
-
 		}
-
 	}
 
 	//    cout << "Large world map controls added, " << EclGetAccurateTime() - start << " ms\n";
@@ -1228,12 +1231,11 @@ void WorldMapInterface::CreateWorldMapInterface_Large()
 
 	//    cout << "Large would map labels layed-out, " << EclGetAccurateTime() - start << " ms\n";
 
-		// Bring all running tasks to the front
+	// Bring all running tasks to the front
 
 	UpdateAccessLevel();
 
 	SvbShowAllTasks();
-
 }
 
 void WorldMapInterface::CloseWorldMapInterface_Large()
@@ -1242,9 +1244,7 @@ void WorldMapInterface::CloseWorldMapInterface_Large()
 	if (IsVisibleWorldMapInterface() == WORLDMAP_LARGE) {
 
 		CreateWorldMapInterface(WORLDMAP_SMALL);
-
 	}
-
 }
 
 void WorldMapInterface::RemoveWorldMapInterface()
@@ -1260,8 +1260,7 @@ void WorldMapInterface::RemoveWorldMapInterface()
 			EclRemoveButton("worldmap_connect");
 			EclRemoveButton("worldmap_toprightclick");
 
-		}
-		else if (mapsize == WORLDMAP_LARGE) {
+		} else if (mapsize == WORLDMAP_LARGE) {
 
 			EclRemoveButton("worldmap_largemap");
 
@@ -1282,47 +1281,44 @@ void WorldMapInterface::RemoveWorldMapInterface()
 			EclRemoveButton("worldmap_scrollup");
 			EclRemoveButton("worldmap_scrolldown");
 
-			LList <char*>* links = &(game->GetWorld()->GetPlayer()->links);
+			LList<char*>* links = &(game->GetWorld()->GetPlayer()->links);
 
 			for (int i = 0; i < links->Size(); ++i) {
 
 				VLocation* vl = game->GetWorld()->GetVLocation(links->GetData(i));
 
 				char name[128];
-				//UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
+				// UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
 				UplinkSnprintf(name, sizeof(name), "worldmap %s", vl->ip);
 				EclRemoveButton(name);
-
 			}
 			RemoveTempConnectionButton();
 
 			EclRemoveButton("worldmap_texthelp");
-			//EclRemoveButton ( "worldmap 127.0.0.1 0" );
+			// EclRemoveButton ( "worldmap 127.0.0.1 0" );
 			EclRemoveButton("worldmap 127.0.0.1");
 
 			// Crash me!!!
-			//char * nullPtr = NULL; *nullPtr = '\0';
-
+			// char * nullPtr = NULL; *nullPtr = '\0';
 		}
-
 	}
-
 }
 
 int WorldMapInterface::IsVisibleWorldMapInterface()
 {
 
-	if (EclGetButton("worldmap_smallmap") != 0)
+	if (EclGetButton("worldmap_smallmap") != 0) {
 		return WORLDMAP_SMALL;
+	}
 
-	else if (EclGetButton("worldmap_largemap") != 0)
+	else if (EclGetButton("worldmap_largemap") != 0) {
 		return WORLDMAP_LARGE;
+	}
 
-	else
+	else {
 		return WORLDMAP_NONE;
-
+	}
 }
-
 
 int WorldMapInterface::GetScaledX(int x, int SIZE)
 {
@@ -1338,13 +1334,10 @@ int WorldMapInterface::GetScaledX(int x, int SIZE)
 		float fullSize = ((float)x / (float)VIRTUAL_WIDTH) * GetLargeMapWidth();
 		return (int)((fullSize * zoom) - (scrollX * GetLargeMapWidth() * zoom));
 		break;
-
 	}
 
 	return -1;
-
 }
-
 
 int WorldMapInterface::GetScaledY(int y, int SIZE)
 {
@@ -1360,31 +1353,28 @@ int WorldMapInterface::GetScaledY(int y, int SIZE)
 		float fullsize = ((float)y / (float)VIRTUAL_HEIGHT) * GetLargeMapHeight();
 		return (int)((fullsize * zoom) - (scrollY * GetLargeMapHeight() * zoom));
 		break;
-
 	}
 
 	return -1;
-
 }
 
-WorldMapInterface::WorldMapInterface()
-	: layout(NULL), nbmissions(0), nbmessages(0), nbcolored(0)
+WorldMapInterface::WorldMapInterface() :
+	layout(NULL),
+	nbmissions(0),
+	nbmessages(0),
+	nbcolored(0)
 {
 }
 
 WorldMapInterface::~WorldMapInterface()
 {
 
-	if (layout) delete layout;
-
+	if (layout) {
+		delete layout;
+	}
 }
 
-void WorldMapInterface::Create()
-{
-
-	Create(WORLDMAP_LARGE);
-
-}
+void WorldMapInterface::Create() { Create(WORLDMAP_LARGE); }
 
 void WorldMapInterface::Create(int SIZE)
 {
@@ -1394,7 +1384,6 @@ void WorldMapInterface::Create(int SIZE)
 	ProgramLayoutEngine();
 
 	CreateWorldMapInterface(SIZE);
-
 }
 
 void WorldMapInterface::ScrollX(float x)
@@ -1406,8 +1395,12 @@ void WorldMapInterface::ScrollX(float x)
 	float windowH = 1.0f / zoom;
 
 	scrollX += x;
-	if (scrollX < 0.0f) scrollX = 0.0f;
-	if (scrollX + windowW > 1.0f) scrollX = 1.0f - windowW;
+	if (scrollX < 0.0f) {
+		scrollX = 0.0f;
+	}
+	if (scrollX + windowW > 1.0f) {
+		scrollX = 1.0f - windowW;
+	}
 	EclDirtyButton("worldmap_largemap");
 
 	MapRectangle mapRect = GetLargeMapRect();
@@ -1417,14 +1410,14 @@ void WorldMapInterface::ScrollX(float x)
 
 	// Buttons
 
-	LList <char*>* links = &(game->GetWorld()->GetPlayer()->links);
+	LList<char*>* links = &(game->GetWorld()->GetPlayer()->links);
 
 	for (int i = 0; i < links->Size(); ++i) {
 
 		VLocation* vl = game->GetWorld()->GetVLocation(links->GetData(i));
 		UplinkAssert(vl);
 		char name[128];
-		//UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
+		// UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
 		UplinkSnprintf(name, sizeof(name), "worldmap %s", vl->ip);
 
 		Button* button = EclGetButton(name);
@@ -1432,7 +1425,6 @@ void WorldMapInterface::ScrollX(float x)
 			button->x = GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3;
 			button->y = GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3;
 		}
-
 	}
 
 	// Buttons added from missing connection links
@@ -1447,7 +1439,7 @@ void WorldMapInterface::ScrollX(float x)
 		button = EclGetButton(name);
 
 		if (button) {
-			VLocation* vl = game->GetWorld()->GetVLocation(button->caption);
+			VLocation* vl = game->GetWorld()->GetVLocation(button->caption.c_str());
 			if (vl) {
 				button->x = GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3;
 				button->y = GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3;
@@ -1457,7 +1449,6 @@ void WorldMapInterface::ScrollX(float x)
 		numtempconbutton++;
 
 	} while (button);
-
 }
 
 void WorldMapInterface::ScrollY(float y)
@@ -1469,8 +1460,12 @@ void WorldMapInterface::ScrollY(float y)
 	float windowH = 1.0f / zoom;
 
 	scrollY += y;
-	if (scrollY < 0.0f) scrollY = 0.0f;
-	if (scrollY + windowH > 1.0f) scrollY = 1.0f - windowH;
+	if (scrollY < 0.0f) {
+		scrollY = 0.0f;
+	}
+	if (scrollY + windowH > 1.0f) {
+		scrollY = 1.0f - windowH;
+	}
 	EclDirtyButton("worldmap_largemap");
 
 	MapRectangle mapRect = GetLargeMapRect();
@@ -1480,14 +1475,14 @@ void WorldMapInterface::ScrollY(float y)
 
 	// Buttons
 
-	LList <char*>* links = &(game->GetWorld()->GetPlayer()->links);
+	LList<char*>* links = &(game->GetWorld()->GetPlayer()->links);
 
 	for (int i = 0; i < links->Size(); ++i) {
 
 		VLocation* vl = game->GetWorld()->GetVLocation(links->GetData(i));
 		UplinkAssert(vl);
 		char name[128];
-		//UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
+		// UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
 		UplinkSnprintf(name, sizeof(name), "worldmap %s", vl->ip);
 
 		Button* button = EclGetButton(name);
@@ -1495,7 +1490,6 @@ void WorldMapInterface::ScrollY(float y)
 			button->x = GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3;
 			button->y = GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3;
 		}
-
 	}
 
 	// Buttons added from missing connection links
@@ -1510,7 +1504,7 @@ void WorldMapInterface::ScrollY(float y)
 		button = EclGetButton(name);
 
 		if (button) {
-			VLocation* vl = game->GetWorld()->GetVLocation(button->caption);
+			VLocation* vl = game->GetWorld()->GetVLocation(button->caption.c_str());
 			if (vl) {
 				button->x = GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3;
 				button->y = GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3;
@@ -1520,7 +1514,6 @@ void WorldMapInterface::ScrollY(float y)
 		numtempconbutton++;
 
 	} while (button);
-
 }
 
 void WorldMapInterface::SetZoom(float z)
@@ -1530,8 +1523,12 @@ void WorldMapInterface::SetZoom(float z)
 	float oldWindowH = 1.0f / zoom;
 
 	zoom = z;
-	if (zoom < 1.0f) zoom = 1.0f;
-	if (zoom > MAXZOOM) zoom = MAXZOOM;
+	if (zoom < 1.0f) {
+		zoom = 1.0f;
+	}
+	if (zoom > MAXZOOM) {
+		zoom = MAXZOOM;
+	}
 
 	float windowW = 1.0f / zoom;
 	float windowH = 1.0f / zoom;
@@ -1539,10 +1536,18 @@ void WorldMapInterface::SetZoom(float z)
 	scrollX += (float)(oldWindowW - windowW) / 2.0f;
 	scrollY += (float)(oldWindowH - windowH) / 2.0f;
 
-	if (scrollX < 0.0f) scrollX = 0.0f;
-	if (scrollX + windowW > 1.0f) scrollX = 1.0f - windowW;
-	if (scrollY < 0.0f) scrollY = 0.0f;
-	if (scrollY + windowH > 1.0f) scrollY = 1.0f - windowH;
+	if (scrollX < 0.0f) {
+		scrollX = 0.0f;
+	}
+	if (scrollX + windowW > 1.0f) {
+		scrollX = 1.0f - windowW;
+	}
+	if (scrollY < 0.0f) {
+		scrollY = 0.0f;
+	}
+	if (scrollY + windowH > 1.0f) {
+		scrollY = 1.0f - windowH;
+	}
 
 	EclDirtyButton("worldmap_largemap");
 
@@ -1553,14 +1558,14 @@ void WorldMapInterface::SetZoom(float z)
 
 	// Buttons
 
-	LList <char*>* links = &(game->GetWorld()->GetPlayer()->links);
+	LList<char*>* links = &(game->GetWorld()->GetPlayer()->links);
 
 	for (int i = 0; i < links->Size(); ++i) {
 
 		VLocation* vl = game->GetWorld()->GetVLocation(links->GetData(i));
 		UplinkAssert(vl);
 		char name[128];
-		//UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
+		// UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
 		UplinkSnprintf(name, sizeof(name), "worldmap %s", vl->ip);
 
 		Button* button = EclGetButton(name);
@@ -1568,7 +1573,6 @@ void WorldMapInterface::SetZoom(float z)
 			button->x = GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3;
 			button->y = GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3;
 		}
-
 	}
 
 	// Buttons added from missing connection links
@@ -1583,7 +1587,7 @@ void WorldMapInterface::SetZoom(float z)
 		button = EclGetButton(name);
 
 		if (button) {
-			VLocation* vl = game->GetWorld()->GetVLocation(button->caption);
+			VLocation* vl = game->GetWorld()->GetVLocation(button->caption.c_str());
 			if (vl) {
 				button->x = GetScaledX(vl->x, WORLDMAP_LARGE) + x1 - 3;
 				button->y = GetScaledY(vl->y, WORLDMAP_LARGE) + y1 - 3;
@@ -1597,21 +1601,16 @@ void WorldMapInterface::SetZoom(float z)
 	EclDirtyButton("worldmap_zoom");
 }
 
-void WorldMapInterface::ChangeZoom(float z)
-{
-
-	SetZoom(zoom + z);
-
-}
+void WorldMapInterface::ChangeZoom(float z) { SetZoom(zoom + z); }
 
 void WorldMapInterface::CheckLinksChanged()
 {
 	World* world = game->GetWorld();
 	Player* player = world->GetPlayer();
-	LList <char*>& links = player->links;
+	LList<char*>& links = player->links;
 	Connection* connection = &player->connection;
-	LList <Mission*>& missions = player->missions;
-	LList <Message*>& messages = player->messages;
+	LList<Mission*>& missions = player->missions;
+	LList<Message*>& messages = player->messages;
 
 	// Count the number of links that should be displayed
 
@@ -1625,12 +1624,15 @@ void WorldMapInterface::CheckLinksChanged()
 		VLocation* vl = world->GetVLocation(link);
 		UplinkAssert(vl);
 
-		if (!connection->LocationIncluded(link))
-			if (vl->displayed)
+		if (!connection->LocationIncluded(link)) {
+			if (vl->displayed) {
 				++count;
+			}
+		}
 
-		if (vl->colored)
+		if (vl->colored) {
 			++newnbcolored;
+		}
 	}
 
 	int countTemp = 0;
@@ -1641,10 +1643,10 @@ void WorldMapInterface::CheckLinksChanged()
 		VLocation* vl = world->GetVLocation(link);
 		UplinkAssert(vl);
 
-		if (!vl->displayed || !player->HasLink(link))
+		if (!vl->displayed || !player->HasLink(link)) {
 			++countTemp;
+		}
 	}
-
 
 	// Program Layout Engine if the num links has changed
 
@@ -1655,24 +1657,26 @@ void WorldMapInterface::CheckLinksChanged()
 
 	if ((layout->GetLocations().Size() - layoutCountTemp) != (count - countTemp)) {
 		ProgramLayoutEngine();
-	}
-	else {
-		if (layoutCountTemp != countTemp)
+	} else {
+		if (layoutCountTemp != countTemp) {
 			ProgramLayoutEnginePartial();
-		if (nbmissions != newnbmissions || nbmessages != newnbmessages || nbcolored != newnbcolored)
+		}
+		if (nbmissions != newnbmissions || nbmessages != newnbmessages || nbcolored != newnbcolored) {
 			layout->CheckIPs();
+		}
 	}
 
 	nbmissions = newnbmissions;
 	nbmessages = newnbmessages;
 	nbcolored = newnbcolored;
-
 }
 
 void WorldMapInterface::UpdateScrollwheel(bool up)
 {
 	Button* worldmap = EclGetButton("worldmap_largemap");
-	if (!worldmap) return;
+	if (!worldmap) {
+		return;
+	}
 
 	int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
 	int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
@@ -1680,12 +1684,10 @@ void WorldMapInterface::UpdateScrollwheel(bool up)
 	float y = (get_mouseY() / (float)screenh - 0.5f) * 2.0f;
 	ChangeZoom(up ? 0.2f : -0.2f);
 	float scrollAmount = (1.0f / pow(zoom, 2)) * 0.2f;
-	if (up && abs(x) > 0.2f && zoom < 4.0f)
-	{
+	if (up && abs(x) > 0.2f && zoom < 4.0f) {
 		ScrollX(x * scrollAmount);
 	}
-	if (up && abs(y) > 0.2f && zoom < 4.0f)
-	{
+	if (up && abs(y) > 0.2f && zoom < 4.0f) {
 		ScrollY(y * scrollAmount);
 	}
 }
@@ -1695,21 +1697,20 @@ void WorldMapInterface::UpdateAccessLevel()
 
 	// Buttons
 
-	LList <char*>* links = &(game->GetWorld()->GetPlayer()->links);
+	LList<char*>* links = &(game->GetWorld()->GetPlayer()->links);
 
 	for (int i = 0; i < links->Size(); ++i) {
 
 		VLocation* vl = game->GetWorld()->GetVLocation(links->GetData(i));
 		UplinkAssert(vl);
 		char name[128];
-		//UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
+		// UplinkSnprintf ( name, sizeof ( name ), "worldmap %s %d", vl->ip, i );
 		UplinkSnprintf(name, sizeof(name), "worldmap %s", vl->ip);
 
 		Button* button = EclGetButton(name);
 		if (button) {
 			button->userinfo = game->GetWorld()->GetPlayer()->HasAccount(vl->ip);
 		}
-
 	}
 
 	// Buttons added from missing connection links
@@ -1724,7 +1725,7 @@ void WorldMapInterface::UpdateAccessLevel()
 		button = EclGetButton(name);
 
 		if (button) {
-			VLocation* vl = game->GetWorld()->GetVLocation(button->caption);
+			VLocation* vl = game->GetWorld()->GetVLocation(button->caption.c_str());
 			if (vl) {
 				button->userinfo = game->GetWorld()->GetPlayer()->HasAccount(vl->ip);
 			}
@@ -1735,7 +1736,6 @@ void WorldMapInterface::UpdateAccessLevel()
 	} while (button);
 
 	lastupdateaccess = (int)EclGetAccurateTime();
-
 }
 
 void WorldMapInterface::Update()
@@ -1758,7 +1758,6 @@ void WorldMapInterface::Update()
 				CycleStipplePattern();
 				lastupdate = (int)EclGetAccurateTime();
 			}
-
 		}
 
 		// Update the large map
@@ -1770,7 +1769,6 @@ void WorldMapInterface::Update()
 				CycleStipplePattern();
 				lastupdate = (int)EclGetAccurateTime();
 			}
-
 		}
 
 		// Update access
@@ -1783,7 +1781,6 @@ void WorldMapInterface::Update()
 				UpdateAccessLevel();
 				lastupdateaccess = (int)EclGetAccurateTime();
 			}
-
 		}
 
 		// Update scrolling
@@ -1793,13 +1790,16 @@ void WorldMapInterface::Update()
 		if (timesincelastscroll > 20) {
 
 			Button* worldmap = EclGetButton("worldmap_largemap");
-			if (!worldmap) return;
+			if (!worldmap) {
+				return;
+			}
 
 			int mouseX = get_mouseX() - worldmap->x;
 			int mouseY = get_mouseY() - worldmap->y;
 
-			if (mouseX < 0 || mouseY < 0 || mouseX > worldmap->width || mouseY > worldmap->height)
+			if (mouseX < 0 || mouseY < 0 || mouseX > worldmap->width || mouseY > worldmap->height) {
 				return;
+			}
 
 			int dX = (int)(mouseX - (worldmap->width / 2.0));
 			int dY = (int)(mouseY - (worldmap->height / 2.0));
@@ -1807,40 +1807,30 @@ void WorldMapInterface::Update()
 			int scrollThresholdX = (int)(worldmap->width * 0.42);
 			int scrollThresholdY = (int)(worldmap->height * 0.40);
 
-			if (dX > scrollThresholdX) ScrollX((dX - scrollThresholdX) / 3500.0f);
-			if (dX < -scrollThresholdX) ScrollX((dX + scrollThresholdX) / 3500.0f);
+			if (dX > scrollThresholdX) {
+				ScrollX((dX - scrollThresholdX) / 3500.0f);
+			}
+			if (dX < -scrollThresholdX) {
+				ScrollX((dX + scrollThresholdX) / 3500.0f);
+			}
 
-			if (dY > scrollThresholdY) ScrollY((dY - scrollThresholdY) / 3500.0f);
-			if (dY < -scrollThresholdY) ScrollY((dY + scrollThresholdY) / 3500.0f);
+			if (dY > scrollThresholdY) {
+				ScrollY((dY - scrollThresholdY) / 3500.0f);
+			}
+			if (dY < -scrollThresholdY) {
+				ScrollY((dY + scrollThresholdY) / 3500.0f);
+			}
 
 			scrollupdate = (int)EclGetAccurateTime();
-
 		}
-
 	}
-
 }
 
-void WorldMapInterface::Remove()
-{
+void WorldMapInterface::Remove() { RemoveWorldMapInterface(); }
 
-	RemoveWorldMapInterface();
+bool WorldMapInterface::IsVisible() { return (IsVisibleWorldMapInterface() != 0); }
 
-}
-
-bool WorldMapInterface::IsVisible()
-{
-
-	return (IsVisibleWorldMapInterface() != 0);
-
-}
-
-int WorldMapInterface::ScreenID()
-{
-
-	return SCREEN_MAP;
-
-}
+int WorldMapInterface::ScreenID() { return SCREEN_MAP; }
 
 bool WorldMapInterface::Load(FILE* file)
 {
@@ -1849,14 +1839,14 @@ bool WorldMapInterface::Load(FILE* file)
 
 		LoadID(file);
 
-		if (!LoadLList(&savedconnection, file)) return false;
+		if (!LoadLList(&savedconnection, file)) {
+			return false;
+		}
 
 		LoadID_END(file);
-
 	}
 
 	return true;
-
 }
 
 void WorldMapInterface::Save(FILE* file)
@@ -1867,20 +1857,8 @@ void WorldMapInterface::Save(FILE* file)
 	SaveLList(&savedconnection, file);
 
 	SaveID_END(file);
-
 }
 
-void WorldMapInterface::Print()
-{
+void WorldMapInterface::Print() { PrintLList(&savedconnection); }
 
-	PrintLList(&savedconnection);
-
-}
-
-char* WorldMapInterface::GetID()
-{
-
-	return "WRLDMAPI";
-
-}
-
+std::string WorldMapInterface::GetID() { return "WRLDMAPI"; }

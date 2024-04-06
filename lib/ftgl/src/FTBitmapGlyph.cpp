@@ -1,65 +1,56 @@
-#include    <string>
+#include <string>
 
 #include "FTBitmapGlyph.h"
 
-FTBitmapGlyph::FTBitmapGlyph( FT_GlyphSlot glyph)
-:   FTGlyph( glyph),
-    destWidth(0),
-    destHeight(0),
-    data(0)
+FTBitmapGlyph::FTBitmapGlyph(FT_GlyphSlot glyph) :
+	FTGlyph(glyph),
+	destWidth(0),
+	destHeight(0),
+	data(0)
 {
-    err = FT_Render_Glyph( glyph, FT_RENDER_MODE_MONO);
-    if( err || ft_glyph_format_bitmap != glyph->format)
-    {
-        return;
-    }
+	err = FT_Render_Glyph(glyph, FT_RENDER_MODE_MONO);
+	if (err || ft_glyph_format_bitmap != glyph->format) {
+		return;
+	}
 
-    FT_Bitmap bitmap = glyph->bitmap;
+	FT_Bitmap bitmap = glyph->bitmap;
 
-    unsigned int srcWidth = bitmap.width;
-    unsigned int srcHeight = bitmap.rows;
-    unsigned int srcPitch = bitmap.pitch;
-    
-    destWidth = srcWidth;
-    destHeight = srcHeight;
-    destPitch = srcPitch;    
+	unsigned int srcWidth = bitmap.width;
+	unsigned int srcHeight = bitmap.rows;
+	unsigned int srcPitch = bitmap.pitch;
 
-    if( destWidth && destHeight)
-    {
-        data = new unsigned char[destPitch * destHeight];
-        unsigned char* dest = data + (( destHeight - 1) * destPitch);
+	destWidth = srcWidth;
+	destHeight = srcHeight;
+	destPitch = srcPitch;
 
-        unsigned char* src = bitmap.buffer;
+	if (destWidth && destHeight) {
+		data = new unsigned char[destPitch * destHeight];
+		unsigned char* dest = data + ((destHeight - 1) * destPitch);
 
-        for( unsigned int y = 0; y < srcHeight; ++y)
-        {
-            memcpy( dest, src, srcPitch);
-            dest -= destPitch;
-            src += srcPitch;
-        }
-    }
+		unsigned char* src = bitmap.buffer;
 
-    pos = FTPoint(glyph->bitmap_left, static_cast<int>(srcHeight) - glyph->bitmap_top, 0.0);
+		for (unsigned int y = 0; y < srcHeight; ++y) {
+			memcpy(dest, src, srcPitch);
+			dest -= destPitch;
+			src += srcPitch;
+		}
+	}
+
+	pos = FTPoint(glyph->bitmap_left, static_cast<int>(srcHeight) - glyph->bitmap_top, 0.0);
 }
 
+FTBitmapGlyph::~FTBitmapGlyph() { delete[] data; }
 
-FTBitmapGlyph::~FTBitmapGlyph()
+const FTPoint& FTBitmapGlyph::Render(const FTPoint& pen)
 {
-    delete [] data;
-}
+	glBitmap(0, 0, 0.0f, 0.0f, pen.X() + pos.X(), pen.Y() - pos.Y(), (const GLubyte*)0);
 
+	if (data) {
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, destPitch * 8);
+		glBitmap(destWidth, destHeight, 0.0f, 0.0, 0.0, 0.0, (const GLubyte*)data);
+	}
 
-const FTPoint& FTBitmapGlyph::Render( const FTPoint& pen)
-{
-    glBitmap( 0, 0, 0.0f, 0.0f, pen.X() + pos.X(), pen.Y() - pos.Y(), (const GLubyte*)0 );
-    
-    if( data)
-    {
-        glPixelStorei( GL_UNPACK_ROW_LENGTH, destPitch * 8);
-        glBitmap( destWidth, destHeight, 0.0f, 0.0, 0.0, 0.0, (const GLubyte*)data);
-    }
-    
-    glBitmap( 0, 0, 0.0f, 0.0f, -pos.X(), pos.Y(), (const GLubyte*)0 );
-    
-    return advance;
+	glBitmap(0, 0, 0.0f, 0.0f, -pos.X(), pos.Y(), (const GLubyte*)0);
+
+	return advance;
 }

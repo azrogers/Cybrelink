@@ -12,38 +12,30 @@ class BankAccount;
 
 // ============================================================================
 
-
-class AccountScreenInterface : public RemoteInterfaceScreen
-{
+class AccountScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
-	BankAccount *account;
+	BankAccount* account;
 	time_t lastupdate;
 
 protected:
-
-	static void CloseClick ( Button *button );
+	static void CloseClick(Button* button);
 
 public:
+	AccountScreenInterface();
+	~AccountScreenInterface();
 
-	AccountScreenInterface ();
-	~AccountScreenInterface ();
+	bool EscapeKeyPressed();
 
-    bool EscapeKeyPressed ();
+	void Create();
+	void Create(ComputerScreen* cs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Create ( ComputerScreen *cs );
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();				// Should override this with correct data type
-
+	GenericScreen* GetComputerScreen(); // Should override this with correct data type
 };
 
-
 #endif
-

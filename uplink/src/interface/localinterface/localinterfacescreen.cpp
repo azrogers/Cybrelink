@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <GL/gl.h>
@@ -25,100 +25,77 @@
 #include "interface/localinterface/localinterface.h"
 #include "interface/localinterface/localinterfacescreen.h"
 
-
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-void LocalInterfaceScreen::BackgroundDraw ( Button *button, bool highlighted, bool clicked )
-{
-   
-	glBegin ( GL_QUADS );		
-		SetColour ( "PanelBackgroundA" );		glVertex2i ( button->x, button->y + button->height );
-		SetColour ( "PanelBackgroundB" );		glVertex2i ( button->x, button->y );
-		SetColour ( "PanelBackgroundA" );		glVertex2i ( button->x + button->width, button->y );
-		SetColour ( "PanelBackgroundB" );		glVertex2i ( button->x + button->width, button->y + button->height );
-	glEnd ();
-
-	SetColour ( "PanelBorder" );
-	border_draw ( button );
-
-}
-
-LocalInterfaceScreen::LocalInterfaceScreen()
+void LocalInterfaceScreen::BackgroundDraw(Button* button, bool highlighted, bool clicked)
 {
 
+	glBegin(GL_QUADS);
+	SetColour("PanelBackgroundA");
+	glVertex2i(button->x, button->y + button->height);
+	SetColour("PanelBackgroundB");
+	glVertex2i(button->x, button->y);
+	SetColour("PanelBackgroundA");
+	glVertex2i(button->x + button->width, button->y);
+	SetColour("PanelBackgroundB");
+	glVertex2i(button->x + button->width, button->y + button->height);
+	glEnd();
+
+	SetColour("PanelBorder");
+	border_draw(button);
 }
 
-LocalInterfaceScreen::~LocalInterfaceScreen()
+LocalInterfaceScreen::LocalInterfaceScreen() { }
+
+LocalInterfaceScreen::~LocalInterfaceScreen() { }
+
+void LocalInterfaceScreen::Create() { CreateHeight(-1); }
+
+void LocalInterfaceScreen::CreateHeight(int panelheight)
 {
 
-}
+	if (!IsVisible()) {
 
-void LocalInterfaceScreen::Create ()
-{
+		int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
+		int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
+		// int paneltop = SY(100) + 30;
+		int paneltop = (int)(100.0 * ((screenw * PANELSIZE) / 188.0) + 30);
+		int panelwidth = (int)(screenw * PANELSIZE);
 
-	CreateHeight ( -1 );
+		if (panelheight == -1) {
+			EclRegisterButton(
+				screenw - panelwidth - 3, paneltop, panelwidth, SY(300), "", "", "localint_background");
+		} else {
+			EclRegisterButton(
+				screenw - panelwidth - 3, paneltop, panelwidth, panelheight, "", "", "localint_background");
+		}
 
-}
-
-void LocalInterfaceScreen::CreateHeight ( int panelheight )
-{	
-
-	if ( !IsVisible () ) {
-
-		int screenw = app->GetOptions ()->GetOptionValue ("graphics_screenwidth");
-		int screenh = app->GetOptions ()->GetOptionValue ("graphics_screenheight");
-		//int paneltop = SY(100) + 30;
-		int paneltop = (int) ( 100.0 * ( (screenw * PANELSIZE) / 188.0 ) + 30 );
-		int panelwidth = (int) ( screenw * PANELSIZE );
-
-		if ( panelheight == -1 )
-			EclRegisterButton ( screenw - panelwidth - 3, paneltop, panelwidth, SY(300), "", "", "localint_background" );
-		else
-			EclRegisterButton ( screenw - panelwidth - 3, paneltop, panelwidth, panelheight, "", "", "localint_background" );
-
-		EclRegisterButtonCallbacks ( "localint_background", BackgroundDraw, NULL, NULL, NULL );		
-
+		EclRegisterButtonCallbacks("localint_background", BackgroundDraw, NULL, NULL, NULL);
 	}
-
 }
 
-void LocalInterfaceScreen::Remove ()
+void LocalInterfaceScreen::Remove()
 {
 
-	if ( IsVisible () ) {
+	if (IsVisible()) {
 
-		EclRemoveButton ( "localint_background" );
-
+		EclRemoveButton("localint_background");
 	}
-
 }
 
-void LocalInterfaceScreen::Update ()
+void LocalInterfaceScreen::Update() { }
+
+bool LocalInterfaceScreen::IsVisible() { return false; }
+
+int LocalInterfaceScreen::ScreenID() { return 0; }
+
+LocalInterfaceScreen* LocalInterfaceScreen::GetInterfaceScreen(int screenID)
 {
 
-}
-
-bool LocalInterfaceScreen::IsVisible ()
-{
-	return false;
-}
-
-int LocalInterfaceScreen::ScreenID ()
-{
-
-	return 0;
-
-}
-
-LocalInterfaceScreen *LocalInterfaceScreen::GetInterfaceScreen ( int screenID )
-{
-	
-	LocalInterfaceScreen *result = game->GetInterface ()->GetLocalInterface ()->GetInterfaceScreen ();
-	UplinkAssert ( result );
-	UplinkAssert ( result->ScreenID () == screenID );
+	LocalInterfaceScreen* result = game->GetInterface()->GetLocalInterface()->GetInterfaceScreen();
+	UplinkAssert(result);
+	UplinkAssert(result->ScreenID() == screenID);
 	return result;
 }
-

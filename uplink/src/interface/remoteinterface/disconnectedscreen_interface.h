@@ -3,7 +3,6 @@
 #ifndef _included_disconnectedscreeninterface_h
 #define _included_disconnectedscreeninterface_h
 
-
 // ============================================================================
 
 #include "interface/remoteinterface/remoteinterfacescreen.h"
@@ -13,28 +12,22 @@ class DisconnectedScreen;
 
 // ============================================================================
 
-
-class DisconnectedScreenInterface : public RemoteInterfaceScreen
-{
+class DisconnectedScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
-	static void Click ( Button *button );
+	static void Click(Button* button);
 
 public:
+	bool ReturnKeyPressed();
 
-	bool ReturnKeyPressed ();
+	void Create();
+	void Create(ComputerScreen* newcs);
+	void Remove();
+	bool IsVisible();
 
-	void Create ();
-	void Create ( ComputerScreen *newcs );
-	void Remove ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	DisconnectedScreen *GetComputerScreen ();
-
+	DisconnectedScreen* GetComputerScreen();
 };
-
 
 #endif

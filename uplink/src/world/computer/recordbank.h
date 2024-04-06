@@ -29,59 +29,52 @@ class Record;
 
   */
 
-#define RECORDBANK_NAME         "Name"
-#define RECORDBANK_PASSWORD     "Password"
-#define RECORDBANK_ACCNO        "Account Number"
-#define RECORDBANK_SECURITY     "Security"
-#define RECORDBANK_ADMIN        "admin"
-#define RECORDBANK_READWRITE    "readwrite"
-#define RECORDBANK_READONLY     "readonly"
+#define RECORDBANK_NAME "Name"
+#define RECORDBANK_PASSWORD "Password"
+#define RECORDBANK_ACCNO "Account Number"
+#define RECORDBANK_SECURITY "Security"
+#define RECORDBANK_ADMIN "admin"
+#define RECORDBANK_READWRITE "readwrite"
+#define RECORDBANK_READONLY "readonly"
 
-
-class RecordBank : public UplinkObject
-{
+class RecordBank : public UplinkObject {
 
 public:
-
-	LList <Record *> records;
+	LList<Record*> records;
 
 public:
-
-	RecordBank ();
-	~RecordBank ();
+	RecordBank();
+	~RecordBank();
 
 	// Data access functions
 
-	void AddRecord ( Record *newrecord );
-	void AddRecordSorted ( Record *newrecord, char *sortfield = RECORDBANK_NAME );
+	void AddRecord(Record* newrecord);
+	void AddRecordSorted(Record* newrecord, const char* sortfield = RECORDBANK_NAME);
 
-	Record *GetRecord			  ( int index );							// Returns NULL if not found
-	Record *GetRecord			  ( char *query );							// Assumes there is only 1 match
-	LList <Record *> *GetRecords  ( char *query );
-	Record *GetRandomRecord		  ( char *query );
-    
-    Record *GetRecordFromName           ( char *name );
-    Record *GetRecordFromNamePassword   ( char *name, char *password );
-    Record *GetRecordFromAccountNumber  ( char *accNo );
+	Record* GetRecord(int index); // Returns NULL if not found
+	Record* GetRecord(const char* query); // Assumes there is only 1 match
+	LList<Record*>* GetRecords(const char* query);
+	Record* GetRandomRecord(const char* query);
 
-	int FindNextRecordIndexNameNotSystemAccount ( int curindex = -1);
+	Record* GetRecordFromName(const char* name);
+	Record* GetRecordFromNamePassword(const char* name, const char* password);
+	Record* GetRecordFromAccountNumber(const char* accNo);
 
+	int FindNextRecordIndexNameNotSystemAccount(int curindex = -1);
 
 	// Common functions
 
-	bool Load  ( FILE *file );			
-	void Save  ( FILE *file );			
-	void Print ();		
-	void Update ();			
-	
-	char *GetID ();			
-	int GetOBJECTID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
+
+	std::string GetID();
+	int GetOBJECTID();
 
 private:
-	char *MakeSafeField( char * fieldval );
-
+	char* MakeSafeField(const char* fieldval);
 };
-
 
 // ============================================================================
 
@@ -91,38 +84,37 @@ private:
 
 	  */
 
-
-class Record : public UplinkObject  
-{
+class Record : public UplinkObject {
 
 public:
-
-	BTree <char *> fields;
+	BTree<char*> fields;
 
 public:
-
 	Record();
 	virtual ~Record();
 
-	void AddField    ( char *name, char *value );
-	void AddField    ( char *name, int value );
-	
-	void ChangeField ( char *name, char *newvalue );
-	void ChangeField ( char *name, int newvalue );
+	void AddField(const char* name, const char* value);
+	void AddField(const char* name, const int value);
+	void AddField(const char* name, std::string newvalue) { AddField(name, newvalue.c_str()); }
+	void AddField(std::string name, std::string newvalue) { AddField(name.c_str(), newvalue.c_str()); }
 
-	char *GetField   ( char *name );	 
-	void DeleteField ( char *name );
+	void ChangeField(const char* name, const char* newvalue);
+	void ChangeField(const char* name, std::string newvalue) { ChangeField(name, newvalue.c_str()); }
+	void ChangeField(std::string name, std::string newvalue) { ChangeField(name.c_str(), newvalue.c_str()); }
+	void ChangeField(const char* name, int newvalue);
+
+	const char* GetField(const char* name);
+	void DeleteField(const char* name);
 
 	// Common functions
 
-	bool Load  ( FILE *file );			
-	void Save  ( FILE *file );			
-	void Print ();		
-	void Update ();			
-	
-	char *GetID ();			
-	int GetOBJECTID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
 
-#endif 
+#endif

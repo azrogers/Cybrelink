@@ -12,6 +12,8 @@
     "glm",
     "glew",
     "cpptrace",
-    "cppfs"
+    "cppfs",
+    "libzippp",
+    "spdlog"
   ]
 }

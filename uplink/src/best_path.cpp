@@ -1,37 +1,38 @@
 #include "best_path.h"
-#include "game/game.h"
 #include "game/data/data.h"
-#include "world/world.h"
+#include "game/game.h"
 #include "world/player.h"
+#include "world/world.h"
 
 #define Y_WEIGHT 1.0f
 
-struct path_point
-{
+struct path_point {
 	int index;
 	int x;
 	int y;
 
-	path_point(int index, int x, int y) : index(index), x(x), y(y) { }
+	path_point(int index, int x, int y) :
+		index(index),
+		x(x),
+		y(y)
+	{
+	}
 };
 
-void BestPathGenerator::CreatePath(Game* game, BTree<VLocation *> location)
+void BestPathGenerator::CreatePath(Game* game, BTree<VLocation*> location)
 {
 	auto arr = location.ConvertToDArray();
 	int firstIndex = -1;
-	LList<path_point *> points;
+	LList<path_point*> points;
 
-	for(int i = 0; i < arr->Size(); i++)
-	{
+	for (int i = 0; i < arr->Size(); i++) {
 		// first point
-		if(strcmp(arr->GetData(i)->ip, IP_INTERNIC) == 0)
-		{
+		if (strcmp(arr->GetData(i)->ip, IP_INTERNIC) == 0) {
 			firstIndex = i;
 			continue;
 		}
 
-		if(!arr->GetData(i)->displayed || !game->GetWorld()->GetPlayer()->HasLink(arr->GetData(i)->ip))
-		{
+		if (!arr->GetData(i)->displayed || !game->GetWorld()->GetPlayer()->HasLink(arr->GetData(i)->ip)) {
 			continue;
 		}
 
@@ -39,8 +40,7 @@ void BestPathGenerator::CreatePath(Game* game, BTree<VLocation *> location)
 	}
 
 	// internic not found
-	if(firstIndex == -1)
-	{
+	if (firstIndex == -1) {
 		return;
 	}
 
@@ -49,18 +49,16 @@ void BestPathGenerator::CreatePath(Game* game, BTree<VLocation *> location)
 
 	int numPoints = points.Size();
 	// for the number of points we have...
-	for(int i = 0; i < numPoints; i++)
-	{
+	for (int i = 0; i < numPoints; i++) {
 		// iterate through all remaining points to find the closest to the current point
 		int lastDistance = 0;
 		int closestIndex = -1;
 		int closestPointsIndex;
-		for(int j = 0; j < points.Size(); j++)
-		{
+		for (int j = 0; j < points.Size(); j++) {
 			auto point = points.GetData(j);
-			int distance = sqrt(pow(point->x - currentPoint.x, 2) + Y_WEIGHT * pow((float)point->y - currentPoint.y, 2));
-			if(closestIndex == -1 || distance < lastDistance)
-			{
+			int distance =
+				sqrt(pow(point->x - currentPoint.x, 2) + Y_WEIGHT * pow((float)point->y - currentPoint.y, 2));
+			if (closestIndex == -1 || distance < lastDistance) {
 				closestIndex = point->index;
 				closestPointsIndex = j;
 				lastDistance = distance;
@@ -71,7 +69,8 @@ void BestPathGenerator::CreatePath(Game* game, BTree<VLocation *> location)
 		char ip[SIZE_VLOCATION_IP];
 		UplinkStrncpy(ip, arr->GetData(closestIndex)->ip, SIZE_VLOCATION_IP);
 		game->GetWorld()->GetPlayer()->connection.AddVLocation(ip);
-		currentPoint = path_point(closestIndex, points.GetData(closestPointsIndex)->x, points.GetData(closestPointsIndex)->y);
+		currentPoint = path_point(
+			closestIndex, points.GetData(closestPointsIndex)->x, points.GetData(closestPointsIndex)->y);
 		points.RemoveData(closestPointsIndex);
 	}
 }

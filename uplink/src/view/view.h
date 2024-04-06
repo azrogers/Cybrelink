@@ -9,7 +9,6 @@
 
   */
 
-
 #ifndef _included_view_h
 #define _included_view_h
 
@@ -22,34 +21,26 @@
 
 // ============================================================================
 
-
-class View : public UplinkObject
-{
+class View : public UplinkObject {
 
 public:
-
 	FrameRate fps;
 
 public:
-
-
 	View();
 	virtual ~View();
 
-	void Initialise ();
-	void Draw ();					// This is the big one
-
+	void Initialise();
+	void Draw(); // This is the big one
 
 	// Common functions
 
-	bool Load   ( FILE *file );
-	void Save   ( FILE *file );
-	void Print  ();
-	void Update ();	
-	
-	char *GetID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
 
+	std::string GetID();
 };
 
-
-#endif 
+#endif

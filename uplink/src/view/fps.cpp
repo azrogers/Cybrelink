@@ -12,54 +12,40 @@
 
 #include "view/fps.h"
 
-
-
-
-FrameRate :: FrameRate ()
+FrameRate ::FrameRate()
 {
 
-    numframesremaining = NUMFRAMES;
-    fps = 0.0;
-
-}
-
-FrameRate :: ~FrameRate ()
-{
-}
-
-void FrameRate :: Start ()
-{
-
-	starttime = (int) EclGetAccurateTime ();
 	numframesremaining = NUMFRAMES;
 	fps = 0.0;
-
 }
 
-void FrameRate :: Tick ()
+FrameRate ::~FrameRate() { }
+
+void FrameRate ::Start()
 {
 
-    if ( numframesremaining == 0 ) {
+	starttime = (int)EclGetAccurateTime();
+	numframesremaining = NUMFRAMES;
+	fps = 0.0;
+}
 
-		int endtime = (int) EclGetAccurateTime ();
+void FrameRate ::Tick()
+{
+
+	if (numframesremaining == 0) {
+
+		int endtime = (int)EclGetAccurateTime();
 		int time = endtime - starttime;
-		//fps = (float) NUMFRAMES / (float) time;
-		fps = 1000.0f * (float) NUMFRAMES / (float) time;
+		// fps = (float) NUMFRAMES / (float) time;
+		fps = 1000.0f * (float)NUMFRAMES / (float)time;
 
 		numframesremaining = NUMFRAMES;
-		starttime = (int) EclGetAccurateTime ();
+		starttime = (int)EclGetAccurateTime();
 
-    }
-    else
+	} else {
 
-	--numframesremaining;
-
+		--numframesremaining;
+	}
 }
 
-float FrameRate :: FPS ()
-{
-
-    return fps;
-
-}
-
+float FrameRate ::FPS() { return fps; }

@@ -18,52 +18,34 @@ TaskWrapper::TaskWrapper()
 	name = NULL;
 	priority = 0.0;
 	progress = 0.0;
-
 }
 
 TaskWrapper::~TaskWrapper()
 {
 
-	if ( name )
-		delete [] name;
-
+	if (name) {
+		delete[] name;
+	}
 }
 
-void TaskWrapper::SetPID ( int newpid )
+void TaskWrapper::SetPID(int newpid) { pid = newpid; }
+
+void TaskWrapper::SetName(const char* newname)
 {
 
-	pid = newpid;
-
+	if (name) {
+		delete name;
+	}
+	name = new char[strlen(newname) + 1];
+	strcpy(name, newname);
 }
 
-void TaskWrapper::SetName ( char *newname )
+void TaskWrapper::SetTask(Task* newtask) { task = newtask; }
+
+void TaskWrapper::SetPriority(double newpriority) { priority = newpriority; }
+
+void TaskWrapper::DebugPrint()
 {
 
-	if ( name ) delete name;
-	name = new char [strlen(newname)+1];
-	strcpy ( name, newname );
-
+	printf("TASK :   %s : PID:'%d', priority:%f, progress:%f\n", name, pid, (float)priority, (float)progress);
 }
-
-void TaskWrapper::SetTask ( Task *newtask )
-{
-
-	task = newtask;
-
-}
-
-void TaskWrapper::SetPriority ( double newpriority )
-{
-
-	priority = newpriority;
-
-}
-
-void TaskWrapper::DebugPrint ()
-{
-
-	printf ( "TASK :   %s : PID:'%d', priority:%f, progress:%f\n", name, pid, (float) priority, (float) progress );
-
-}
-
-

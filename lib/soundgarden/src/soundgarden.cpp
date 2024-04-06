@@ -5,195 +5,185 @@
 
   */
 
-
 #include "soundgarden.h"
+#include "eclipse.h"
+#include "redshirt.h"
 #include "sgplaylist.h"
 #include "tosser.h"
-#include "redshirt.h"
-#include "eclipse.h"
 
+static LList<SgPlaylist*> playlists;
+static char currentplaylist[SIZE_SGPLAYLIST_NAME];
+static char currentsong[256];
 
-static LList <SgPlaylist *> playlists;
-static char currentplaylist [SIZE_SGPLAYLIST_NAME];
-static char currentsong [256];
-
-static char requestedplaylist [SIZE_SGPLAYLIST_NAME];
+static char requestedplaylist[SIZE_SGPLAYLIST_NAME];
 static int requestedtime;
 
 static int songindex;
 
-
-void SgPlaylist_Initialise ()
+void SgPlaylist_Initialise()
 {
 
-    sprintf ( currentplaylist, "None" );
-    sprintf ( currentsong, "None" );
-    sprintf ( requestedplaylist, "None" );
-    requestedtime = -1;
-    songindex = -1;
-
+	sprintf(currentplaylist, "None");
+	sprintf(currentsong, "None");
+	sprintf(requestedplaylist, "None");
+	requestedtime = -1;
+	songindex = -1;
 }
 
-void SgPlaylist_Shutdown ()
+void SgPlaylist_Shutdown()
 {
 
-    while ( playlists.GetData (0) ) {
+	while (playlists.GetData(0)) {
 
-        SgPlaylist *playlist = playlists.GetData (0);
-        playlists.RemoveData (0);
-        delete playlist;
+		SgPlaylist* playlist = playlists.GetData(0);
+		playlists.RemoveData(0);
+		delete playlist;
+	}
 
-    }
-
-    playlists.Empty ();
-
+	playlists.Empty();
 }
 
-void SgPlaylist_Create ( char *pname )
+void SgPlaylist_Create(const char* pname)
 {
 
-    SgPlaylist *playlist = new SgPlaylist ();
-    playlist->SetName ( pname );
-    playlists.PutData ( playlist );
-
+	SgPlaylist* playlist = new SgPlaylist();
+	playlist->SetName(pname);
+	playlists.PutData(playlist);
 }
 
-SgPlaylist *SgPlaylist_GetPlaylist ( char *pname )
+SgPlaylist* SgPlaylist_GetPlaylist(const char* pname)
 {
 
-    for ( int i = 0; i < playlists.Size (); ++i ) 
-        if ( playlists.GetData (i) )            
-            if ( strcmp ( playlists.GetData (i)->name, pname ) == 0 )
-                return playlists.GetData(i);
+	for (int i = 0; i < playlists.Size(); ++i) {
+		if (playlists.GetData(i)) {
+			if (strcmp(playlists.GetData(i)->name, pname) == 0) {
+				return playlists.GetData(i);
+			}
+		}
+	}
 
-    return NULL;
-
+	return NULL;
 }
 
-void SgPlaylist_AddSong ( char *pname, char *songname )
+void SgPlaylist_AddSong(const char* pname, const char* songname)
 {
 
-    SgPlaylist *playlist = SgPlaylist_GetPlaylist(pname);
+	SgPlaylist* playlist = SgPlaylist_GetPlaylist(pname);
 
-    if ( playlist ) 
-        playlist->AddSong (songname);
+	if (playlist) {
+		playlist->AddSong(songname);
+	}
 
-    else
-        printf ( "SgPlaylist_AddSong : Failed because playlist %s does not exist\n", pname );
-
+	else {
+		printf("SgPlaylist_AddSong : Failed because playlist %s does not exist\n", pname);
+	}
 }
 
-void SgPlaylist_Play ( char *pname )
+void SgPlaylist_Play(const char* pname)
 {
 
-    if ( strcmp ( currentplaylist, "None" ) == 0 ) {
+	if (strcmp(currentplaylist, "None") == 0) {
 
-        // Nothing is currently playing
-        // Start the new playlist immediately
+		// Nothing is currently playing
+		// Start the new playlist immediately
 
-        strcpy ( currentplaylist, pname );
-//        SgSetModVolume ( 100 );
-        songindex = -1;
-        SgPlaylist_NextSong ();
+		strcpy(currentplaylist, pname);
+		//        SgSetModVolume ( 100 );
+		songindex = -1;
+		SgPlaylist_NextSong();
 
-    }
-    else if ( strcmp ( currentplaylist, pname ) != 0 ) {
+	} else if (strcmp(currentplaylist, pname) != 0) {
 
-        // Something is currently playing
-        // Fade it out slowly before changing
+		// Something is currently playing
+		// Fade it out slowly before changing
 
-        if ( strcmp ( requestedplaylist, "None" ) == 0 )
-            requestedtime = (int)EclGetAccurateTime ();
+		if (strcmp(requestedplaylist, "None") == 0) {
+			requestedtime = (int)EclGetAccurateTime();
+		}
 
-        strcpy ( requestedplaylist, pname );
-            
-    }
-
+		strcpy(requestedplaylist, pname);
+	}
 }
 
-void SgPlaylist_Stop ()
+void SgPlaylist_Stop()
 {
 
-    SgStopMod ();
-    sprintf ( currentplaylist, "None" );
-    sprintf ( currentsong, "None" );
-    sprintf ( requestedplaylist, "None" );
-    requestedtime = -1;
-    songindex = -1;
-
+	SgStopMod();
+	sprintf(currentplaylist, "None");
+	sprintf(currentsong, "None");
+	sprintf(requestedplaylist, "None");
+	requestedtime = -1;
+	songindex = -1;
 }
 
-void SgPlaylist_NextSong ()
+void SgPlaylist_NextSong()
 {
 
-    SgPlaylist *playlist = SgPlaylist_GetPlaylist(currentplaylist);
+	SgPlaylist* playlist = SgPlaylist_GetPlaylist(currentplaylist);
 
-    if ( playlist ) {
+	if (playlist) {
 
-        ++songindex;
-        if ( songindex >= playlist->songs.Size() ) songindex = 0;
-        char *songtitle = playlist->songs.GetData(songindex);
+		++songindex;
+		if (songindex >= playlist->songs.Size()) {
+			songindex = 0;
+		}
+		char* songtitle = playlist->songs.GetData(songindex);
 
-        SgPlayMod ( RsArchiveFileOpen ( songtitle ) );
-        strcpy ( currentsong, songtitle );
+		SgPlayMod(RsArchiveFileOpen(songtitle));
+		strcpy(currentsong, songtitle);
 
-    }
-    else
-        printf ( "SgPlaylist_NextSong : Failed because playlist %s does not exist\n", currentplaylist );
-
-
+	} else {
+		printf("SgPlaylist_NextSong : Failed because playlist %s does not exist\n", currentplaylist);
+	}
 }
 
-void SgPlaylist_RandomSong ()
+void SgPlaylist_RandomSong()
 {
 
-    SgPlaylist *playlist = SgPlaylist_GetPlaylist(currentplaylist);
+	SgPlaylist* playlist = SgPlaylist_GetPlaylist(currentplaylist);
 
-    if ( playlist ) {
+	if (playlist) {
 
-        char *songtitle = playlist->GetRandomSong ( currentsong );
-        SgPlayMod ( RsArchiveFileOpen ( songtitle ) );
-        strcpy ( currentsong, songtitle );
+		const char* songtitle = playlist->GetRandomSong(currentsong);
+		SgPlayMod(RsArchiveFileOpen(songtitle));
+		strcpy(currentsong, songtitle);
 
-    }
-    else
-        printf ( "SgPlaylist_RandomSong : Failed because playlist %s does not exist\n", currentplaylist );
-
+	} else {
+		printf("SgPlaylist_RandomSong : Failed because playlist %s does not exist\n", currentplaylist);
+	}
 }
 
-void SgUpdate ()
+void SgUpdate()
 {
 
-    // Are we fading out the current playlist?
+	// Are we fading out the current playlist?
 
-    if ( strcmp ( requestedplaylist, "None" ) != 0 ) {
+	if (strcmp(requestedplaylist, "None") != 0) {
 
-        int timediff = (int)EclGetAccurateTime () - requestedtime;
-        int volume = 20 - (int)(20 * ((float) timediff / (float) 4000));
+		int timediff = (int)EclGetAccurateTime() - requestedtime;
+		int volume = 20 - (int)(20 * ((float)timediff / (float)4000));
 
-        if ( volume <= 0 ) {
-            SgStopMod ();
-            strcpy ( currentplaylist, requestedplaylist );
-            strcpy ( requestedplaylist, "None" );
-            requestedtime = -1;
-            songindex = -1;
-            SgSetModVolume ( 20 );
-            SgPlaylist_NextSong ();
-        }
-        else {
-            SgSetModVolume ( volume );
-        }
+		if (volume <= 0) {
+			SgStopMod();
+			strcpy(currentplaylist, requestedplaylist);
+			strcpy(requestedplaylist, "None");
+			requestedtime = -1;
+			songindex = -1;
+			SgSetModVolume(20);
+			SgPlaylist_NextSong();
+		} else {
+			SgSetModVolume(volume);
+		}
 
-    }
-    else {
+	} else {
 
-        // Playing a playlist as usual
-        // Has the current mod finished?
+		// Playing a playlist as usual
+		// Has the current mod finished?
 
-        if ( strcmp ( currentplaylist, "None" ) != 0 )
-            if ( SgModFinished () ) 
-                SgPlaylist_NextSong ();
-
-    }
-
+		if (strcmp(currentplaylist, "None") != 0) {
+			if (SgModFinished()) {
+				SgPlaylist_NextSong();
+			}
+		}
+	}
 }

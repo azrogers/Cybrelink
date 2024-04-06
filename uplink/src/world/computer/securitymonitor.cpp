@@ -6,174 +6,167 @@
 
 #include "game/game.h"
 
-#include "world/world.h"
-#include "world/vlocation.h"
-#include "world/player.h"
 #include "world/computer/computer.h"
-#include "world/computer/securitysystem.h"
 #include "world/computer/securitymonitor.h"
-
-
-
+#include "world/computer/securitysystem.h"
+#include "world/player.h"
+#include "world/vlocation.h"
+#include "world/world.h"
 
 int SecurityMonitor::status = 0;
 
-DArray <bool> SecurityMonitor::currentmonitor;
+DArray<bool> SecurityMonitor::currentmonitor;
 
 Date SecurityMonitor::nextmonitor_date;
 int SecurityMonitor::nextmonitor_index = 0;
 
-
-void SecurityMonitor::BeginAttack ()
+void SecurityMonitor::BeginAttack()
 {
 
 	// Look up the computer system the player is connected to
 
-	VLocation *vl = game->GetWorld ()->GetVLocation ( game->GetWorld ()->GetPlayer ()->remotehost );
-	UplinkAssert (vl);
-	Computer *comp = vl->GetComputer ();
-	UplinkAssert (comp);
+	VLocation* vl = game->GetWorld()->GetVLocation(game->GetWorld()->GetPlayer()->remotehost);
+	UplinkAssert(vl);
+	Computer* comp = vl->GetComputer();
+	UplinkAssert(comp);
 
 	// Enable monitering if there are systems to be monitered
 
-	if ( comp->security.NumSystems () > 0 ) {
+	if (comp->security.NumSystems() > 0) {
 
-		currentmonitor.SetSize ( comp->security.NumSystems () );
-		for ( int i = 0; i < currentmonitor.Size (); ++i ) 
-			currentmonitor.PutData ( false, i );
+		currentmonitor.SetSize(comp->security.NumSystems());
+		for (int i = 0; i < currentmonitor.Size(); ++i) {
+			currentmonitor.PutData(false, i);
+		}
 
-		nextmonitor_date.SetDate ( &(game->GetWorld ()->date) );
-		nextmonitor_date.AdvanceSecond ( 30 / comp->security.NumSystems () );
+		nextmonitor_date.SetDate(&(game->GetWorld()->date));
+		nextmonitor_date.AdvanceSecond(30 / comp->security.NumSystems());
 
 		nextmonitor_index = 0;
 
 		status = 1;
-
 	}
-
 }
 
-void SecurityMonitor::EndAttack ()
+void SecurityMonitor::EndAttack()
 {
 
-	currentmonitor.Empty ();
+	currentmonitor.Empty();
 
 	status = 0;
-
 }
 
-bool SecurityMonitor::IsMonitored ( int index )
+bool SecurityMonitor::IsMonitored(int index)
 {
 
-	if ( status == 2 )
-		if ( currentmonitor.ValidIndex (index) )
-			if ( currentmonitor.GetData (index) == true )
+	if (status == 2) {
+		if (currentmonitor.ValidIndex(index)) {
+			if (currentmonitor.GetData(index) == true) {
 				return true;
+			}
+		}
+	}
 
 	return false;
-
 }
 
-	
-void SecurityMonitor::Update ()
+void SecurityMonitor::Update()
 {
 
-	switch ( status ) {
+	switch (status) {
 
-		case 0 :									// Not enabled
+	case 0: // Not enabled
 
-			break;
+		break;
 
-		case 1 :									// Enabled, waiting to begin monitoring
+	case 1: // Enabled, waiting to begin monitoring
 
-			if ( game->GetWorld ()->date.After ( &nextmonitor_date ) ) {
+		if (game->GetWorld()->date.After(&nextmonitor_date)) {
 
-				VLocation *vl = game->GetWorld ()->GetVLocation ( game->GetWorld ()->GetPlayer ()->remotehost );
-				UplinkAssert (vl);
-				Computer *comp = vl->GetComputer ();
-				UplinkAssert (comp);
+			VLocation* vl = game->GetWorld()->GetVLocation(game->GetWorld()->GetPlayer()->remotehost);
+			UplinkAssert(vl);
+			Computer* comp = vl->GetComputer();
+			UplinkAssert(comp);
 
-				if ( comp->security.IsRunning_Monitor () ) {
+			if (comp->security.IsRunning_Monitor()) {
 
-					// Time up - begin monitering the next system
+				// Time up - begin monitering the next system
 
-					currentmonitor.PutData ( true, nextmonitor_index );
+				currentmonitor.PutData(true, nextmonitor_index);
 
-					// You'll be rumbled in ~ 4 seconds
+				// You'll be rumbled in ~ 4 seconds
 
-					nextmonitor_date.SetDate ( &(game->GetWorld ()->date) );
-					nextmonitor_date.AdvanceSecond ( 4 );					
+				nextmonitor_date.SetDate(&(game->GetWorld()->date));
+				nextmonitor_date.AdvanceSecond(4);
 
-					status = 2;
+				status = 2;
 
+			} else {
+
+				nextmonitor_date.SetDate(&(game->GetWorld()->date));
+				if (comp->security.NumSystems() > 0) {
+					nextmonitor_date.AdvanceSecond(30 / comp->security.NumSystems());
+				} else {
+					nextmonitor_date.AdvanceSecond(30);
 				}
-				else {
-
-					nextmonitor_date.SetDate ( &(game->GetWorld ()->date) );
-					if ( comp->security.NumSystems () > 0 )
-						nextmonitor_date.AdvanceSecond ( 30 / comp->security.NumSystems () );
-					else
-						nextmonitor_date.AdvanceSecond ( 30 );
-
-				}
-
 			}
-			break;
+		}
+		break;
 
-		case 2 :									// Monitering
-			
-			if ( game->GetWorld ()->date.After ( &nextmonitor_date ) ) {
+	case 2: // Monitering
 
-				VLocation *vl = game->GetWorld ()->GetVLocation ( game->GetWorld ()->GetPlayer ()->remotehost );
-				UplinkAssert (vl);
-				Computer *comp = vl->GetComputer ();
-				UplinkAssert (comp);
+		if (game->GetWorld()->date.After(&nextmonitor_date)) {
 
-				if ( comp->security.IsRunning_Monitor () ) {
+			VLocation* vl = game->GetWorld()->GetVLocation(game->GetWorld()->GetPlayer()->remotehost);
+			UplinkAssert(vl);
+			Computer* comp = vl->GetComputer();
+			UplinkAssert(comp);
 
-					// Time up - if player has jimmied this system then he 
-					// is now caught
+			if (comp->security.IsRunning_Monitor()) {
 
-					for ( int i = 0; i < currentmonitor.Size (); ++i ) {
-						if ( currentmonitor.ValidIndex (i) ) {
-							if ( currentmonitor.GetData (i) == true ) {
+				// Time up - if player has jimmied this system then he
+				// is now caught
 
-								SecuritySystem *ss = comp->security.GetSystem (i);
-								UplinkAssert (ss);
+				for (int i = 0; i < currentmonitor.Size(); ++i) {
+					if (currentmonitor.ValidIndex(i)) {
+						if (currentmonitor.GetData(i) == true) {
 
-								if ( ss->bypassed || !ss->enabled ) 
-									game->GetWorld ()->GetPlayer ()->GetConnection ()->BeginTrace ();
-								
+							SecuritySystem* ss = comp->security.GetSystem(i);
+							UplinkAssert(ss);
+
+							if (ss->bypassed || !ss->enabled) {
+								game->GetWorld()->GetPlayer()->GetConnection()->BeginTrace();
 							}
 						}
 					}
-
 				}
-				
-				// Reset and wait for a few seconds before analysing the next system
-
-				++nextmonitor_index;
-				if ( !comp->security.GetSystem (nextmonitor_index) ) nextmonitor_index = 0;
-
-				for ( int ic = 0; ic < currentmonitor.Size (); ++ic ) 
-					currentmonitor.PutData ( false, ic );
-					
-				nextmonitor_date.SetDate ( &(game->GetWorld ()->date) );
-				if ( comp->security.NumSystems () > 0 )
-					nextmonitor_date.AdvanceSecond ( 30 / comp->security.NumSystems () );
-				else
-					nextmonitor_date.AdvanceSecond ( 30 );
-
-				status = 1;
-
 			}
-			break;
 
-		default:
+			// Reset and wait for a few seconds before analysing the next system
 
-			UplinkAbort ( "Unrecognised status\n" );
-			break;
+			++nextmonitor_index;
+			if (!comp->security.GetSystem(nextmonitor_index)) {
+				nextmonitor_index = 0;
+			}
 
+			for (int ic = 0; ic < currentmonitor.Size(); ++ic) {
+				currentmonitor.PutData(false, ic);
+			}
+
+			nextmonitor_date.SetDate(&(game->GetWorld()->date));
+			if (comp->security.NumSystems() > 0) {
+				nextmonitor_date.AdvanceSecond(30 / comp->security.NumSystems());
+			} else {
+				nextmonitor_date.AdvanceSecond(30);
+			}
+
+			status = 1;
+		}
+		break;
+
+	default:
+
+		UplinkAbort("Unrecognised status\n");
+		break;
 	}
-
 }

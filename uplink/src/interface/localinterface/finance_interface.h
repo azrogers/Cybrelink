@@ -5,44 +5,38 @@
 #ifndef _included_financeinterface_h
 #define _included_financeinterface_h
 
-
 #include "interface/localinterface/localinterfacescreen.h"
 
-
-class FinanceInterface : public LocalInterfaceScreen  
-{
+class FinanceInterface : public LocalInterfaceScreen {
 
 protected:
-
 	int oldbalance;
 	int previousnumaccounts;
 	time_t lastupdate;
 
 protected:
+	static void TitleClick(Button* button);
 
-	static void TitleClick ( Button *button );
+	static void DrawAccountsTitle(Button* button, bool highlighted, bool clicked);
 
-	static void DrawAccountsTitle ( Button *button, bool highlighted, bool clicked );
-
-	static void ClickAccountButton ( Button *button );
-	static void MiddleClickAccountButton(Button *button);
-	static void DrawAccountButton ( Button *button, bool highlighted, bool clicked );
+	static void ClickAccountButton(Button* button);
+	static void MiddleClickAccountButton(Button* button);
+	static void DrawAccountButton(Button* button, bool highlighted, bool clicked);
 
 	static void ClickPayFinesButton(Button* button);
+
 public:
+	static void AfterPhoneDialler(char* ip, char* info);
 
-	static void AfterPhoneDialler ( char *ip, char *info );
+	FinanceInterface();
+	~FinanceInterface();
 
-	FinanceInterface ();
-	~FinanceInterface ();
+	void Create();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
-
-	int ScreenID ();
-
+	int ScreenID();
 };
 
-#endif 
+#endif

@@ -2,9 +2,8 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <GL/gl.h>
@@ -12,10 +11,10 @@
 #include <GL/glu.h> /*_glu_extention_library_*/
 
 #include "eclipse.h"
-#include "gucci.h" 
-#include "vanbakel.h"
-#include "soundgarden.h"
+#include "gucci.h"
 #include "redshirt.h"
+#include "soundgarden.h"
+#include "vanbakel.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -27,404 +26,384 @@
 
 #include "interface/taskmanager/tracetracker.h"
 
-#include "world/world.h"
+#include "world/computer/computer.h"
 #include "world/player.h"
 #include "world/vlocation.h"
-#include "world/computer/computer.h"
-
-
-
+#include "world/world.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-
-void TraceTracker::CloseClick ( Button *button )
+void TraceTracker::CloseClick(Button* button)
 {
 
 	int pid;
-	char bname [64];
-	sscanf ( button->name, "%s %d", bname, &pid );
+	char bname[64];
+	sscanf(button->name.c_str(), "%s %d", bname, &pid);
 
-	SvbRemoveTask ( pid );
-
+	SvbRemoveTask(pid);
 }
 
-void TraceTracker::TraceDraw ( Button *button, bool highlighted, bool clicked )
+void TraceTracker::TraceDraw(Button* button, bool highlighted, bool clicked)
 {
 
-    UplinkAssert (button);
-
-    //
-    // Get the task
-    //
-
-	int pid;
-	char bname [64];
-	sscanf ( button->name, "%s %d", bname, &pid );
-    TraceTracker *thistask = (TraceTracker *) SvbGetTask (pid);
-    UplinkAssert (thistask);
-
-    //
-    // Work out the brightness
-    //
-
-    float brightness = 0.0;
-       
-    if ( game->GetWorld ()->GetPlayer ()->connection.TraceInProgress () ) {
-
-        if ( thistask->beepdelay < 100 )
-            brightness = 0.8f;
-
-        else {
-            int timeoflastbeep = thistask->nextbeep - thistask->beepdelay;
-            int timepassedsincelastbeep = (int) ( EclGetAccurateTime () - timeoflastbeep );
-            brightness = 0.7f * (((float) timepassedsincelastbeep) / (float) thistask->beepdelay);
-        }
-
-    }
-    else
-        brightness = 0.0f;
-
-    //
-	// Draw the button
-    //
-
-	int screenheight = app->GetOptions ()->GetOptionValue ( "graphics_screenheight" );
-	glScissor ( button->x, screenheight - (button->y + button->height), button->width, button->height );	
-	glEnable ( GL_SCISSOR_TEST );
-	
-	glBegin ( GL_QUADS );
-
-		glColor4f ( brightness, brightness, 0.7f, 0.5f );
-		glVertex2i ( button->x, button->y + button->height );
-
-		glColor4f ( brightness, brightness, 0.4f, 0.5f );
-		glVertex2i ( button->x, button->y );
-
-		glColor4f ( brightness, brightness, 0.7f, 0.5f );
-		glVertex2i ( button->x + button->width, button->y );
-
-		glColor4f ( brightness, brightness, 0.4f, 0.5f );
-		glVertex2i ( button->x + button->width, button->y + button->height );
-
-	glEnd ();
+	UplinkAssert(button);
 
 	//
-    // Draw the text
-    //
+	// Get the task
+	//
 
-	int xpos = (button->x + button->width  / 2) - ( GciTextWidth ( button->caption ) / 2 );
+	int pid;
+	char bname[64];
+	sscanf(button->name.c_str(), "%s %d", bname, &pid);
+	TraceTracker* thistask = (TraceTracker*)SvbGetTask(pid);
+	UplinkAssert(thistask);
+
+	//
+	// Work out the brightness
+	//
+
+	float brightness = 0.0;
+
+	if (game->GetWorld()->GetPlayer()->connection.TraceInProgress()) {
+
+		if (thistask->beepdelay < 100) {
+			brightness = 0.8f;
+		}
+
+		else {
+			int timeoflastbeep = thistask->nextbeep - thistask->beepdelay;
+			int timepassedsincelastbeep = (int)(EclGetAccurateTime() - timeoflastbeep);
+			brightness = 0.7f * (((float)timepassedsincelastbeep) / (float)thistask->beepdelay);
+		}
+
+	} else {
+		brightness = 0.0f;
+	}
+
+	//
+	// Draw the button
+	//
+
+	int screenheight = app->GetOptions()->GetOptionValue("graphics_screenheight");
+	glScissor(button->x, screenheight - (button->y + button->height), button->width, button->height);
+	glEnable(GL_SCISSOR_TEST);
+
+	glBegin(GL_QUADS);
+
+	glColor4f(brightness, brightness, 0.7f, 0.5f);
+	glVertex2i(button->x, button->y + button->height);
+
+	glColor4f(brightness, brightness, 0.4f, 0.5f);
+	glVertex2i(button->x, button->y);
+
+	glColor4f(brightness, brightness, 0.7f, 0.5f);
+	glVertex2i(button->x + button->width, button->y);
+
+	glColor4f(brightness, brightness, 0.4f, 0.5f);
+	glVertex2i(button->x + button->width, button->y + button->height);
+
+	glEnd();
+
+	//
+	// Draw the text
+	//
+
+	int xpos = (button->x + button->width / 2) - (GciTextWidth(button->caption) / 2);
 	int ypos = (button->y + button->height / 2) + 2;
 
-	if ( highlighted || clicked )	glColor4f ( 1.0f, 1.0f, 1.0f, 1.0f );
-	else							glColor4f ( 1.0f, 1.0f, 1.0f, ALPHA );    
-    GciDrawText ( xpos, ypos, button->caption );
+	if (highlighted || clicked) {
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	} else {
+		glColor4f(1.0f, 1.0f, 1.0f, ALPHA);
+	}
+	GciDrawText(xpos, ypos, button->caption);
 
-	glDisable ( GL_SCISSOR_TEST );
-
+	glDisable(GL_SCISSOR_TEST);
 }
 
-void TraceTracker::AudioDraw ( Button *button, bool highlighted, bool clicked )
+void TraceTracker::AudioDraw(Button* button, bool highlighted, bool clicked)
 {
 
 	int pid;
-	char bname [64];
-	sscanf ( button->name, "%s %d", bname, &pid );
-    TraceTracker *thistask = (TraceTracker *) SvbGetTask (pid);
-    UplinkAssert (thistask);
+	char bname[64];
+	sscanf(button->name.c_str(), "%s %d", bname, &pid);
+	TraceTracker* thistask = (TraceTracker*)SvbGetTask(pid);
+	UplinkAssert(thistask);
 
-    if ( thistask->audioon )
-        imagebutton_draw ( button, false, false );
-
-    else
-        imagebutton_draw ( button, true, true );
-
-}
-
-void TraceTracker::AudioClick ( Button *button )
-{
-
-	int pid;
-	char bname [64];
-	sscanf ( button->name, "%s %d", bname, &pid );
-    TraceTracker *thistask = (TraceTracker *) SvbGetTask (pid);
-    UplinkAssert (thistask);
-
-    thistask->audioon = !thistask->audioon;
-
-    char audioname [64];
-    UplinkSnprintf ( audioname, sizeof ( audioname ), "tracetracker_audio %d", pid );
-
-    if ( thistask->audioon )
-        button_assignbitmaps ( audioname, "software/audioon.tif", "software/audioon_h.tif", "software/audioon_c.tif" );
-
-    else
-        button_assignbitmaps ( audioname, "software/audiooff.tif", "software/audiooff_h.tif", "software/audiooff_c.tif" );
-
-}
-
-TraceTracker::TraceTracker() : UplinkTask ()
-{
-
-    x = 0;
-    y = 0;
-    traceprogress = -1;
-    traceestimate = -1;
-    nextbeep = -1;
-    beepdelay = -1;
-    audioon = true;
-	lastupdate = 0;
-    
-}
-
-TraceTracker::~TraceTracker()
-{
-
-}
-
-void TraceTracker::Initialise ()
-{
-}
-
-void TraceTracker::MoveTo ( int x, int y, int time_ms )
-{
-	
-	if ( IsInterfaceVisible () ) {
-
-		int pid = SvbLookupPID ( this );
-
-		char displayname [64];
-		char closename [64];
-		char audioname [64];
-
-		UplinkSnprintf ( displayname, sizeof ( displayname ), "tracetracker_display %d", pid );
-		UplinkSnprintf ( closename, sizeof ( closename ), "tracetracker_close %d", pid );
-        UplinkSnprintf ( audioname, sizeof ( audioname ), "tracetracker_audio %d", pid );
-
-		EclRegisterMovement ( displayname, x, y, time_ms );
-		EclRegisterMovement ( closename, x + 100, y, time_ms );
-        EclRegisterMovement ( audioname, x - 20, y, time_ms );
-
+	if (thistask->audioon) {
+		imagebutton_draw(button, false, false);
 	}
 
+	else {
+		imagebutton_draw(button, true, true);
+	}
 }
 
-void TraceTracker::Tick ( int n )
+void TraceTracker::AudioClick(Button* button)
 {
 
-	if ( IsInterfaceVisible () ) {
+	int pid;
+	char bname[64];
+	sscanf(button->name.c_str(), "%s %d", bname, &pid);
+	TraceTracker* thistask = (TraceTracker*)SvbGetTask(pid);
+	UplinkAssert(thistask);
 
-		int pid = SvbLookupPID ( this );
-		char displayname [64];
-		UplinkSnprintf ( displayname, sizeof ( displayname ), "tracetracker_display %d", pid );
+	thistask->audioon = !thistask->audioon;
 
-		Button *button = EclGetButton ( displayname );
-		UplinkAssert ( button );
+	char audioname[64];
+	UplinkSnprintf(audioname, sizeof(audioname), "tracetracker_audio %d", pid);
 
-        Connection *connection = game->GetWorld ()->GetPlayer ()->GetConnection ();
+	if (thistask->audioon) {
+		button_assignbitmaps(
+			audioname, "software/audioon.tif", "software/audioon_h.tif", "software/audioon_c.tif");
+	}
 
-        //
-        // Calculate our best guess for the trace time
-        //
+	else {
+		button_assignbitmaps(
+			audioname, "software/audiooff.tif", "software/audiooff_h.tif", "software/audiooff_c.tif");
+	}
+}
 
-        if ( connection->TraceInProgress () && 
-             connection->traceprogress != traceprogress ) {
+TraceTracker::TraceTracker() :
+	UplinkTask()
+{
 
-            int timeremaining = game->GetWorld ()->GetPlayer ()->TimeRemaining ();
+	x = 0;
+	y = 0;
+	traceprogress = -1;
+	traceestimate = -1;
+	nextbeep = -1;
+	beepdelay = -1;
+	audioon = true;
+	lastupdate = 0;
+}
 
-            traceestimate = (int) ( EclGetAccurateTime () + timeremaining * 1000 );
-            traceprogress = connection->traceprogress;
+TraceTracker::~TraceTracker() { }
 
-        }
+void TraceTracker::Initialise() { }
 
-        //
-        // deal with the bleeping
-        //
+void TraceTracker::MoveTo(int x, int y, int time_ms)
+{
 
-        if ( connection->TraceInProgress () ) {
+	if (IsInterfaceVisible()) {
 
-            if ( EclGetAccurateTime () >= nextbeep ) {
+		int pid = SvbLookupPID(this);
 
-                if ( audioon )
-                    SgPlaySound ( RsArchiveFileOpen ( "sounds/tracebleep.wav" ), "sounds/tracebleep.wav" );
-                
-                int timeremaining = (int) ( traceestimate - EclGetAccurateTime () );
-                beepdelay = (int) ( (float) timeremaining / 20.0 );
-                nextbeep = (int) ( EclGetAccurateTime () + beepdelay );
+		char displayname[64];
+		char closename[64];
+		char audioname[64];
 
-            }
+		UplinkSnprintf(displayname, sizeof(displayname), "tracetracker_display %d", pid);
+		UplinkSnprintf(closename, sizeof(closename), "tracetracker_close %d", pid);
+		UplinkSnprintf(audioname, sizeof(audioname), "tracetracker_audio %d", pid);
 
-		    char displayname [64];
-		    UplinkSnprintf ( displayname, sizeof ( displayname ), "tracetracker_display %d", pid );
-		    EclDirtyButton ( displayname );
+		EclRegisterMovement(displayname, x, y, time_ms);
+		EclRegisterMovement(closename, x + 100, y, time_ms);
+		EclRegisterMovement(audioname, x - 20, y, time_ms);
+	}
+}
 
-        }
+void TraceTracker::Tick(int n)
+{
 
-		if ( connection->Traced () ) {
+	if (IsInterfaceVisible()) {
 
-			button->SetCaption ( "Traced" );
+		int pid = SvbLookupPID(this);
+		char displayname[64];
+		UplinkSnprintf(displayname, sizeof(displayname), "tracetracker_display %d", pid);
 
+		Button* button = EclGetButton(displayname);
+		UplinkAssert(button);
+
+		Connection* connection = game->GetWorld()->GetPlayer()->GetConnection();
+
+		//
+		// Calculate our best guess for the trace time
+		//
+
+		if (connection->TraceInProgress() && connection->traceprogress != traceprogress) {
+
+			int timeremaining = game->GetWorld()->GetPlayer()->TimeRemaining();
+
+			traceestimate = (int)(EclGetAccurateTime() + timeremaining * 1000);
+			traceprogress = connection->traceprogress;
 		}
-		else if ( connection->TraceInProgress () &&
-				  connection->traceprogress > 0 ) {
-			
-			int timesincelastupdate = (int) ( EclGetAccurateTime () - lastupdate );
 
-			if ( timesincelastupdate >= 500 ) {
+		//
+		// deal with the bleeping
+		//
 
-				if ( version == 1.0 ) {
+		if (connection->TraceInProgress()) {
 
-					if ( connection->traceprogress >= connection->GetSize () - 2 ) 
-						button->SetCaption ( "Trace Imminent" );
-					
-					else
-						button->SetCaption ( "In progress" );
+			if (EclGetAccurateTime() >= nextbeep) {
 
-				}
-				else if ( version == 2.0 ) {
-
-					int percent = (int) ( 100 * (float) connection->traceprogress / (float) (connection->GetSize () - 1) );
-					char caption [128];
-					UplinkSnprintf ( caption, sizeof ( caption ), "Trace: %d%%", percent );
-					button->SetCaption ( caption );		
-
-				}
-				else if ( version == 3.0 ) {
-
-					int timeremaining = game->GetWorld ()->GetPlayer ()->TimeRemaining ();
-
-					char caption [128];
-					UplinkSnprintf ( caption, sizeof ( caption ), "Trace: %d secs", timeremaining );
-					button->SetCaption ( caption );		
-					
-				}
-				else if ( version == 4.0 ) {
-
-					int timeremaining = game->GetWorld ()->GetPlayer ()->TimeRemaining ();
-
-					int accuratetimeremaining = (int) ( (traceestimate - EclGetAccurateTime ()) / 1000 );
-					if ( accuratetimeremaining < 0 ) accuratetimeremaining = 0;
-					char caption [128];
-					UplinkSnprintf ( caption, sizeof ( caption ), "Trace: %ds (%d)", timeremaining, accuratetimeremaining );
-					button->SetCaption ( caption );
-
-				}
-				else {
-
-					printf ( "TraceTracker WARNING : Unrecognised version number\n ");
-
+				if (audioon) {
+					SgPlaySound(RsArchiveFileOpen("sounds/tracebleep.wav"), "sounds/tracebleep.wav");
 				}
 
-				lastupdate = (int) EclGetAccurateTime ();
-
+				int timeremaining = (int)(traceestimate - EclGetAccurateTime());
+				beepdelay = (int)((float)timeremaining / 20.0);
+				nextbeep = (int)(EclGetAccurateTime() + beepdelay);
 			}
 
-
-		}
-		else if ( connection->TraceInProgress () &&
-				  connection->traceprogress == 0 ) {
-
-			button->SetCaption ( "Trace begun" );			
-
-		}
-		else {
-
-			button->SetCaption ( "No Traces" );
-
+			char displayname[64];
+			UplinkSnprintf(displayname, sizeof(displayname), "tracetracker_display %d", pid);
+			EclDirtyButton(displayname);
 		}
 
+		if (connection->Traced()) {
+
+			button->SetCaption("Traced");
+
+		} else if (connection->TraceInProgress() && connection->traceprogress > 0) {
+
+			int timesincelastupdate = (int)(EclGetAccurateTime() - lastupdate);
+
+			if (timesincelastupdate >= 500) {
+
+				if (version == 1.0) {
+
+					if (connection->traceprogress >= connection->GetSize() - 2) {
+						button->SetCaption("Trace Imminent");
+					}
+
+					else {
+						button->SetCaption("In progress");
+					}
+
+				} else if (version == 2.0) {
+
+					int percent =
+						(int)(100 * (float)connection->traceprogress / (float)(connection->GetSize() - 1));
+					char caption[128];
+					UplinkSnprintf(caption, sizeof(caption), "Trace: %d%%", percent);
+					button->SetCaption(caption);
+
+				} else if (version == 3.0) {
+
+					int timeremaining = game->GetWorld()->GetPlayer()->TimeRemaining();
+
+					char caption[128];
+					UplinkSnprintf(caption, sizeof(caption), "Trace: %d secs", timeremaining);
+					button->SetCaption(caption);
+
+				} else if (version == 4.0) {
+
+					int timeremaining = game->GetWorld()->GetPlayer()->TimeRemaining();
+
+					int accuratetimeremaining = (int)((traceestimate - EclGetAccurateTime()) / 1000);
+					if (accuratetimeremaining < 0) {
+						accuratetimeremaining = 0;
+					}
+					char caption[128];
+					UplinkSnprintf(
+						caption, sizeof(caption), "Trace: %ds (%d)", timeremaining, accuratetimeremaining);
+					button->SetCaption(caption);
+
+				} else {
+
+					printf("TraceTracker WARNING : Unrecognised version number\n ");
+				}
+
+				lastupdate = (int)EclGetAccurateTime();
+			}
+
+		} else if (connection->TraceInProgress() && connection->traceprogress == 0) {
+
+			button->SetCaption("Trace begun");
+
+		} else {
+
+			button->SetCaption("No Traces");
+		}
+	}
+}
+
+void TraceTracker::CreateInterface()
+{
+
+	if (!IsInterfaceVisible()) {
+
+		int pid = SvbLookupPID(this);
+
+		char displayname[64];
+		char closename[64];
+		char audioname[64];
+
+		UplinkSnprintf(displayname, sizeof(displayname), "tracetracker_display %d", pid);
+		UplinkSnprintf(closename, sizeof(closename), "tracetracker_close %d", pid);
+		UplinkSnprintf(audioname, sizeof(audioname), "tracetracker_audio %d", pid);
+
+		EclRegisterButton(25, 300, 100, 13, "Trace Tracker", "Trace Tracker", displayname);
+		EclRegisterButtonCallbacks(displayname, TraceDraw, NULL, NULL, NULL);
+
+		EclRegisterButton(125, 300, 13, 13, "", "Close the TraceTracker", closename);
+		button_assignbitmaps(closename, "close.tif", "close_h.tif", "close_c.tif");
+		EclRegisterButtonCallback(closename, CloseClick);
+
+		EclRegisterButton(5, 300, 20, 13, "", "Toggle audio beeps", audioname);
+		button_assignbitmaps(
+			audioname, "software/audioon.tif", "software/audioon_h.tif", "software/audioon_c.tif");
+		EclRegisterButtonCallbacks(audioname, AudioDraw, AudioClick, button_click, button_highlight);
+
+		int screenW = app->GetOptions()->GetOptionValue("graphics_screenwidth");
+		int screenH = app->GetOptions()->GetOptionValue("graphics_screenheight");
+
+		MoveTo(screenW - 115, screenH - 15, 500);
+	}
+}
+
+void TraceTracker::RemoveInterface()
+{
+
+	if (IsInterfaceVisible()) {
+
+		int pid = SvbLookupPID(this);
+
+		char displayname[64];
+		char closename[64];
+		char audioname[64];
+
+		UplinkSnprintf(displayname, sizeof(displayname), "tracetracker_display %d", pid);
+		UplinkSnprintf(closename, sizeof(closename), "tracetracker_close %d", pid);
+		UplinkSnprintf(audioname, sizeof(audioname), "tracetracker_audio %d", pid);
+
+		EclRemoveButton(displayname);
+		EclRemoveButton(closename);
+		EclRemoveButton(audioname);
+	}
+}
+
+void TraceTracker::ShowInterface()
+{
+
+	if (!IsInterfaceVisible()) {
+		CreateInterface();
 	}
 
-}
-	
-void TraceTracker::CreateInterface ()
-{
+	int pid = SvbLookupPID(this);
 
-	if ( !IsInterfaceVisible () ) {
+	char displayname[64];
+	char closename[64];
+	char audioname[64];
 
-		int pid = SvbLookupPID ( this );
+	UplinkSnprintf(displayname, sizeof(displayname), "tracetracker_display %d", pid);
+	UplinkSnprintf(closename, sizeof(closename), "tracetracker_close %d", pid);
+	UplinkSnprintf(audioname, sizeof(audioname), "tracetracker_audio %d", pid);
 
-		char displayname [64];
-		char closename [64];
-        char audioname [64];
-		
-		UplinkSnprintf ( displayname, sizeof ( displayname ), "tracetracker_display %d", pid );
-		UplinkSnprintf ( closename, sizeof ( closename ), "tracetracker_close %d", pid );
-        UplinkSnprintf ( audioname, sizeof ( audioname ), "tracetracker_audio %d", pid );
-
-		EclRegisterButton ( 25, 300, 100, 13, "Trace Tracker", "Trace Tracker", displayname );
-		EclRegisterButtonCallbacks ( displayname, TraceDraw, NULL, NULL, NULL );
-
-		EclRegisterButton ( 125, 300, 13, 13, "", "Close the TraceTracker", closename );		
-		button_assignbitmaps ( closename, "close.tif", "close_h.tif", "close_c.tif" );
-		EclRegisterButtonCallback ( closename, CloseClick );
-		
-        EclRegisterButton ( 5, 300, 20, 13, "", "Toggle audio beeps", audioname );
-        button_assignbitmaps ( audioname, "software/audioon.tif", "software/audioon_h.tif", "software/audioon_c.tif" );
-        EclRegisterButtonCallbacks ( audioname, AudioDraw, AudioClick, button_click, button_highlight );
-        
-        int screenW = app->GetOptions ()->GetOptionValue( "graphics_screenwidth" );
-        int screenH = app->GetOptions ()->GetOptionValue( "graphics_screenheight" );
-
-		MoveTo ( screenW - 115, screenH - 15, 500 );
-
-	}
-
+	EclButtonBringToFront(displayname);
+	EclButtonBringToFront(closename);
+	EclButtonBringToFront(audioname);
 }
 
-void TraceTracker::RemoveInterface ()
+bool TraceTracker::IsInterfaceVisible()
 {
 
-	if ( IsInterfaceVisible () ) {
+	int pid = SvbLookupPID(this);
+	char displayname[64];
+	UplinkSnprintf(displayname, sizeof(displayname), "tracetracker_display %d", pid);
 
-		int pid = SvbLookupPID ( this );
-
-		char displayname [64];
-		char closename [64];
-        char audioname [64];
-		
-		UplinkSnprintf ( displayname, sizeof ( displayname ), "tracetracker_display %d", pid );
-		UplinkSnprintf ( closename, sizeof ( closename ), "tracetracker_close %d", pid );
-        UplinkSnprintf ( audioname, sizeof ( audioname ), "tracetracker_audio %d", pid );
-
-		EclRemoveButton ( displayname );		
-		EclRemoveButton ( closename );
-        EclRemoveButton ( audioname );
-
-	}
-
-}
-
-void TraceTracker::ShowInterface ()
-{
-
-	if ( !IsInterfaceVisible () ) CreateInterface ();
-
-	int pid = SvbLookupPID ( this );
-
-	char displayname [64];
-	char closename [64];
-    char audioname [64];
-	
-	UplinkSnprintf ( displayname, sizeof ( displayname ), "tracetracker_display %d", pid );
-	UplinkSnprintf ( closename, sizeof ( closename ), "tracetracker_close %d", pid );
-    UplinkSnprintf ( audioname, sizeof ( audioname ), "tracetracker_audio %d", pid );
-
-	EclButtonBringToFront ( displayname );		
-	EclButtonBringToFront ( closename );
-    EclButtonBringToFront ( audioname );
-
-}
-
-bool TraceTracker::IsInterfaceVisible ()
-{
-
-	int pid = SvbLookupPID ( this );
-	char displayname [64];		
-	UplinkSnprintf ( displayname, sizeof ( displayname ), "tracetracker_display %d", pid );
-
-	return ( EclGetButton ( displayname ) != NULL );
-
+	return (EclGetButton(displayname) != NULL);
 }

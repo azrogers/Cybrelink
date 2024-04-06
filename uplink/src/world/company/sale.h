@@ -15,86 +15,73 @@
 
 #include "app/uplinkobject.h"
 
-#define SALETYPE_NONE      0
-#define SALETYPE_SOFTWARE  1
-#define SALETYPE_HARDWARE  2
+#define SALETYPE_NONE 0
+#define SALETYPE_SOFTWARE 1
+#define SALETYPE_HARDWARE 2
 
-#define SIZE_SALE_TITLE	   64
+#define SIZE_SALE_TITLE 64
 
 class SaleVersion;
 
 // ============================================================================
 
-
-class Sale : public UplinkObject
-{
+class Sale : public UplinkObject {
 
 public:
-
-	char title [SIZE_SALE_TITLE];
+	char title[SIZE_SALE_TITLE];
 	int saleTYPE;
 	int swhwTYPE;
 
-	DArray <SaleVersion *> versions;
+	DArray<SaleVersion*> versions;
 
 public:
+	Sale();
+	virtual ~Sale();
 
-	Sale ();
-	virtual ~Sale ();
+	void SetTitle(const char* newtitle);
+	void SetSaleTYPE(int newTYPE);
+	void SetSwhwTYPE(int newSwhwTYPE);
 
-	void SetTitle ( char *newtitle );
-	void SetSaleTYPE ( int newTYPE );
-	void SetSwhwTYPE ( int newSwhwTYPE );
-
-	void AddVersion ( char *details, int cost, int size, int data );
-	SaleVersion *GetVersion ( int index );								// Can return NULL
+	void AddVersion(const char* details, int cost, int size, int data);
+	SaleVersion* GetVersion(int index); // Can return NULL
 
 	// Common functions
 
-	bool Load  ( FILE *file );
-	void Save  ( FILE *file );
-	void Print ();
-	void Update ();
-	
-	char *GetID ();
-	int   GetOBJECTID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
 
-
-class SaleVersion : public UplinkObject
-{
+class SaleVersion : public UplinkObject {
 
 protected:
-
-	char *details;
+	char* details;
 
 public:
-
 	int cost;
 	int size;
-	int data;						// SW version or HW speed
+	int data; // SW version or HW speed
 
 public:
+	SaleVersion();
+	~SaleVersion();
 
-	SaleVersion ();
-	~SaleVersion ();
-
-	void Set ( char *newdetails, int newcost, int newsize, int newdata );
-	char *GetDetails ();
+	void Set(const char* newdetails, int newcost, int newsize, int newdata);
+	char* GetDetails();
 
 	// Common functions
 
-	bool Load  ( FILE *file );
-	void Save  ( FILE *file );
-	void Print ();
-	void Update ();
-	
-	char *GetID ();
-	int   GetOBJECTID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
 
-
 #endif
-

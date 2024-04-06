@@ -12,29 +12,26 @@
 
 #include "tosser.h"
 
-class MainMenuScreen
-{
+class MainMenuScreen {
 
 protected:
-	DArray<char *> *interface_buttons;
-	virtual void RegisterButton ( int x, int y, int width, int height,
-								  char *caption, char *name );
-	virtual void RegisterButton ( int x, int y, int width, int height,
-								  char *caption, char *tooltip, char *name );
-public:
+	DArray<char*>* interface_buttons;
+	virtual void RegisterButton(int x, int y, int width, int height, const char* caption, const char* name);
+	virtual void RegisterButton(
+		int x, int y, int width, int height, const char* caption, const char* tooltip, const char* name);
 
+public:
 	MainMenuScreen();
 	virtual ~MainMenuScreen();
 
-	virtual void Create ();
-	virtual void Remove ();
-	virtual void Update ();
-	virtual bool IsVisible ();
+	virtual void Create();
+	virtual void Remove();
+	virtual void Update();
+	virtual bool IsVisible();
 
-	virtual int  ScreenID ();			
+	virtual int ScreenID();
 
-	virtual bool ReturnKeyPressed ();				// Return true to block further usage of this return
-
+	virtual bool ReturnKeyPressed(); // Return true to block further usage of this return
 };
 
 #endif

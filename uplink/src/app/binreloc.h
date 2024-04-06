@@ -17,7 +17,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-
 typedef enum {
 	/* Cannot allocate memory. */
 	BR_FIND_EXE_NOMEM,
@@ -31,12 +30,10 @@ typedef enum {
 	BR_FIND_EXE_DISABLED
 } BrFindExeError;
 
-
 /* Mangle symbol name to avoid symbol collision with other ELF objects. */
 #define br_find_exe vmg57670648335164_br_find_exe
 
-char *br_find_exe (BrFindExeError *error);
-
+char* br_find_exe(BrFindExeError* error);
 
 #ifdef __cplusplus
 }

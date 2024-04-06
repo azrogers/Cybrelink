@@ -3,134 +3,77 @@
 
 #include "world/computer/securitysystem.h"
 
+static const char* names[] = { "Unknown", "Proxy", "Firewall", "Encrypter", "Monitor" };
 
-
-
-static char *names [] = {	"Unknown",
-							"Proxy",
-							"Firewall",
-							"Encrypter",
-							"Monitor" };
-
-
-
-SecuritySystem::SecuritySystem ()
+SecuritySystem::SecuritySystem()
 {
 
 	TYPE = SECURITY_TYPE_NONE;
 	enabled = false;
 	bypassed = false;
 	level = 0;
-	
 }
 
-SecuritySystem::~SecuritySystem ()
-{
-}
+SecuritySystem::~SecuritySystem() { }
 
+void SecuritySystem::SetTYPE(int newTYPE) { TYPE = newTYPE; }
 
-void SecuritySystem::SetTYPE ( int newTYPE )
-{
+void SecuritySystem::SetLevel(int newlevel) { level = newlevel; }
 
-	TYPE = newTYPE;
+void SecuritySystem::Enable() { enabled = true; }
 
-}
+void SecuritySystem::Disable() { enabled = false; }
 
-void SecuritySystem::SetLevel ( int newlevel )
-{
+void SecuritySystem::Bypass() { bypassed = true; }
 
-	level = newlevel;
+void SecuritySystem::EndBypass() { bypassed = false; }
 
-}
+const char* SecuritySystem::GetName() { return names[TYPE]; }
 
-void SecuritySystem::Enable ()
+bool SecuritySystem::Load(FILE* file)
 {
 
-	enabled = true;
+	LoadID(file);
 
-}
+	if (!FileReadData(&TYPE, sizeof(TYPE), 1, file)) {
+		return false;
+	}
+	if (!FileReadData(&enabled, sizeof(enabled), 1, file)) {
+		return false;
+	}
+	if (!FileReadData(&bypassed, sizeof(bypassed), 1, file)) {
+		return false;
+	}
+	if (!FileReadData(&level, sizeof(level), 1, file)) {
+		return false;
+	}
 
-void SecuritySystem::Disable ()
-{
-
-	enabled = false;
-
-}
-
-void SecuritySystem::Bypass ()
-{
-
-	bypassed = true;
-
-}
-
-void SecuritySystem::EndBypass ()
-{
-
-	bypassed = false;
-
-}
-
-char *SecuritySystem::GetName ()
-{
-
-	return names [TYPE];
-
-}
-
-bool SecuritySystem::Load  ( FILE *file )
-{
-
-	LoadID ( file );
-
-	if ( !FileReadData ( &TYPE,	    sizeof(TYPE),	   1, file ) ) return false;
-	if ( !FileReadData ( &enabled,   sizeof(enabled),   1, file ) ) return false;
-	if ( !FileReadData ( &bypassed,  sizeof(bypassed),  1, file ) ) return false;
-	if ( !FileReadData ( &level,	    sizeof(level),	   1, file ) ) return false;
-
-	LoadID_END ( file );
+	LoadID_END(file);
 
 	return true;
-		
 }
 
-void SecuritySystem::Save  ( FILE *file )
-{
-	
-	SaveID ( file );
-
-	fwrite ( &TYPE,	     sizeof(TYPE),	    1, file );
-	fwrite ( &enabled,   sizeof(enabled),   1, file );
-	fwrite ( &bypassed,  sizeof(bypassed),  1, file );
-	fwrite ( &level,     sizeof(level),	    1, file );
-	
-	SaveID_END ( file );
-		
-}
-
-void SecuritySystem::Print ()
+void SecuritySystem::Save(FILE* file)
 {
 
-	printf ( "SecuritySystem : TYPE=%d, enabled=%d, bypassed=%d, level=%d\n", 
-								TYPE, enabled, bypassed, level );
+	SaveID(file);
 
+	fwrite(&TYPE, sizeof(TYPE), 1, file);
+	fwrite(&enabled, sizeof(enabled), 1, file);
+	fwrite(&bypassed, sizeof(bypassed), 1, file);
+	fwrite(&level, sizeof(level), 1, file);
+
+	SaveID_END(file);
 }
 
-void SecuritySystem::Update ()
-{
-}
-
-
-char *SecuritySystem::GetID ()
-{
-
-	return "SECSYST";
-		
-}
-
-int SecuritySystem::GetOBJECTID ()
+void SecuritySystem::Print()
 {
 
-	return OID_SECURITYSYSTEM;	
-
+	printf("SecuritySystem : TYPE=%d, enabled=%d, bypassed=%d, level=%d\n", TYPE, enabled, bypassed, level);
 }
+
+void SecuritySystem::Update() { }
+
+std::string SecuritySystem::GetID() { return "SECSYST"; }
+
+int SecuritySystem::GetOBJECTID() { return OID_SECURITYSYSTEM; }

@@ -5,7 +5,6 @@
 
   */
 
-
 #ifndef _included_socialsecurityscreeninterface_h
 #define _included_socialsecurityscreeninterface_h
 
@@ -17,49 +16,38 @@ class GenericScreen;
 
 // ============================================================================
 
-
-
-class SocialSecurityScreenInterface : public RemoteInterfaceScreen
-{
+class SocialSecurityScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
-	char *searchname;
+	char* searchname;
 	int recordindex;
 	int lastupdate;
 
 protected:
+	void UpdateScreen(); // Uses recordindex
 
-	void UpdateScreen ();									// Uses recordindex
+	static void DetailsDraw(Button* button, bool highlighted, bool clicked);
 
-	static void DetailsDraw ( Button *button, bool highlighted, bool clicked );
-
-	static void CommitClick			( Button *button );
-	static void CloseClick			( Button *button );
+	static void CommitClick(Button* button);
+	static void CloseClick(Button* button);
 
 public:
+	SocialSecurityScreenInterface();
+	~SocialSecurityScreenInterface();
 
-	SocialSecurityScreenInterface ();
-	~SocialSecurityScreenInterface ();
+	void SetSearchName(char* newsearchname);
 
-	void SetSearchName ( char *newsearchname );
+	void Create(ComputerScreen* cs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
+	int ScreenID();
 
-	void Create ( ComputerScreen *cs );
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	//	bool ReturnKeyPressed ();				// Can't do this - need to be able to press return
+	bool EscapeKeyPressed();
 
-	int ScreenID ();
-
-//	bool ReturnKeyPressed ();				// Can't do this - need to be able to press return
-    bool EscapeKeyPressed ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
-
-
 #endif
-

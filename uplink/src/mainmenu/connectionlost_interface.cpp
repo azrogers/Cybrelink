@@ -8,105 +8,78 @@
 #include "app/opengl.h"
 #include "app/opengl_interface.h"
 
-#include "mainmenu/mainmenu.h"
 #include "mainmenu/connectionlost_interface.h"
+#include "mainmenu/mainmenu.h"
 
 #include "options/options.h"
 
+ConnectionLostInterface::ConnectionLostInterface() { starttime = 0; }
 
+ConnectionLostInterface::~ConnectionLostInterface() { }
 
-
-
-ConnectionLostInterface::ConnectionLostInterface ()
+void ConnectionLostInterface::ReturnToMainMenuClick(Button* button)
 {
 
-    starttime = 0;
-
+	app->GetMainMenu()->RunScreen(MAINMENU_LOGIN);
 }
 
-ConnectionLostInterface::~ConnectionLostInterface ()
-{
-}
-
-void ConnectionLostInterface::ReturnToMainMenuClick ( Button *button )
+void ConnectionLostInterface::Create()
 {
 
-	app->GetMainMenu ()->RunScreen ( MAINMENU_LOGIN );
+	if (!IsVisible()) {
 
-}
+		//		SgStopMod ();
 
-void ConnectionLostInterface::Create ()
-{
-
-	if ( !IsVisible () ) {
-
-//		SgStopMod ();
-
-		EclRegisterButton ( 220, 230, 450, 200, " ", "", "connectionlost" );
-		EclRegisterButtonCallbacks ( "connectionlost", textbutton_draw, NULL, NULL, NULL );
+		EclRegisterButton(220, 230, 450, 200, " ", "", "connectionlost");
+		EclRegisterButtonCallbacks("connectionlost", textbutton_draw, NULL, NULL, NULL);
 
 		starttime = time(NULL);
-
 	}
-
-
 }
 
-void ConnectionLostInterface::Remove ()
+void ConnectionLostInterface::Remove()
 {
 
-	if ( IsVisible () ) {
+	if (IsVisible()) {
 
-		EclRemoveButton ( "connectionlost" );
-		EclRemoveButton ( "connectionlost_mainmenu" );
-
+		EclRemoveButton("connectionlost");
+		EclRemoveButton("connectionlost_mainmenu");
 	}
-
 }
 
-void ConnectionLostInterface::Update ()
+void ConnectionLostInterface::Update()
 {
 
-	if ( IsVisible () ) {
+	if (IsVisible()) {
 
-		if ( starttime != -1 && time(NULL) > starttime + 4 ) {
+		if (starttime != -1 && time(NULL) > starttime + 4) {
 
-			if ( strcmp ( EclGetButton ( "connectionlost" )->caption, " " ) == 0 ) {
-				
-				EclRegisterCaptionChange ( "connectionlost", "Connection to GATEWAY lost" );
-				starttime = time(NULL);				
-                
-			}
-			else {
+			if (strcmp(EclGetButton("connectionlost")->caption.c_str(), " ") == 0) {
+
+				EclRegisterCaptionChange("connectionlost", "Connection to GATEWAY lost");
+				starttime = time(NULL);
+
+			} else {
 
 				// Exit button
 
-				int screenw = app->GetOptions ()->GetOptionValue ("graphics_screenwidth");
-				int screenh = app->GetOptions ()->GetOptionValue ("graphics_screenheight");
+				int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
+				int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
 
-				EclRegisterButton ( screenw - 40, screenh - 40, 32, 32, "", "Return to Main Menu", "connectionlost_mainmenu" );
-				EclRegisterButtonCallback ( "connectionlost_mainmenu", ReturnToMainMenuClick );
-				button_assignbitmaps ( "connectionlost_mainmenu", "mainmenu/exitgame.tif", "mainmenu/exitgame_h.tif", "mainmenu/exitgame_c.tif" );
+				EclRegisterButton(
+					screenw - 40, screenh - 40, 32, 32, "", "Return to Main Menu", "connectionlost_mainmenu");
+				EclRegisterButtonCallback("connectionlost_mainmenu", ReturnToMainMenuClick);
+				button_assignbitmaps("connectionlost_mainmenu",
+									 "mainmenu/exitgame.tif",
+									 "mainmenu/exitgame_h.tif",
+									 "mainmenu/exitgame_c.tif");
 
 				starttime = -1;
-
 			}
-
 		}
-
 	}
-
 }
 
-bool ConnectionLostInterface::IsVisible ()
-{
+bool ConnectionLostInterface::IsVisible() { return (EclGetButton("connectionlost") != NULL); }
 
-	return ( EclGetButton ( "connectionlost" ) != NULL );
-
-}
-
-
-int  ConnectionLostInterface::ScreenID ()
-{
-	return MAINMENU_CONNECTIONLOST;
-}
+int ConnectionLostInterface::ScreenID() { return MAINMENU_CONNECTIONLOST; }

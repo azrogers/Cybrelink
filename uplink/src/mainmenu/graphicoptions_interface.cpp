@@ -1,16 +1,16 @@
 
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
-#include <set>
 #include <GL/gl.h>
+#include <set>
 
 #include <GL/glu.h>
 
-#include "soundgarden.h"
-#include "redshirt.h"
 #include "gucci.h"
+#include "redshirt.h"
+#include "soundgarden.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -21,12 +21,9 @@
 
 #include "options/options.h"
 
-#include "mainmenu/mainmenu.h"
 #include "mainmenu/graphicoptions_interface.h"
 #include "mainmenu/login_interface.h"
-
-
-
+#include "mainmenu/mainmenu.h"
 
 int GraphicOptionsInterface::newScreenWidth = 0;
 int GraphicOptionsInterface::newScreenHeight = 0;
@@ -34,12 +31,10 @@ int GraphicOptionsInterface::newColourDepth = 0;
 int GraphicOptionsInterface::newRefresh = 0;
 bool GraphicOptionsInterface::screenSettingsChanged = false;
 
-
 void GraphicOptionsInterface::ReturnToMainMenuClick(Button* button)
 {
 
 	app->GetMainMenu()->RunScreen(MAINMENU_OPTIONS);
-
 }
 
 void GraphicOptionsInterface::ApplyClick(Button* button)
@@ -72,7 +67,7 @@ void GraphicOptionsInterface::ApplyClick(Button* button)
 		char optionname[64];
 		int newvalue;
 		UplinkSnprintf(optionname, sizeof(optionname), "%s_%s", thisint->optionTYPE, namebutton->caption);
-		sscanf(valuebutton->caption, "%d", &newvalue);
+		sscanf(valuebutton->caption.c_str(), "%d", &newvalue);
 
 		// If they've changed, update them
 
@@ -80,15 +75,15 @@ void GraphicOptionsInterface::ApplyClick(Button* button)
 
 		if (thisoption && thisoption->value != newvalue) {
 			bool thisShutdown = thisint->ChangeOptionValue(optionname, newvalue);
-			if (thisShutdown)
+			if (thisShutdown) {
 				shutdownRequired = true;
+			}
 		}
 
 		// Next button
 
 		++index;
 		UplinkSnprintf(name1, sizeof(name1), "graphic_option %d", index);
-
 	}
 
 	if (screenSettingsChanged) {
@@ -98,7 +93,6 @@ void GraphicOptionsInterface::ApplyClick(Button* button)
 		app->GetOptions()->RequestShutdownChange("graphics_screendepth", newColourDepth);
 		app->GetOptions()->RequestShutdownChange("graphics_screenrefresh", newRefresh);
 		shutdownRequired = true;
-
 	}
 
 	if (shutdownRequired) {
@@ -106,9 +100,7 @@ void GraphicOptionsInterface::ApplyClick(Button* button)
 		create_msgbox("Shutdown", "Uplink must be restarted\nbefore this change can occur");
 		EclRegisterButtonCallback("msgbox_close", ExitGameClick);
 		EclRegisterButtonCallback("msgbox_title", ExitGameClick);
-
 	}
-
 }
 
 void GraphicOptionsInterface::ToggleBoxDraw(Button* button, bool highlighted, bool clicked)
@@ -116,12 +108,13 @@ void GraphicOptionsInterface::ToggleBoxDraw(Button* button, bool highlighted, bo
 
 	UplinkAssert(button);
 
-	if (button->caption[0] == '0')
+	if (button->caption[0] == '0') {
 		imagebutton_draw(button, false, false);
+	}
 
-	else
+	else {
 		imagebutton_draw(button, true, true);
-
+	}
 }
 
 void GraphicOptionsInterface::ToggleBoxClick(Button* button)
@@ -133,7 +126,7 @@ void GraphicOptionsInterface::ToggleBoxClick(Button* button)
 
 	char unused[64];
 	int buttonindex;
-	sscanf(button->name, "%s %d", unused, &buttonindex);
+	sscanf(button->name.c_str(), "%s %d", unused, &buttonindex);
 
 	// Grab the appropriate button
 
@@ -144,22 +137,18 @@ void GraphicOptionsInterface::ToggleBoxClick(Button* button)
 
 	// Read the value from the button
 
-	if (button2->caption[0] == '0')
+	if (button2->caption[0] == '0') {
 		button2->SetCaption("1");
+	}
 
-	else
+	else {
 		button2->SetCaption("0");
-
+	}
 }
 
+GraphicOptionsInterface::GraphicOptionsInterface() { }
 
-GraphicOptionsInterface::GraphicOptionsInterface()
-{
-}
-
-GraphicOptionsInterface::~GraphicOptionsInterface()
-{
-}
+GraphicOptionsInterface::~GraphicOptionsInterface() { }
 
 bool GraphicOptionsInterface::ChangeOptionValue(char* option, int newvalue)
 {
@@ -172,29 +161,30 @@ bool GraphicOptionsInterface::ChangeOptionValue(char* option, int newvalue)
 
 		app->GetOptions()->SetOptionValue(option, newvalue);
 
-		if (newvalue == 0) EclDisableAnimations();
-		else				 EclEnableAnimations();
+		if (newvalue == 0) {
+			EclDisableAnimations();
+		} else {
+			EclEnableAnimations();
+		}
 
 		return false;
 
-	}
-	else if (strcmp(option, "graphics_fasterbuttonanimations") == 0) {
+	} else if (strcmp(option, "graphics_fasterbuttonanimations") == 0) {
 
 		app->GetOptions()->SetOptionValue(option, newvalue);
 
-		if (newvalue == 0) EclDisableFasterAnimations();
-		else                 EclEnableFasterAnimations();
+		if (newvalue == 0) {
+			EclDisableFasterAnimations();
+		} else {
+			EclEnableFasterAnimations();
+		}
 
 		return false;
 
-	}
-	else if (strcmp(option, "graphics_fullscreen") == 0 ||
-		strcmp(option, "graphics_screendepth") == 0 ||
-		strcmp(option, "graphics_screenrefresh") == 0 ||
-		strcmp(option, "graphics_safemode") == 0 ||
-		strcmp(option, "graphics_screenwidth") == 0 ||
-		strcmp(option, "graphics_screenheight") == 0 ||
-		strcmp(option, "graphics_borderless") == 0) {
+	} else if (strcmp(option, "graphics_fullscreen") == 0 || strcmp(option, "graphics_screendepth") == 0
+			   || strcmp(option, "graphics_screenrefresh") == 0 || strcmp(option, "graphics_safemode") == 0
+			   || strcmp(option, "graphics_screenwidth") == 0 || strcmp(option, "graphics_screenheight") == 0
+			   || strcmp(option, "graphics_borderless") == 0) {
 
 		app->GetOptions()->RequestShutdownChange(option, newvalue);
 
@@ -206,18 +196,19 @@ bool GraphicOptionsInterface::ChangeOptionValue(char* option, int newvalue)
 
 		if (!opengl_setSoftwareRendering(newvalue != 0)) {
 			if (newvalue == 0) {
-				create_msgbox("Error", "Uplink cannot turn off software rendering.\nUplink directory must be writable.\n");
-			}
-			else {
-				create_msgbox("Error", "Uplink cannot turn on software rendering.\n"
-					"Uplink directory must be writable\n"
-					"also opengl32.dll.bak is needed\n"
-					"in Uplink directory.");
+				create_msgbox(
+					"Error",
+					"Uplink cannot turn off software rendering.\nUplink directory must be writable.\n");
+			} else {
+				create_msgbox("Error",
+							  "Uplink cannot turn on software rendering.\n"
+							  "Uplink directory must be writable\n"
+							  "also opengl32.dll.bak is needed\n"
+							  "in Uplink directory.");
 			}
 			app->GetOptions()->SetOptionValue("graphics_softwarerendering", opengl_isSoftwareRendering());
 			return false;
-		}
-		else {
+		} else {
 			app->GetOptions()->SetOptionValue("graphics_softwarerendering", opengl_isSoftwareRendering());
 			return true;
 		}
@@ -228,9 +219,7 @@ bool GraphicOptionsInterface::ChangeOptionValue(char* option, int newvalue)
 
 		app->GetOptions()->SetOptionValue(option, newvalue);
 		return false;
-
 	}
-
 }
 
 void GraphicOptionsInterface::ScreenOptionDraw(Button* button, bool highlighted, bool clicked)
@@ -242,43 +231,43 @@ void GraphicOptionsInterface::ScreenOptionDraw(Button* button, bool highlighted,
 	int type;
 	int valueA;
 	int valueB;
-	sscanf(button->name, "%s %d %d %d", unused, &type, &valueA, &valueB);
+	sscanf(button->name.c_str(), "%s %d %d %d", unused, &type, &valueA, &valueB);
 
 	bool currentValue = false;
-	if (type == 1 &&
-		valueA == newScreenWidth &&
-		valueB == newScreenHeight) {
+	if (type == 1 && valueA == newScreenWidth && valueB == newScreenHeight) {
 		currentValue = true;
-	}
-	else if (type == 2 && valueA == newColourDepth) {
+	} else if (type == 2 && valueA == newColourDepth) {
 		currentValue = true;
 
-	}
-	else if (type == 3 && valueA == newRefresh) {
+	} else if (type == 3 && valueA == newRefresh) {
 		currentValue = true;
-
 	}
-
 
 	if (highlighted || clicked || currentValue) {
 
 		glBegin(GL_QUADS);
-		SetColour("PanelHighlightA");	glVertex2i(button->x, button->y + button->height);
-		SetColour("PanelHighlightB");	glVertex2i(button->x, button->y);
-		SetColour("PanelHighlightA");	glVertex2i(button->x + button->width, button->y);
-		SetColour("PanelHighlightB");	glVertex2i(button->x + button->width, button->y + button->height);
+		SetColour("PanelHighlightA");
+		glVertex2i(button->x, button->y + button->height);
+		SetColour("PanelHighlightB");
+		glVertex2i(button->x, button->y);
+		SetColour("PanelHighlightA");
+		glVertex2i(button->x + button->width, button->y);
+		SetColour("PanelHighlightB");
+		glVertex2i(button->x + button->width, button->y + button->height);
 		glEnd();
 
-	}
-	else {
+	} else {
 
 		glBegin(GL_QUADS);
-		SetColour("PanelBackgroundA");   glVertex2i(button->x, button->y + button->height);
-		SetColour("PanelBackgroundB");   glVertex2i(button->x, button->y);
-		SetColour("PanelBackgroundA");   glVertex2i(button->x + button->width, button->y);
-		SetColour("PanelBackgroundB");   glVertex2i(button->x + button->width, button->y + button->height);
+		SetColour("PanelBackgroundA");
+		glVertex2i(button->x, button->y + button->height);
+		SetColour("PanelBackgroundB");
+		glVertex2i(button->x, button->y);
+		SetColour("PanelBackgroundA");
+		glVertex2i(button->x + button->width, button->y);
+		SetColour("PanelBackgroundB");
+		glVertex2i(button->x + button->width, button->y + button->height);
 		glEnd();
-
 	}
 
 	if (clicked || currentValue) {
@@ -286,12 +275,10 @@ void GraphicOptionsInterface::ScreenOptionDraw(Button* button, bool highlighted,
 		SetColour("PanelHighlightBorder");
 		border_draw(button);
 
-	}
-	else {
+	} else {
 
 		SetColour("PanelBorder");
 		border_draw(button);
-
 	}
 
 	int xpos = (button->x + button->width / 2) - (GciTextWidth(button->caption) / 2);
@@ -299,13 +286,12 @@ void GraphicOptionsInterface::ScreenOptionDraw(Button* button, bool highlighted,
 
 	SetColour("DefaultText");
 	GciDrawText(xpos, ypos, button->caption);
-
 }
 
 void GraphicOptionsInterface::ScreenOptionClick(Button* button)
 {
 
-	// 
+	//
 	// Change new button
 
 	UplinkAssert(button);
@@ -314,23 +300,20 @@ void GraphicOptionsInterface::ScreenOptionClick(Button* button)
 	int type;
 	int valueA;
 	int valueB;
-	sscanf(button->name, "%s %d %d %d", unused, &type, &valueA, &valueB);
+	sscanf(button->name.c_str(), "%s %d %d %d", unused, &type, &valueA, &valueB);
 
 	if (type == 1) {
 
 		newScreenWidth = valueA;
 		newScreenHeight = valueB;
 
-	}
-	else if (type == 2) {
+	} else if (type == 2) {
 
 		newColourDepth = valueA;
 
-	}
-	else if (type == 3) {
+	} else if (type == 3) {
 
 		newRefresh = valueA;
-
 	}
 
 	screenSettingsChanged = true;
@@ -339,17 +322,11 @@ void GraphicOptionsInterface::ScreenOptionClick(Button* button)
 	int screenH = app->GetOptions()->GetOptionValue("graphics_screenheight");
 	int startY = screenH - 170;
 	EclDirtyRectangle(0, startY, screenW, screenH - startY);
-
 }
 
-void GraphicOptionsInterface::ExitGameClick(Button* button)
-{
+void GraphicOptionsInterface::ExitGameClick(Button* button) { app->Close(); }
 
-	app->Close();
-
-}
-
-void GraphicOptionsInterface::SetOptionTYPE(char* newtype)
+void GraphicOptionsInterface::SetOptionTYPE(const char* newtype)
 {
 
 	UplinkStrncpy(optionTYPE, newtype, sizeof(optionTYPE));
@@ -358,7 +335,7 @@ void GraphicOptionsInterface::SetOptionTYPE(char* newtype)
 	// Build a list of all options of this type
 	//
 
-	LList <Option*>* options = app->GetOptions()->GetAllOptions(newtype, false);
+	LList<Option*>* options = app->GetOptions()->GetAllOptions(newtype, false);
 
 	//
 	// Create Title
@@ -398,34 +375,33 @@ void GraphicOptionsInterface::SetOptionTYPE(char* newtype)
 
 		if (option->yesorno) {
 
-			RegisterButton(screenw - 60, screenh - 40, 15, 15, value, "click to Enable or Disable this option", name2);
-			button_assignbitmaps(name2, "mainmenu/optionno.tif", "mainmenu/optionyes.tif", "mainmenu/optionyes.tif");
+			RegisterButton(
+				screenw - 60, screenh - 40, 15, 15, value, "click to Enable or Disable this option", name2);
+			button_assignbitmaps(
+				name2, "mainmenu/optionno.tif", "mainmenu/optionyes.tif", "mainmenu/optionyes.tif");
 			EclRegisterButtonCallbacks(name2, ToggleBoxDraw, ToggleBoxClick, button_click, button_highlight);
 
-		}
-		else {
+		} else {
 
 			RegisterButton(screenw - 60, screenh - 40, 50, 15, value, "enter the new value here", name2);
 			EclRegisterButtonCallbacks(name2, textbutton_draw, NULL, button_click, button_highlight);
 			EclMakeButtonEditable(name2);
-
 		}
 
 		int timems = (int)(500 * ((float)(i + 1) / (float)options->Size()));
 		EclRegisterMovement(name1, screenw - 210, screenh - 90 - i * 20, timems);
 		EclRegisterMovement(name2, screenw - 60, screenh - 90 - i * 20, timems);
-
 	}
 
 	delete options;
 
-	// 
+	//
 	// Create "Apply" button
 	//
 
-	RegisterButton(screenw - 210, screenh - 40, 145, 15, "Apply Changes", "Apply all changes", "graphic_apply");
+	RegisterButton(
+		screenw - 210, screenh - 40, 145, 15, "Apply Changes", "Apply all changes", "graphic_apply");
 	EclRegisterButtonCallback("graphic_apply", ApplyClick);
-
 }
 
 void GraphicOptionsInterface::Create()
@@ -441,7 +417,8 @@ void GraphicOptionsInterface::Create()
 		//
 		// Close button
 
-		RegisterButton(screenw - 60, screenh - 40, 50, 15, "Close", "Return to Options menu", "graphic_return");
+		RegisterButton(
+			screenw - 60, screenh - 40, 50, 15, "Close", "Return to Options menu", "graphic_return");
 		EclRegisterButtonCallback("graphic_return", ReturnToMainMenuClick);
 
 		//
@@ -458,10 +435,8 @@ void GraphicOptionsInterface::Create()
 		std::set<int> colorDepths;
 		std::set<int> refreshRates;
 		std::set<std::pair<int, int>> resolutions;
-		for (int i = 0; i < modes->Size(); i++)
-		{
-			if (modes->ValidIndex(i))
-			{
+		for (int i = 0; i < modes->Size(); i++) {
+			if (modes->ValidIndex(i)) {
 				GciScreenMode* mode = modes->GetData(i);
 				colorDepths.insert(mode->bpp);
 				refreshRates.insert(mode->refreshRate);
@@ -473,8 +448,8 @@ void GraphicOptionsInterface::Create()
 		if (!resolutions.empty()) {
 			printf("Using gathered resolutions.\n");
 			startY = screenh - (numModes * 20) - 50;
-			RegisterButton(50, startY, 100, 15, "RESOLUTION", "Select your screen resolution", "graphic_screenrestitle");
-
+			RegisterButton(
+				50, startY, 100, 15, "RESOLUTION", "Select your screen resolution", "graphic_screenrestitle");
 
 			int vert_offset = 30;
 			char cap[48];
@@ -484,52 +459,66 @@ void GraphicOptionsInterface::Create()
 				UplinkSnprintf(cap, sizeof(cap), "%dx%d", resolution.first, resolution.second);
 				UplinkSnprintf(nm, sizeof(nm), "graphic 1 %d %d", resolution.first, resolution.second);
 				RegisterButton(50, startY + vert_offset, 100, 15, cap, "Choose this resolution", nm);
-				EclRegisterButtonCallbacks(nm, ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
+				EclRegisterButtonCallbacks(
+					nm, ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
 				vert_offset += 20;
 			}
-		}
-		else {
+		} else {
 			printf("Using predefined resolutions.\n");
-			RegisterButton(50, startY, 100, 15, "RESOLUTION", "Select your screen resolution", "graphic_screenrestitle");
-			RegisterButton(50, startY + 30, 100, 15, "640x480", "Choose this resolution", "graphic 1 640 480");
-			RegisterButton(50, startY + 50, 100, 15, "800x600", "Choose this resolution", "graphic 1 800 600");
-			RegisterButton(50, startY + 70, 100, 15, "1024x768", "Choose this resolution", "graphic 1 1024 768");
-			RegisterButton(50, startY + 90, 100, 15, "1280x1024", "Choose this resolution", "graphic 1 1280 1024");
-			RegisterButton(50, startY + 110, 100, 15, "1600x1200", "Choose this resolution", "graphic 1 1600 1200");
-			EclRegisterButtonCallbacks("graphic 1 640 480", ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
-			EclRegisterButtonCallbacks("graphic 1 800 600", ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
-			EclRegisterButtonCallbacks("graphic 1 1024 768", ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
-			EclRegisterButtonCallbacks("graphic 1 1280 1024", ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
-			EclRegisterButtonCallbacks("graphic 1 1600 1200", ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
+			RegisterButton(
+				50, startY, 100, 15, "RESOLUTION", "Select your screen resolution", "graphic_screenrestitle");
+			RegisterButton(
+				50, startY + 30, 100, 15, "640x480", "Choose this resolution", "graphic 1 640 480");
+			RegisterButton(
+				50, startY + 50, 100, 15, "800x600", "Choose this resolution", "graphic 1 800 600");
+			RegisterButton(
+				50, startY + 70, 100, 15, "1024x768", "Choose this resolution", "graphic 1 1024 768");
+			RegisterButton(
+				50, startY + 90, 100, 15, "1280x1024", "Choose this resolution", "graphic 1 1280 1024");
+			RegisterButton(
+				50, startY + 110, 100, 15, "1600x1200", "Choose this resolution", "graphic 1 1600 1200");
+			EclRegisterButtonCallbacks(
+				"graphic 1 640 480", ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
+			EclRegisterButtonCallbacks(
+				"graphic 1 800 600", ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
+			EclRegisterButtonCallbacks(
+				"graphic 1 1024 768", ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
+			EclRegisterButtonCallbacks(
+				"graphic 1 1280 1024", ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
+			EclRegisterButtonCallbacks(
+				"graphic 1 1600 1200", ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
 		}
 
 		GciDeleteScreenModeArrayData(modes);
 		delete modes;
 		modes = NULL;
 
-		RegisterButton(170, startY, 100, 15, "COLOUR DEPTH", "Select your colour depth", "graphic_colourdepthtitle");
+		RegisterButton(
+			170, startY, 100, 15, "COLOUR DEPTH", "Select your colour depth", "graphic_colourdepthtitle");
 		int verticalOffset = 0;
-		for (const int bpp : colorDepths)
-		{
+		for (const int bpp : colorDepths) {
 			char label[10];
 			char name[30];
 			sprintf(label, "%d Bit", bpp);
 			sprintf(name, "graphic 2 %d 0", bpp);
-			RegisterButton(170, startY + 30 + verticalOffset, 100, 15, label, "Choose this colour depth", name);
-			EclRegisterButtonCallbacks(name, ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
+			RegisterButton(
+				170, startY + 30 + verticalOffset, 100, 15, label, "Choose this colour depth", name);
+			EclRegisterButtonCallbacks(
+				name, ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
 			verticalOffset += 20;
 		}
 
 		RegisterButton(290, startY, 100, 15, "REFRESH", "Select your refresh rate", "graphic_refreshtitle");
 		verticalOffset = 0;
-		for (const int refreshRate : refreshRates)
-		{
+		for (const int refreshRate : refreshRates) {
 			char label[10];
 			char name[30];
 			sprintf(label, "%d Hz", refreshRate);
 			sprintf(name, "graphic 3 %d 0", refreshRate);
-			RegisterButton(290, startY + 30 + verticalOffset, 100, 15, label, "Choose this refresh rate", name);
-			EclRegisterButtonCallbacks(name, ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
+			RegisterButton(
+				290, startY + 30 + verticalOffset, 100, 15, label, "Choose this refresh rate", name);
+			EclRegisterButtonCallbacks(
+				name, ScreenOptionDraw, ScreenOptionClick, button_click, button_highlight);
 			verticalOffset += 20;
 		}
 
@@ -538,9 +527,7 @@ void GraphicOptionsInterface::Create()
 		newColourDepth = app->GetOptions()->GetOptionValue("graphics_screendepth");
 		newRefresh = app->GetOptions()->GetOptionValue("graphics_screenrefresh");
 		screenSettingsChanged = false;
-
 	}
-
 }
 
 /*
@@ -553,22 +540,8 @@ void GraphicOptionsInterface::Remove ()
 }
 */
 
-void GraphicOptionsInterface::Update()
-{
-}
+void GraphicOptionsInterface::Update() { }
 
-bool GraphicOptionsInterface::IsVisible()
-{
+bool GraphicOptionsInterface::IsVisible() { return (EclGetButton("graphic_return") != NULL); }
 
-	return (EclGetButton("graphic_return") != NULL);
-
-}
-
-
-int  GraphicOptionsInterface::ScreenID()
-{
-
-	return MAINMENU_GRAPHICOPTIONS;
-
-}
-
+int GraphicOptionsInterface::ScreenID() { return MAINMENU_GRAPHICOPTIONS; }

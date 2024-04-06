@@ -8,7 +8,6 @@
 
   */
 
-
 #ifndef _included_themeinterface_h
 #define _included_themeinterface_h
 
@@ -18,14 +17,9 @@
 
 #include "mainmenu/mainmenuscreen.h"
 
-
-
-
-class ThemeInterface : public MainMenuScreen
-{
+class ThemeInterface : public MainMenuScreen {
 
 protected:
-
 	static void ApplyClick(Button* button);
 	static void DefaultClick(Button* button);
 	static void ReturnToMainMenuClick(Button* button);
@@ -39,7 +33,6 @@ protected:
 	static int currentSelect;
 
 public:
-
 	ThemeInterface();
 	~ThemeInterface();
 
@@ -48,11 +41,7 @@ public:
 	void Update();
 	bool IsVisible();
 
-	int  ScreenID();
-
+	int ScreenID();
 };
 
-
-
 #endif
-

@@ -7,7 +7,6 @@
 	and allows you to edit them
 
   */
-  
 
 #ifndef _included_genericoptionsinterface_h
 #define _included_genericoptionsinterface_h
@@ -16,45 +15,33 @@
 
 #include "mainmenu/mainmenuscreen.h"
 
-
-
-
-class GenericOptionsInterface : public MainMenuScreen
-{
+class GenericOptionsInterface : public MainMenuScreen {
 
 protected:
-
-	char optionTYPE [16];
+	char optionTYPE[16];
 
 protected:
+	static void ApplyClick(Button* button);
+	static void ReturnToMainMenuClick(Button* button);
 
-	static void ApplyClick ( Button *button );
-	static void ReturnToMainMenuClick ( Button *button );
+	static void ToggleBoxDraw(Button* button, bool highlighted, bool clicked);
+	static void ToggleBoxClick(Button* button);
 
-	static void ToggleBoxDraw ( Button *button, bool highlighted, bool clicked );
-	static void ToggleBoxClick ( Button *button );
-
-    static void ExitGameClick ( Button *button );
+	static void ExitGameClick(Button* button);
 
 public:
+	GenericOptionsInterface();
+	~GenericOptionsInterface();
 
-	GenericOptionsInterface ();
-	~GenericOptionsInterface ();
+	void SetOptionTYPE(const char* newtype); // eg GAME, SOUND etc
+	void ChangeOptionValue(char* option, int newvalue);
 
-	void SetOptionTYPE ( char *newtype );						// eg GAME, SOUND etc
-	void ChangeOptionValue ( char *option, int newvalue );
+	void Create();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
-
-	int  ScreenID ();		
-
+	int ScreenID();
 };
 
-
-
 #endif
-
-

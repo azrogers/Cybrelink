@@ -7,22 +7,17 @@
 
   */
 
-
 #include "interface/taskmanager/uplinktask.h"
 
-
-class Faith : public UplinkTask
-{
+class Faith : public UplinkTask {
 
 public:
+	void Initialise();
+	void Tick(int n);
 
-	void Initialise ();     
-	void Tick ( int n );	
+	void CreateInterface();
+	void RemoveInterface();
+	void ShowInterface();
 
-	void CreateInterface ();       
-	void RemoveInterface ();
-	void ShowInterface ();
-
-	bool IsInterfaceVisible ();    
-
+	bool IsInterfaceVisible();
 };

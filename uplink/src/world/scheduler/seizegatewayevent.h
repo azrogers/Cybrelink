@@ -11,50 +11,40 @@
 #ifndef _included_seizeevent_h
 #define _included_seizeevent_h
 
-
 #include "world/person.h"
 #include "world/scheduler/uplinkevent.h"
 
-
-class SeizeGatewayEvent : public UplinkEvent
-{
+class SeizeGatewayEvent : public UplinkEvent {
 
 protected:
-
-	char *reason;
-
-public:
-
-	char name [SIZE_PERSON_NAME];
-	int gateway_id;							// id number of gateway to seize
+	char* reason;
 
 public:
+	char name[SIZE_PERSON_NAME];
+	int gateway_id; // id number of gateway to seize
 
-	SeizeGatewayEvent ();
-	~SeizeGatewayEvent ();
+public:
+	SeizeGatewayEvent();
+	~SeizeGatewayEvent();
 
-	void SetName ( char *newname );
-	void SetReason ( char *newreason );
-	void SetGatewayID ( int newid );
+	void SetName(char* newname);
+	void SetReason(char* newreason);
+	void SetGatewayID(int newid);
 
-	void Run ();
-	void RunWarning ();
+	void Run();
+	void RunWarning();
 
-	char *GetShortString ();
-	char *GetLongString ();
+	char* GetShortString();
+	char* GetLongString();
 
 	// Common functions
 
-	bool Load  ( FILE *file );
-	void Save  ( FILE *file );
-	void Print ();
-	
-	char *GetID ();				
-	int   GetOBJECTID ();		
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
 
-
-
 #endif
-

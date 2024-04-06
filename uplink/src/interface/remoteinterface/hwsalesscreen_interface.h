@@ -18,66 +18,58 @@ class Sale;
 
 // ============================================================================
 
-
-class HWSalesScreenInterface : public RemoteInterfaceScreen
-{
+class HWSalesScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
-	int HWType;												// What type of hardware upgrade are we buying.  
-	LList <Sale *> items;									// (-1 = Menu of all types)
+	int HWType; // What type of hardware upgrade are we buying.
+	LList<Sale*> items; // (-1 = Menu of all types)
 
 protected:
-
 	static int baseoffset;
 	static int currentselect;
 
 protected:
-
 	// Specific to Menu
 
-	static void ShowSalesMenuClick ( Button *button );
+	static void ShowSalesMenuClick(Button* button);
 
 	// Specific to Sales Menu
 
-	static void DrawHWButton       ( Button *button, bool highlighted, bool clicked );
-	static void ClickHWButton      ( Button *button );
-	static void MousedownHWButton  ( Button *button );
-	static void HighlightHWButton  ( Button *button );
+	static void DrawHWButton(Button* button, bool highlighted, bool clicked);
+	static void ClickHWButton(Button* button);
+	static void MousedownHWButton(Button* button);
+	static void HighlightHWButton(Button* button);
 
-	static void DrawDetails     ( Button *button, bool highlighted, bool clicked );
+	static void DrawDetails(Button* button, bool highlighted, bool clicked);
 
-	static void AcceptClick		( Button *button );
-	static void ExitClick		( Button *button );
-	static void ScrollUpClick   ( Button *button );
-	static void ScrollDownClick ( Button *button );
+	static void AcceptClick(Button* button);
+	static void ExitClick(Button* button);
+	static void ScrollUpClick(Button* button);
+	static void ScrollDownClick(Button* button);
 
 public:
+	HWSalesScreenInterface();
+	~HWSalesScreenInterface();
 
-	HWSalesScreenInterface ();
-	~HWSalesScreenInterface ();
+	bool EscapeKeyPressed();
 
-    bool EscapeKeyPressed ();
+	void SetHWType(int newType); // Populates "items" with all valid upgrades
 
-	void SetHWType ( int newType );							// Populates "items" with all valid upgrades
+	void Create(ComputerScreen* cs); // Creates the menu (HWType == -1)
+	void CreateMenu(ComputerScreen* cs);
+	void CreateSalesMenu(ComputerScreen* cs);
 
-	void Create ( ComputerScreen *cs );						// Creates the menu (HWType == -1)
-	void CreateMenu ( ComputerScreen *cs );
-	void CreateSalesMenu ( ComputerScreen *cs );
+	void Remove();
+	void RemoveMenu();
+	void RemoveSalesMenu();
 
-	void Remove ();
-	void RemoveMenu ();
-	void RemoveSalesMenu ();
+	bool IsVisible();
+	bool IsVisibleMenu();
+	bool IsVisibleSalesMenu();
 
-	bool IsVisible ();
-	bool IsVisibleMenu ();
-	bool IsVisibleSalesMenu ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
 #endif
-

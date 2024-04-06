@@ -1,16 +1,16 @@
 
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <GL/gl.h>
 
 #include <GL/glu.h>
-
+#include <format>
 
 #include "gucci.h"
-#include "soundgarden.h"
 #include "redshirt.h"
+#include "soundgarden.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -19,74 +19,69 @@
 
 #include "options/options.h"
 
-#include "game/game.h"
 #include "game/data/data.h"
+#include "game/game.h"
 
 #include "interface/interface.h"
-#include "interface/localinterface/localinterface.h"
 #include "interface/localinterface/analyser_interface.h"
+#include "interface/localinterface/localinterface.h"
 #include "interface/taskmanager/securitybypass.h"
 #include "interface/taskmanager/taskmanager.h"
 #include "interface/taskmanager/uplinktask.h"
 
-#include "world/world.h"
-#include "world/player.h"
 #include "world/computer/computer.h"
 #include "world/computer/securitysystem.h"
-
-
-
+#include "world/player.h"
+#include "world/world.h"
 
 char AnalyserInterface::remotehost[SIZE_VLOCATION_IP];
 
 static int stippleindex = 0;
-static int STIPPLE[] = { 0x1111,		//		0001000100010001
-						   0x1111,		//		0001000100010001
-						   0x2222,		//		0010001000100010
-						   0x2222,		//		0010001000100010
-						   0x4444,		//		0100010001000100
-						   0x4444,		//		0100010001000100
-						   0x8888,		//		1000100010001000
-						   0x8888 };	//		1000100010001000
+static int STIPPLE[] = { 0x1111, //		0001000100010001
+						 0x1111, //		0001000100010001
+						 0x2222, //		0010001000100010
+						 0x2222, //		0010001000100010
+						 0x4444, //		0100010001000100
+						 0x4444, //		0100010001000100
+						 0x8888, //		1000100010001000
+						 0x8888 }; //		1000100010001000
 
 int AnalyserInterface::moving_stipplepattern = STIPPLE[0];
 int AnalyserInterface::static_stipplepattern = STIPPLE[0];
-
 
 void AnalyserInterface::CycleStipplePattern()
 {
 
 	--stippleindex;
-	if(stippleindex < 0) stippleindex = 7;
+	if (stippleindex < 0) {
+		stippleindex = 7;
+	}
 
 	moving_stipplepattern = STIPPLE[stippleindex];
-
 }
 
-
-void AnalyserInterface::TitleClick(Button *button)
+void AnalyserInterface::TitleClick(Button* button)
 {
 
 	game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
-
 }
 
-void AnalyserInterface::SystemClick(Button *button)
+void AnalyserInterface::SystemClick(Button* button)
 {
 
 	int systemindex;
-	sscanf(button->name, "analyser_system %d", &systemindex);
+	sscanf(button->name.c_str(), "analyser_system %d", &systemindex);
 
-	VLocation *vl = game->GetWorld()->GetVLocation(remotehost);
+	VLocation* vl = game->GetWorld()->GetVLocation(remotehost);
 	UplinkAssert(vl);
-	Computer *comp = vl->GetComputer();
+	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
 
-	game->GetInterface()->GetTaskManager()->SetProgramTarget((UplinkObject *) &(comp->security), button->name, systemindex);
-
+	game->GetInterface()->GetTaskManager()->SetProgramTarget(
+		(UplinkObject*)&(comp->security), button->name, systemindex);
 }
 
-void AnalyserInterface::ConnectionDraw(Button *button, bool highlighted, bool clicked)
+void AnalyserInterface::ConnectionDraw(Button* button, bool highlighted, bool clicked)
 {
 
 	int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
@@ -98,9 +93,9 @@ void AnalyserInterface::ConnectionDraw(Button *button, bool highlighted, bool cl
 	// Look up the remote host
 	//
 
-	VLocation *vl = game->GetWorld()->GetVLocation(remotehost);
+	VLocation* vl = game->GetWorld()->GetVLocation(remotehost);
 	UplinkAssert(vl);
-	Computer *comp = vl->GetComputer();
+	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
 
 	//
@@ -108,10 +103,14 @@ void AnalyserInterface::ConnectionDraw(Button *button, bool highlighted, bool cl
 	//
 
 	glBegin(GL_QUADS);
-	SetColour("PanelBackgroundA");		glVertex2i(button->x, button->y + button->height);
-	SetColour("PanelBackgroundB");  	glVertex2i(button->x, button->y);
-	SetColour("PanelBackgroundA");		glVertex2i(button->x + button->width, button->y);
-	SetColour("PanelBackgroundB");		glVertex2i(button->x + button->width, button->y + button->height);
+	SetColour("PanelBackgroundA");
+	glVertex2i(button->x, button->y + button->height);
+	SetColour("PanelBackgroundB");
+	glVertex2i(button->x, button->y);
+	SetColour("PanelBackgroundA");
+	glVertex2i(button->x + button->width, button->y);
+	SetColour("PanelBackgroundB");
+	glVertex2i(button->x + button->width, button->y + button->height);
 	glEnd();
 
 	SetColour("PanelBorder");
@@ -121,8 +120,7 @@ void AnalyserInterface::ConnectionDraw(Button *button, bool highlighted, bool cl
 	// Draw connecting lines
 	//
 
-	if(strcmp(remotehost, IP_LOCALHOST) != 0)
-	{
+	if (strcmp(remotehost, IP_LOCALHOST) != 0) {
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		glLineWidth(2);
@@ -138,7 +136,6 @@ void AnalyserInterface::ConnectionDraw(Button *button, bool highlighted, bool cl
 
 		glLineWidth(1);
 		glDisable(GL_LINE_STIPPLE);
-
 	}
 
 	//
@@ -149,13 +146,11 @@ void AnalyserInterface::ConnectionDraw(Button *button, bool highlighted, bool cl
 	char name[32];
 	UplinkStrncpy(name, "analyser_system 0", sizeof(name));
 
-	while(EclGetButton(name))
-	{
+	while (EclGetButton(name)) {
 
-		if(SecurityMonitor::IsMonitored(systemindex))
-		{
+		if (SecurityMonitor::IsMonitored(systemindex)) {
 
-			Button *b = EclGetButton(name);
+			Button* b = EclGetButton(name);
 
 			glColor4f(1.0f, 0.1f, 0.1f, 1.0f);
 			glLineWidth(2);
@@ -171,14 +166,11 @@ void AnalyserInterface::ConnectionDraw(Button *button, bool highlighted, bool cl
 
 			glLineWidth(1);
 			glDisable(GL_LINE_STIPPLE);
-
 		}
 
 		++systemindex;
 		UplinkSnprintf(name, sizeof(name), "analyser_system %d", systemindex);
-
 	}
-
 }
 
 AnalyserInterface::AnalyserInterface()
@@ -186,17 +178,14 @@ AnalyserInterface::AnalyserInterface()
 
 	lastupdate = 0;
 	stippleupdate = 0;
-
 }
 
-AnalyserInterface::~AnalyserInterface()
-{}
+AnalyserInterface::~AnalyserInterface() { }
 
 void AnalyserInterface::Create()
 {
 
-	if(!IsVisible())
-	{
+	if (!IsVisible()) {
 
 		LocalInterfaceScreen::Create();
 		EclRegisterButtonCallbacks("localint_background", ConnectionDraw, NULL, NULL, NULL);
@@ -208,31 +197,47 @@ void AnalyserInterface::Create()
 		int paneltop = (int)(100.0 * ((screenw * PANELSIZE) / 188.0)) + 30;
 		int panelwidth = (int)(screenw * PANELSIZE);
 
-		EclRegisterButton(screenw - panelwidth, paneltop + 3, panelwidth - 7, 15, "CONNECTION ANALYSER", "Remove this screen", "analyser_title");
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + 3,
+						  panelwidth - 7,
+						  15,
+						  "CONNECTION ANALYSER",
+						  "Remove this screen",
+						  "analyser_title");
 		EclRegisterButtonCallback("analyser_title", TitleClick);
 
 		// Local host button
 
-		EclRegisterButton(screenw - panelwidth + 20, paneltop + 35, 40, 40, "", "Shows your home computer", "analyser_localhost");
-		button_assignbitmaps("analyser_localhost", "analyser/localhost.tif", "analyser/localhost_h.tif", "analyser/localhost_c.tif");
+		EclRegisterButton(screenw - panelwidth + 20,
+						  paneltop + 35,
+						  40,
+						  40,
+						  "",
+						  "Shows your home computer",
+						  "analyser_localhost");
+		button_assignbitmaps("analyser_localhost",
+							 "analyser/localhost.tif",
+							 "analyser/localhost_h.tif",
+							 "analyser/localhost_c.tif");
 
-		EclRegisterButton(screenw - panelwidth + 6, paneltop + 20, 70, 15, "Localhost", "", "analyser_localhost_t");
+		EclRegisterButton(
+			screenw - panelwidth + 6, paneltop + 20, 70, 15, "Localhost", "", "analyser_localhost_t");
 		EclRegisterButtonCallbacks("analyser_localhost_t", text_draw, NULL, NULL, NULL);
 
-		EclRegisterButton(screenw - panelwidth, paneltop + SY(300) - 18, panelwidth - 7, 15, "Auto Bypass", "analyser_autobypass");
-		EclRegisterButtonCallback("analyser_autobypass", [](Button* button)
-		{
-				BypassSystem();
-		});
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + SY(300) - 18,
+						  panelwidth - 7,
+						  15,
+						  "Auto Bypass",
+						  "analyser_autobypass");
+		EclRegisterButtonCallback("analyser_autobypass", [](Button* button) { BypassSystem(); });
 	}
-
 }
 
 void AnalyserInterface::Remove()
 {
 
-	if(IsVisible())
-	{
+	if (IsVisible()) {
 
 		LocalInterfaceScreen::Remove();
 
@@ -252,8 +257,7 @@ void AnalyserInterface::Remove()
 		char name[32];
 		UplinkStrncpy(name, "analyser_system 0", sizeof(name));
 
-		while(EclGetButton(name))
-		{
+		while (EclGetButton(name)) {
 
 			EclRemoveButton(name);
 
@@ -262,23 +266,20 @@ void AnalyserInterface::Remove()
 
 			++systemindex;
 			UplinkSnprintf(name, sizeof(name), "analyser_system %d", systemindex);
-
 		}
-
 	}
-
 }
 
-void createBypass(Computer* comp, char* bypass, float version, int securityIndex)
+void createBypass(Computer* comp, const char* bypass, float version, int securityIndex)
 {
 	game->GetInterface()->GetTaskManager()->RunSoftware(bypass, version);
 	game->GetInterface()->GetTaskManager()->SetTargetProgram(SvbGetTask(bypass)->GetPID());
-	char name[128];
-	UplinkSnprintf(name, sizeof(name), "analyser_system %d", securityIndex);
-	UplinkTask *proxyTask = (UplinkTask *)SvbGetTask(bypass);
+	std::string name = std::format("analyser_system %d", securityIndex);
+	UplinkTask* proxyTask = (UplinkTask*)SvbGetTask(bypass);
 	proxyTask->SetFollowMouse(false);
 	((SecurityBypass*)proxyTask)->SetMoveToTime(0);
-	game->GetInterface()->GetTaskManager()->SetProgramTarget((UplinkObject *)&(comp->security), name, securityIndex);
+	game->GetInterface()->GetTaskManager()->SetProgramTarget(
+		(UplinkObject*)&(comp->security), name, securityIndex);
 }
 
 void AnalyserInterface::Update()
@@ -288,8 +289,7 @@ void AnalyserInterface::Update()
 	// Has our remotehost changed since we last updated?
 	//
 
-	if(strcmp(remotehost, game->GetWorld()->GetPlayer()->remotehost) != 0)
-	{
+	if (strcmp(remotehost, game->GetWorld()->GetPlayer()->remotehost) != 0) {
 
 		// Yes it has - redo everything
 
@@ -297,8 +297,7 @@ void AnalyserInterface::Update()
 
 		// Remove the old remote host button
 
-		if(EclGetButton("analyser_remotehost"))
-		{
+		if (EclGetButton("analyser_remotehost")) {
 			EclRemoveButton("analyser_remotehost");
 			EclRemoveButton("analyser_remotehost_t");
 			EclRemoveButton("analyser_remotehost_title");
@@ -310,8 +309,7 @@ void AnalyserInterface::Update()
 		char name[32];
 		UplinkStrncpy(name, "analyser_system 0", sizeof(name));
 
-		while(EclGetButton(name))
-		{
+		while (EclGetButton(name)) {
 
 			EclRemoveButton(name);
 
@@ -320,7 +318,6 @@ void AnalyserInterface::Update()
 
 			++systemindex;
 			UplinkSnprintf(name, sizeof(name), "analyser_system %d", systemindex);
-
 		}
 
 		// Get screen dimensions
@@ -332,100 +329,134 @@ void AnalyserInterface::Update()
 
 		// Look up the new remote host
 
-		VLocation *vl = game->GetWorld()->GetVLocation(remotehost);
+		VLocation* vl = game->GetWorld()->GetVLocation(remotehost);
 		UplinkAssert(vl);
-		Computer *comp = vl->GetComputer();
+		Computer* comp = vl->GetComputer();
 		UplinkAssert(comp);
 
 		// Create the new remote host buttons
 
-		if(strcmp(comp->ip, IP_LOCALHOST) != 0)
-		{
+		if (strcmp(comp->ip, IP_LOCALHOST) != 0) {
 
-			if(!EclGetButton("analyser_remotehost"))
-			{
+			if (!EclGetButton("analyser_remotehost")) {
 
-				EclRegisterButton(screenw - 60, paneltop + 240, 40, 40, "", "Shows the remote computer target", "analyser_remotehost");
-				button_assignbitmaps("analyser_remotehost", "analyser/remotehost.tif", "analyser/remotehost_h.tif", "analyser/remotehost_c.tif");
+				EclRegisterButton(screenw - 60,
+								  paneltop + 240,
+								  40,
+								  40,
+								  "",
+								  "Shows the remote computer target",
+								  "analyser_remotehost");
+				button_assignbitmaps("analyser_remotehost",
+									 "analyser/remotehost.tif",
+									 "analyser/remotehost_h.tif",
+									 "analyser/remotehost_c.tif");
 
-				EclRegisterButton(screenw - 78, paneltop + 281, 70, 15, "Remotehost", "", "analyser_remotehost_t");
+				EclRegisterButton(
+					screenw - 78, paneltop + 281, 70, 15, "Remotehost", "", "analyser_remotehost_t");
 				EclRegisterButtonCallbacks("analyser_remotehost_t", text_draw, NULL, NULL, NULL);
 
-				EclRegisterButton(screenw - panelwidth + 5, paneltop + 240, 110, 40, "", "", "analyser_remotehost_title");
+				EclRegisterButton(
+					screenw - panelwidth + 5, paneltop + 240, 110, 40, "", "", "analyser_remotehost_title");
 				EclRegisterButtonCallbacks("analyser_remotehost_title", text_draw, NULL, NULL, NULL);
-
 			}
-
 		}
 
 		EclRegisterCaptionChange("analyser_remotehost_title", comp->name);
 
 		// Create the new security system buttons
 
-		if(comp->security.NumSystems() == 1)
-		{
+		if (comp->security.NumSystems() == 1) {
 
-			EclRegisterButton(screenw - 110, paneltop + 145, 32, 32, "", "Shows a security system", "analyser_system 0");
-			button_assignbitmaps_blend("analyser_system 0", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
+			EclRegisterButton(
+				screenw - 110, paneltop + 145, 32, 32, "", "Shows a security system", "analyser_system 0");
+			button_assignbitmaps_blend(
+				"analyser_system 0", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
 			EclRegisterButtonCallback("analyser_system 0", SystemClick);
 
 			EclRegisterButton(screenw - 120, paneltop + 180, 70, 15, "Analysing", "", "analyser_system_t 0");
 			EclRegisterButtonCallbacks("analyser_system_t 0", text_draw, NULL, NULL, NULL);
 
-		}
-		else if(comp->security.NumSystems() == 2)
-		{
+		} else if (comp->security.NumSystems() == 2) {
 
-			EclRegisterButton(screenw - panelwidth + 25, paneltop + 145, 32, 32, "", "Shows a security system", "analyser_system 0");
-			button_assignbitmaps_blend("analyser_system 0", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
+			EclRegisterButton(screenw - panelwidth + 25,
+							  paneltop + 145,
+							  32,
+							  32,
+							  "",
+							  "Shows a security system",
+							  "analyser_system 0");
+			button_assignbitmaps_blend(
+				"analyser_system 0", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
 			EclRegisterButtonCallback("analyser_system 0", SystemClick);
 
-			EclRegisterButton(screenw - panelwidth + 15, paneltop + 180, 70, 15, "Analysing", "", "analyser_system_t 0");
+			EclRegisterButton(
+				screenw - panelwidth + 15, paneltop + 180, 70, 15, "Analysing", "", "analyser_system_t 0");
 			EclRegisterButtonCallbacks("analyser_system_t 0", text_draw, NULL, NULL, NULL);
 
-			EclRegisterButton(screenw - 55, paneltop + 145, 32, 32, "", "Shows a security system", "analyser_system 1");
-			button_assignbitmaps_blend("analyser_system 1", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
+			EclRegisterButton(
+				screenw - 55, paneltop + 145, 32, 32, "", "Shows a security system", "analyser_system 1");
+			button_assignbitmaps_blend(
+				"analyser_system 1", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
 			EclRegisterButtonCallback("analyser_system 1", SystemClick);
 
 			EclRegisterButton(screenw - 65, paneltop + 130, 70, 15, "Analysing", "", "analyser_system_t 1");
 			EclRegisterButtonCallbacks("analyser_system_t 1", text_draw, NULL, NULL, NULL);
 
-		}
-		else if(comp->security.NumSystems() == 3)
-		{
+		} else if (comp->security.NumSystems() == 3) {
 
-			EclRegisterButton(screenw - panelwidth + 25, paneltop + 145, 32, 32, "", "Shows a security system", "analyser_system 0");
-			button_assignbitmaps_blend("analyser_system 0", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
+			EclRegisterButton(screenw - panelwidth + 25,
+							  paneltop + 145,
+							  32,
+							  32,
+							  "",
+							  "Shows a security system",
+							  "analyser_system 0");
+			button_assignbitmaps_blend(
+				"analyser_system 0", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
 			EclRegisterButtonCallback("analyser_system 0", SystemClick);
 
-			EclRegisterButton(screenw - panelwidth + 15, paneltop + 180, 70, 15, "Analysing", "", "analyser_system_t 0");
+			EclRegisterButton(
+				screenw - panelwidth + 15, paneltop + 180, 70, 15, "Analysing", "", "analyser_system_t 0");
 			EclRegisterButtonCallbacks("analyser_system_t 0", text_draw, NULL, NULL, NULL);
 
-			EclRegisterButton(screenw - panelwidth / 2 - 16, paneltop + 145, 32, 32, "", "Shows a security system", "analyser_system 1");
-			button_assignbitmaps_blend("analyser_system 1", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
+			EclRegisterButton(screenw - panelwidth / 2 - 16,
+							  paneltop + 145,
+							  32,
+							  32,
+							  "",
+							  "Shows a security system",
+							  "analyser_system 1");
+			button_assignbitmaps_blend(
+				"analyser_system 1", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
 			EclRegisterButtonCallback("analyser_system 1", SystemClick);
 
-			EclRegisterButton(screenw - panelwidth / 2 - 26, paneltop + 180, 70, 15, "Analysing", "", "analyser_system_t 1");
+			EclRegisterButton(screenw - panelwidth / 2 - 26,
+							  paneltop + 180,
+							  70,
+							  15,
+							  "Analysing",
+							  "",
+							  "analyser_system_t 1");
 			EclRegisterButtonCallbacks("analyser_system_t 1", text_draw, NULL, NULL, NULL);
 
-			EclRegisterButton(screenw - 55, paneltop + 145, 32, 32, "", "Shows a security system", "analyser_system 2");
-			button_assignbitmaps_blend("analyser_system 2", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
+			EclRegisterButton(
+				screenw - 55, paneltop + 145, 32, 32, "", "Shows a security system", "analyser_system 2");
+			button_assignbitmaps_blend(
+				"analyser_system 2", "analyser/unknown.tif", "analyser/unknown.tif", "analyser/unknown.tif");
 			EclRegisterButtonCallback("analyser_system 2", SystemClick);
 
 			EclRegisterButton(screenw - 65, paneltop + 130, 70, 15, "Analysing", "", "analyser_system_t 2");
 			EclRegisterButtonCallbacks("analyser_system_t 2", text_draw, NULL, NULL, NULL);
-
 		}
 
 		// Bring all bypassers to the front
 
 		SvbShowAllTasks();
 
-
 		// Set up last update for a 3 second delay
 
 		lastupdate = time(NULL);
-
 	}
 
 	//
@@ -433,32 +464,34 @@ void AnalyserInterface::Update()
 	// Every few seconds
 	//
 
-	if(time(NULL) > lastupdate + 3)
-	{
+	if (time(NULL) > lastupdate + 3) {
 
 		//
 		// Look up the host computer
 		//
 
-		VLocation *vl = game->GetWorld()->GetVLocation(remotehost);
+		VLocation* vl = game->GetWorld()->GetVLocation(remotehost);
 		UplinkAssert(vl);
-		Computer *comp = vl->GetComputer();
+		Computer* comp = vl->GetComputer();
 		UplinkAssert(comp);
 
 		int systemindex = 0;
 		char name[32];
 		UplinkStrncpy(name, "analyser_system 0", sizeof(name));
 
-		while(EclGetButton(name))
-		{
+		while (EclGetButton(name)) {
 
-			SecuritySystem *ss = comp->security.GetSystem(systemindex);
+			SecuritySystem* ss = comp->security.GetSystem(systemindex);
 
-			if(ss && ss->enabled && !ss->bypassed)
-				button_assignbitmaps_blend(name, "analyser/secure.tif", "analyser/secure_h.tif", "analyser/secure_c.tif");
+			if (ss && ss->enabled && !ss->bypassed) {
+				button_assignbitmaps_blend(
+					name, "analyser/secure.tif", "analyser/secure_h.tif", "analyser/secure_c.tif");
+			}
 
-			else
-				button_assignbitmaps_blend(name, "analyser/nonsecure.tif", "analyser/nonsecure_h.tif", "analyser/nonsecure_c.tif");
+			else {
+				button_assignbitmaps_blend(
+					name, "analyser/nonsecure.tif", "analyser/nonsecure_h.tif", "analyser/nonsecure_c.tif");
+			}
 
 			EclRegisterButtonCallback(name, SystemClick);
 
@@ -467,42 +500,25 @@ void AnalyserInterface::Update()
 
 			++systemindex;
 			UplinkSnprintf(name, sizeof(name), "analyser_system %d", systemindex);
-
 		}
 
 		lastupdate = time(NULL);
-
 	}
-
 
 	// Update the stipple patterns
 	// AT A FIXED RATE ;)
 
-	if(EclGetAccurateTime() > stippleupdate)
-	{
+	if (EclGetAccurateTime() > stippleupdate) {
 
 		CycleStipplePattern();
 		EclDirtyButton("localint_background");
 		stippleupdate = (int)EclGetAccurateTime() + 20;
-
 	}
-
 }
 
-bool AnalyserInterface::IsVisible()
-{
+bool AnalyserInterface::IsVisible() { return (EclGetButton("analyser_title") != NULL); }
 
-	return (EclGetButton("analyser_title") != NULL);
-
-}
-
-int AnalyserInterface::ScreenID()
-{
-
-	return SCREEN_ANALYSER;
-
-}
-
+int AnalyserInterface::ScreenID() { return SCREEN_ANALYSER; }
 
 void AnalyserInterface::BypassSystem()
 {
@@ -512,8 +528,7 @@ void AnalyserInterface::BypassSystem()
 	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
 
-	if (strcmp(comp->ip, IP_LOCALHOST) == 0)
-	{
+	if (strcmp(comp->ip, IP_LOCALHOST) == 0) {
 		return;
 	}
 
@@ -522,38 +537,25 @@ void AnalyserInterface::BypassSystem()
 	int monitorIndex = comp->security.GetTypeIndex(SECURITY_TYPE_MONITOR);
 	int firewallIndex = comp->security.GetTypeIndex(SECURITY_TYPE_FIREWALL);
 
-	for (int di = 0; di < db->GetDataSize(); ++di)
-	{
-		if (!db->GetDataFile(di) || db->GetDataFile(di)->TYPE != DATATYPE_PROGRAM)
-		{
+	for (int di = 0; di < db->GetDataSize(); ++di) {
+		if (!db->GetDataFile(di) || db->GetDataFile(di)->TYPE != DATATYPE_PROGRAM) {
 			continue;
 		}
 
 		char name[128];
 
 		// run each bypass if not running already
-		if (
-			strcmp(db->GetDataFile(di)->title, "Proxy_Bypass") == 0 &&
-			SvbGetTask("Proxy_Bypass") == NULL &&
-			proxyIndex != -1 &&
-			comp->security.GetSystem(proxyIndex)->level <= db->GetDataFile(di)->version)
-		{
+		if (strcmp(db->GetDataFile(di)->title, "Proxy_Bypass") == 0 && SvbGetTask("Proxy_Bypass") == NULL
+			&& proxyIndex != -1
+			&& comp->security.GetSystem(proxyIndex)->level <= db->GetDataFile(di)->version) {
 			createBypass(comp, "Proxy_Bypass", db->GetDataFile(di)->version, proxyIndex);
-		}
-		else if (
-			strcmp(db->GetDataFile(di)->title, "Firewall_Bypass") == 0 &&
-			SvbGetTask("Firewall_Bypass") == NULL &&
-			firewallIndex != -1 &&
-			comp->security.GetSystem(firewallIndex)->level <= db->GetDataFile(di)->version)
-		{
+		} else if (strcmp(db->GetDataFile(di)->title, "Firewall_Bypass") == 0
+				   && SvbGetTask("Firewall_Bypass") == NULL && firewallIndex != -1
+				   && comp->security.GetSystem(firewallIndex)->level <= db->GetDataFile(di)->version) {
 			createBypass(comp, "Firewall_Bypass", db->GetDataFile(di)->version, firewallIndex);
-		}
-		else if (
-			strcmp(db->GetDataFile(di)->title, "Monitor_Bypass") == 0 &&
-			SvbGetTask("Monitor_Bypass") == NULL &&
-			monitorIndex != -1 &&
-			comp->security.GetSystem(monitorIndex)->level <= db->GetDataFile(di)->version)
-		{
+		} else if (strcmp(db->GetDataFile(di)->title, "Monitor_Bypass") == 0
+				   && SvbGetTask("Monitor_Bypass") == NULL && monitorIndex != -1
+				   && comp->security.GetSystem(monitorIndex)->level <= db->GetDataFile(di)->version) {
 			createBypass(comp, "Monitor_Bypass", db->GetDataFile(di)->version, monitorIndex);
 		}
 	}

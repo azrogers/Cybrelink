@@ -7,40 +7,30 @@
 
   */
 
-
 #ifndef _included_demogameoverinterface_h
 #define _included_demogameoverinterface_h
 
+#include "eclipse.h"
 #include "mainmenu/mainmenuscreen.h"
 
-
-class DemoGameOverInterface : public MainMenuScreen
-{
+class DemoGameOverInterface : public MainMenuScreen {
 
 protected:
-
 	time_t starttime;
 
 protected:
-
-	static void ReturnToMainMenuClick ( Button *button );
+	static void ReturnToMainMenuClick(Button* button);
 
 public:
+	DemoGameOverInterface();
+	~DemoGameOverInterface();
 
-	DemoGameOverInterface ();
-	~DemoGameOverInterface ();
+	void Create();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
-
-	int  ScreenID ();			
-
+	int ScreenID();
 };
 
-
-
-
 #endif
-

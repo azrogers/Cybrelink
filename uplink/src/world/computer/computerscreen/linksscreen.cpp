@@ -5,86 +5,61 @@
 
 #include "world/computer/computerscreen/linksscreen.h"
 
-
-
-
-
-LinksScreen::LinksScreen ()
+LinksScreen::LinksScreen()
 {
-	
+
 	nextpage = -1;
 	SCREENTYPE = LINKSSCREENTYPE_NONE;
-
 }
 
-LinksScreen::~LinksScreen ()
-{
-}
+LinksScreen::~LinksScreen() { }
 
-void LinksScreen::SetNextPage ( int newnextpage )
-{
-	
-	nextpage = newnextpage;
+void LinksScreen::SetNextPage(int newnextpage) { nextpage = newnextpage; }
 
-}
+void LinksScreen::SetScreenType(int newSCREEN_TYPE) { SCREENTYPE = newSCREEN_TYPE; }
 
-void LinksScreen::SetScreenType ( int newSCREEN_TYPE )
-{
-	
-	SCREENTYPE = newSCREEN_TYPE;
-
-}
-
-bool LinksScreen::Load ( FILE *file )
+bool LinksScreen::Load(FILE* file)
 {
 
-	LoadID ( file );
+	LoadID(file);
 
-	if ( !ComputerScreen::Load ( file ) ) return false;
+	if (!ComputerScreen::Load(file)) {
+		return false;
+	}
 
-	if ( !FileReadData ( &nextpage, sizeof(nextpage), 1, file ) ) return false;
-	if ( !FileReadData ( &SCREENTYPE, sizeof(SCREENTYPE), 1, file ) ) return false;
+	if (!FileReadData(&nextpage, sizeof(nextpage), 1, file)) {
+		return false;
+	}
+	if (!FileReadData(&SCREENTYPE, sizeof(SCREENTYPE), 1, file)) {
+		return false;
+	}
 
-	LoadID_END ( file );
+	LoadID_END(file);
 
 	return true;
-
 }
 
-void LinksScreen::Save ( FILE *file )
+void LinksScreen::Save(FILE* file)
 {
 
-	SaveID ( file );
+	SaveID(file);
 
-	ComputerScreen::Save ( file );
+	ComputerScreen::Save(file);
 
-	fwrite ( &nextpage, sizeof(nextpage), 1, file );
-	fwrite ( &SCREENTYPE, sizeof(SCREENTYPE), 1, file );
+	fwrite(&nextpage, sizeof(nextpage), 1, file);
+	fwrite(&SCREENTYPE, sizeof(SCREENTYPE), 1, file);
 
-	SaveID_END ( file );
-
+	SaveID_END(file);
 }
 
-void LinksScreen::Print ()
-{
-	
-	printf ( "LinksScreen :\n" );
-	ComputerScreen::Print ();
-	printf ( "TYPE=%d, nextpage=%d\n", SCREENTYPE, nextpage );
-
-}
-	
-char *LinksScreen::GetID ()
-{
-	
-	return "SCR_LINK";
-
-}
-
-int LinksScreen::GetOBJECTID ()
+void LinksScreen::Print()
 {
 
-	return OID_LINKSSCREEN;
-
+	printf("LinksScreen :\n");
+	ComputerScreen::Print();
+	printf("TYPE=%d, nextpage=%d\n", SCREENTYPE, nextpage);
 }
 
+std::string LinksScreen::GetID() { return "SCR_LINK"; }
+
+int LinksScreen::GetOBJECTID() { return OID_LINKSSCREEN; }

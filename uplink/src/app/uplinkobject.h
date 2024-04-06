@@ -14,33 +14,28 @@
 
 #include "tosser.h"
 
-#define SIZE_SAVEID     9
+#define SIZE_SAVEID 9
 #define SIZE_SAVEID_END 13
 
-
-class UplinkObject  
-{
+class UplinkObject {
 
 public:
-
 	UplinkObject();
 	virtual ~UplinkObject();
 
-	virtual bool Load   ( FILE *file );
-	virtual void Save   ( FILE *file );
-	virtual void Print  ();
-	virtual void Update ();
-	
-	virtual char *GetID ();						// You must provide this
-	virtual int   GetOBJECTID ();				// Neccisary if this is used in a Tosser structure
+	virtual bool Load(FILE* file);
+	virtual void Save(FILE* file);
+	virtual void Print();
+	virtual void Update();
 
-	char *GetID_END ();							//
-	void LoadID ( FILE *file );					// Used to ensure
-	void SaveID ( FILE *file );					// VERY safe loading
-	void LoadID_END ( FILE *file );				// of save game files		
-	void SaveID_END ( FILE *file );				//
+	virtual std::string GetID(); // You must provide this
+	virtual int GetOBJECTID(); // Neccisary if this is used in a Tosser structure
 
+	char* GetID_END(); //
+	void LoadID(FILE* file); // Used to ensure
+	void SaveID(FILE* file); // VERY safe loading
+	void LoadID_END(FILE* file); // of save game files
+	void SaveID_END(FILE* file); //
 };
 
-
-#endif 
+#endif

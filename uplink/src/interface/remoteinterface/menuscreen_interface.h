@@ -14,27 +14,21 @@ class MenuScreen;
 
 // ============================================================================
 
-
-class MenuScreenInterface : public RemoteInterfaceScreen
-{
+class MenuScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
-	static void DrawMenuOption			( Button *button, bool highlighted, bool clicked );
-	static void DrawMenuOptionDimmed	( Button *button, bool highlighted, bool clicked );
-	static void ClickMenuScreenOption	( Button *button );
+	static void DrawMenuOption(Button* button, bool highlighted, bool clicked);
+	static void DrawMenuOptionDimmed(Button* button, bool highlighted, bool clicked);
+	static void ClickMenuScreenOption(Button* button);
 
 public:
+	void Create(ComputerScreen* cs);
+	void Remove();
+	bool IsVisible();
 
-	void Create ( ComputerScreen *cs );
-	void Remove ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	MenuScreen *GetComputerScreen ();
-
+	MenuScreen* GetComputerScreen();
 };
-
 
 #endif

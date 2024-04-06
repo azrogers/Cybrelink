@@ -10,8 +10,6 @@
 
   */
 
-
-
 #ifndef _included_voiceanalysisinterface_h
 #define _included_voiceanalysisinterface_h
 
@@ -23,52 +21,44 @@ class GenericScreen;
 
 #define VOICE_NUMSAMPLES 25
 
-#define VOICEANALYSISSCREEN_NONE		0
-#define VOICEANALYSISSCREEN_LISTENING	1
-#define VOICEANALYSISSCREEN_ANALYSING	2
-#define VOICEANALYSISSCREEN_PASSED		3
-#define VOICEANALYSISSCREEN_FAILED		4
+#define VOICEANALYSISSCREEN_NONE 0
+#define VOICEANALYSISSCREEN_LISTENING 1
+#define VOICEANALYSISSCREEN_ANALYSING 2
+#define VOICEANALYSISSCREEN_PASSED 3
+#define VOICEANALYSISSCREEN_FAILED 4
 
 // ============================================================================
 
-
-class VoiceAnalysisScreenInterface : public RemoteInterfaceScreen
-{
+class VoiceAnalysisScreenInterface : public RemoteInterfaceScreen {
 
 protected:
+	static void DrawBackground(Button* button, bool highlighted, bool clicked);
+	static void DrawAnalysis(Button* button, bool highlighted, bool clicked);
 
-	static void DrawBackground ( Button *button, bool highlighted, bool clicked );
-	static void DrawAnalysis ( Button *button, bool highlighted, bool clicked );
-
-	static void ClickAccess ( Button *button );
+	static void ClickAccess(Button* button);
 
 protected:
-
 	int sample[VOICE_NUMSAMPLES];
 	int lastupdate;
 	int STATUS;
 
 public:
+	VoiceAnalysisScreenInterface();
+	~VoiceAnalysisScreenInterface();
 
-	VoiceAnalysisScreenInterface ();
-	~VoiceAnalysisScreenInterface ();
+	void StartVoicePlayback();
+	void FinishVoicePlayback(char* voicename);
 
-	void StartVoicePlayback ();
-	void FinishVoicePlayback ( char *voicename );
+	bool ReturnKeyPressed();
 
-	bool ReturnKeyPressed ();
+	void Create(ComputerScreen* cs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ( ComputerScreen *cs );
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
-
 #endif
-

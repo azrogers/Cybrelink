@@ -5,43 +5,36 @@
 #ifndef _included_memoryinterface_h
 #define _included_memoryinterface_h
 
-
 #include "interface/localinterface/localinterfacescreen.h"
 
-
-class MemoryInterface : public LocalInterfaceScreen  
-{
+class MemoryInterface : public LocalInterfaceScreen {
 
 protected:
-
 	static int previousnumfiles;
 
 	static int baseoffset;
-	static int currentprogramindex;					// Currently highlighted program
+	static int currentprogramindex; // Currently highlighted program
 
-    static int specialHighlight;
+	static int specialHighlight;
 
 protected:
+	static void MemoryBlockDraw(Button* button, bool highlighted, bool clicked);
+	static void MemoryBlockHighlight(Button* button);
+	static void MemoryBlockClick(Button* button);
 
-	static void MemoryBlockDraw      ( Button *button, bool highlighted, bool clicked );
-	static void MemoryBlockHighlight ( Button *button );
-	static void MemoryBlockClick	 ( Button *button );
-	
-	static void TitleClick ( Button *button );
-    static void ScrollChange ( char *scrollname, int newValue );
+	static void TitleClick(Button* button);
+	static void ScrollChange(const char* scrollname, int newValue);
 
 public:
+	void ForceUpdateAll();
+	void SpecialHighlight(int memoryIndex);
 
-    void ForceUpdateAll ();
-    void SpecialHighlight ( int memoryIndex );
+	void Create();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
-
-	int ScreenID ();
-
+	int ScreenID();
 };
 
-#endif 
+#endif

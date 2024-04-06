@@ -8,7 +8,6 @@
 
   */
 
-
 #ifndef _included_nearestgatewayscreeninterface_h
 #define _included_nearestgatewayscreeninterface_h
 
@@ -16,36 +15,29 @@
 
 class GenericScreen;
 
-
-class NearestGatewayScreenInterface : public RemoteInterfaceScreen
-{
+class NearestGatewayScreenInterface : public RemoteInterfaceScreen {
 
 protected:
+	static void DrawBlack(Button* button, bool highlighted, bool clicked);
 
-	static void DrawBlack ( Button *button, bool highlighted, bool clicked );
+	static void DrawLocation(Button* button, bool highlighted, bool clicked);
+	static void ClickLocation(Button* button);
 
-	static void DrawLocation ( Button *button, bool highlighted, bool clicked );
-	static void ClickLocation ( Button *button );
-
-    static void DrawMainMap ( Button *button, bool highlighted, bool clicked );
+	static void DrawMainMap(Button* button, bool highlighted, bool clicked);
 
 public:
+	NearestGatewayScreenInterface();
+	~NearestGatewayScreenInterface();
 
-	NearestGatewayScreenInterface ();
-	~NearestGatewayScreenInterface ();
+	bool ReturnKeyPressed();
 
-	bool ReturnKeyPressed ();
+	void Create(ComputerScreen* newcs);
+	void Remove();
+	bool IsVisible();
 
-	void Create ( ComputerScreen *newcs );
-	void Remove ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
-
 #endif
-

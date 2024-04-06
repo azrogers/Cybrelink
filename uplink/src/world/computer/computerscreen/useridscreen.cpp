@@ -3,83 +3,61 @@
 
 #include "world/computer/computerscreen/useridscreen.h"
 
-
-
-
-UserIDScreen::UserIDScreen ()
+UserIDScreen::UserIDScreen()
 {
 
 	nextpage = -1;
 	difficulty = 1;
 }
 
-UserIDScreen::~UserIDScreen ()
-{
-}
+UserIDScreen::~UserIDScreen() { }
 
-void UserIDScreen::SetNextPage ( int newnextpage )
-{
-	
-	nextpage = newnextpage;
+void UserIDScreen::SetNextPage(int newnextpage) { nextpage = newnextpage; }
 
-}
+void UserIDScreen::SetDifficulty(int newdifficulty) { difficulty = newdifficulty; }
 
-void UserIDScreen::SetDifficulty ( int newdifficulty )
+bool UserIDScreen::Load(FILE* file)
 {
 
-	difficulty = newdifficulty;
+	LoadID(file);
 
-}
+	if (!ComputerScreen::Load(file)) {
+		return false;
+	}
 
-bool UserIDScreen::Load  ( FILE *file )
-{
+	if (!FileReadData(&nextpage, sizeof(nextpage), 1, file)) {
+		return false;
+	}
+	if (!FileReadData(&difficulty, sizeof(difficulty), 1, file)) {
+		return false;
+	}
 
-	LoadID ( file );
-
-	if ( !ComputerScreen::Load ( file ) ) return false;
-
-	if ( !FileReadData ( &nextpage, sizeof(nextpage), 1, file ) ) return false;
-	if ( !FileReadData ( &difficulty, sizeof(difficulty), 1, file ) ) return false;
-
-	LoadID_END ( file );
+	LoadID_END(file);
 
 	return true;
-
 }
 
-void UserIDScreen::Save  ( FILE *file )
+void UserIDScreen::Save(FILE* file)
 {
 
-	SaveID ( file );
+	SaveID(file);
 
-	ComputerScreen::Save ( file );
+	ComputerScreen::Save(file);
 
-	fwrite ( &nextpage, sizeof(nextpage), 1, file );
-	fwrite ( &difficulty, sizeof(difficulty), 1, file );
+	fwrite(&nextpage, sizeof(nextpage), 1, file);
+	fwrite(&difficulty, sizeof(difficulty), 1, file);
 
-	SaveID_END ( file );
-
+	SaveID_END(file);
 }
 
-void UserIDScreen::Print ()
-{
-	
-	printf ( "UserIDScreen : \n" );
-	ComputerScreen::Print ();
-	printf ( "\tNextPage:%d, Difficulty:%d\n", nextpage, difficulty );
-
-}
-
-char *UserIDScreen::GetID ()
+void UserIDScreen::Print()
 {
 
-	return "SCR_UID";
-
+	printf("UserIDScreen : \n");
+	ComputerScreen::Print();
+	printf("\tNextPage:%d, Difficulty:%d\n", nextpage, difficulty);
 }
 
-int UserIDScreen::GetOBJECTID ()
-{
+std::string UserIDScreen::GetID() { return "SCR_UID"; }
 
-	return OID_USERIDSCREEN;
-
-}
+int UserIDScreen::GetOBJECTID() { return OID_USERIDSCREEN; }

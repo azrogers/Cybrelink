@@ -7,7 +7,6 @@
 
   */
 
-
 #ifndef _included_agent_h
 #define _included_agent_h
 
@@ -15,74 +14,71 @@
 
 #include <stdio.h>
 
-#include "world/person.h"
 #include "world/computer/gateway.h"
+#include "world/person.h"
 
 class Message;
 class Mission;
 
-#define SIZE_AGENT_HANDLE		64
-
+#define SIZE_AGENT_HANDLE 64
 
 // ============================================================================
 
-
-class Agent : public Person
-{
-	
-public:
-
-	LList <char *> links;					// The agents' "favourites" (IP)
-	BTree <char *> codes;					// All known access codes, indexed on ip
-	LList <Mission *> missions;				// The agents' missions	
-
-	char handle [SIZE_AGENT_HANDLE];
+class Agent : public Person {
 
 public:
+	LList<char*> links; // The agents' "favourites" (IP)
+	BTree<char*> codes; // All known access codes, indexed on ip
+	LList<Mission*> missions; // The agents' missions
 
-	Agent ();
-	~Agent ();
+	char handle[SIZE_AGENT_HANDLE];
 
-	void SetHandle ( char *newhandle );
+public:
+	Agent();
+	~Agent();
 
-	void GiveMission ( Mission *mission );
-	void CheckMissionDueDates ();						// Have any missions expired?
+	void SetHandle(const char* newhandle);
 
-	void GiveLink	 ( char *ip );
-	bool HasLink     ( char *ip );
-	void RemoveLink  ( char *ip );
+	void GiveMission(Mission* mission);
+	void CheckMissionDueDates(); // Have any missions expired?
 
-	void GiveCode    ( char *newip, char *newcode );
-	void GiveMessage ( Message *message );
-    int HasAccount  ( char *ip );                           // Returns access level or -1
+	void GiveLink(const char* newip);
+	bool HasLink(const char* newip);
+	void RemoveLink(char* ip);
 
-	int  CreateNewAccount ( char *bankip, char *accname, char *password, 
-							int balance, int loan );			// Returns account number	
+	void GiveCode(const char* newip, const char* newcode);
+	void GiveMessage(Message* message);
+	int HasAccount(char* ip); // Returns access level or -1
 
-	bool HasMissionLink ( const char *ip );
+	int CreateNewAccount(const char* bankip,
+						 const char* accname,
+						 const char* password,
+						 int balance,
+						 int loan); // Returns account number
 
-	void AttemptMission ();								// Attempts mission 0
-	void AttemptMission_StealFile ();
-    void AttemptMission_DeleteFile ();
-	void AttemptMission_ChangeAccount ();
-	void AttemptMission_TraceUser ();
-	void AttemptMission_RemoveComputer ();
+	bool HasMissionLink(const char* ip);
 
-	void EstablishConnection ( char *ip );				// Complexity based on skill
+	void AttemptMission(); // Attempts mission 0
+	void AttemptMission_StealFile();
+	void AttemptMission_DeleteFile();
+	void AttemptMission_ChangeAccount();
+	void AttemptMission_TraceUser();
+	void AttemptMission_RemoveComputer();
 
-    static bool ParseAccessCode ( const char *code, char *username, size_t usernamesize, char *password, size_t passwordsize );
+	void EstablishConnection(char* ip); // Complexity based on skill
+
+	static bool ParseAccessCode(
+		const char* code, char* username, size_t usernamesize, char* password, size_t passwordsize);
 
 	// Common functions
 
-	bool Load   ( FILE *file );
-	void Save   ( FILE *file );
-	void Print  ();
-	void Update ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
 
-	char *GetID ();
-	int   GetOBJECTID ();
-
+	std::string GetID();
+	int GetOBJECTID();
 };
 
-
-#endif 
+#endif

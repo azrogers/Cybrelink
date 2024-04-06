@@ -5,16 +5,16 @@
 
   */
 
-
 #ifndef _included_miscutils_h
 #define _included_miscutils_h
 
 #include "tosser.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 char* LowerCaseString(const char* thestring);
-char* StripCarriageReturns(const char* thestring);               // Replaces first cr with \x0
+std::string LowerCaseString(std::string thestring);
+char* StripCarriageReturns(const char* thestring); // Replaces first cr with \x0
 char* TrimSpaces(const char* thestring);
 
 char* GetFilePath(const char* filename);
@@ -31,11 +31,12 @@ bool CopyFileUplink(std::string oldFilename, std::string newFilename);
 bool RemoveFile(const char* filename);
 bool RemoveFile(std::string filename);
 
-DArray <char*>* ListDirectory(char* directory, char* filter);
+DArray<char*>* ListDirectory(const char* directory, const char* filter);
 std::vector<std::string> ListDirectoryVector(std::string directory, std::string filter);
 std::vector<std::string> ListSubdirs(std::string directory);
 
-void SetColour(char* colourName);                    // calls glColour3f
+void SetColour(const char* colourName); // calls glColour3f
+void SetColour(std::string colourName);
 
 void PrintStackTrace();
 
@@ -45,4 +46,3 @@ void PrintStackTrace();
 std::vector<std::string> ConsumeToStringVector(DArray<char*>* sourceArray);
 
 #endif
-

@@ -6,94 +6,67 @@
 
 #include "world/computer/computerscreen/shareslistscreen.h"
 
-
-
-
-
-SharesListScreen::SharesListScreen ()
+SharesListScreen::SharesListScreen()
 {
-	
+
 	nextpage = -1;
 	SCREENTYPE = SHARESLISTSCREENTYPE_NONE;
-
 }
 
-SharesListScreen::~SharesListScreen ()
-{
-}
+SharesListScreen::~SharesListScreen() { }
 
-void SharesListScreen::SetNextPage ( int newnextpage )
-{
-	
-	nextpage = newnextpage;
+void SharesListScreen::SetNextPage(int newnextpage) { nextpage = newnextpage; }
 
-}
+void SharesListScreen::SetViewPage(int newviewpage) { viewpage = newviewpage; }
 
-void SharesListScreen::SetViewPage ( int newviewpage )
+void SharesListScreen::SetScreenType(int newSCREEN_TYPE) { SCREENTYPE = newSCREEN_TYPE; }
+
+bool SharesListScreen::Load(FILE* file)
 {
 
-	viewpage = newviewpage;
+	LoadID(file);
 
-}
+	if (!ComputerScreen::Load(file)) {
+		return false;
+	}
 
-void SharesListScreen::SetScreenType ( int newSCREEN_TYPE )
-{
-	
-	SCREENTYPE = newSCREEN_TYPE;
+	if (!FileReadData(&nextpage, sizeof(nextpage), 1, file)) {
+		return false;
+	}
+	if (!FileReadData(&viewpage, sizeof(viewpage), 1, file)) {
+		return false;
+	}
+	if (!FileReadData(&SCREENTYPE, sizeof(SCREENTYPE), 1, file)) {
+		return false;
+	}
 
-}
-
-bool SharesListScreen::Load ( FILE *file )
-{
-
-	LoadID ( file );
-
-	if ( !ComputerScreen::Load ( file ) ) return false;
-
-	if ( !FileReadData ( &nextpage, sizeof(nextpage), 1, file ) ) return false;
-	if ( !FileReadData ( &viewpage, sizeof(viewpage), 1, file ) ) return false;
-	if ( !FileReadData ( &SCREENTYPE, sizeof(SCREENTYPE), 1, file ) ) return false;
-
-	LoadID_END ( file );
+	LoadID_END(file);
 
 	return true;
-
 }
 
-void SharesListScreen::Save ( FILE *file )
+void SharesListScreen::Save(FILE* file)
 {
 
-	SaveID ( file );
+	SaveID(file);
 
-	ComputerScreen::Save ( file );
+	ComputerScreen::Save(file);
 
-	fwrite ( &nextpage, sizeof(nextpage), 1, file );
-	fwrite ( &viewpage, sizeof(viewpage), 1, file );
-	fwrite ( &SCREENTYPE, sizeof(SCREENTYPE), 1, file );
+	fwrite(&nextpage, sizeof(nextpage), 1, file);
+	fwrite(&viewpage, sizeof(viewpage), 1, file);
+	fwrite(&SCREENTYPE, sizeof(SCREENTYPE), 1, file);
 
-	SaveID_END ( file );
-
+	SaveID_END(file);
 }
 
-void SharesListScreen::Print ()
-{
-	
-	printf ( "SharesListScreen :\n" );
-	ComputerScreen::Print ();
-	printf ( "TYPE=%d, nextpage=%d, viewpage=%d\n", SCREENTYPE, nextpage, viewpage );
-
-}
-	
-char *SharesListScreen::GetID ()
-{
-	
-	return "SCR_SHAR";
-
-}
-
-int SharesListScreen::GetOBJECTID ()
+void SharesListScreen::Print()
 {
 
-	return OID_SHARESLISTSCREEN;
-
+	printf("SharesListScreen :\n");
+	ComputerScreen::Print();
+	printf("TYPE=%d, nextpage=%d, viewpage=%d\n", SCREENTYPE, nextpage, viewpage);
 }
+
+std::string SharesListScreen::GetID() { return "SCR_SHAR"; }
+
+int SharesListScreen::GetOBJECTID() { return OID_SHARESLISTSCREEN; }

@@ -18,52 +18,43 @@
 
 class GenericScreen;
 
-#define VOICESTATUS_NONE		0
-#define VOICESTATUS_RINGING		1
-#define VOICESTATUS_CONNECTED	2
-#define VOICESTATUS_TALKING		3
-#define VOICESTATUS_HUNGUP		5
+#define VOICESTATUS_NONE 0
+#define VOICESTATUS_RINGING 1
+#define VOICESTATUS_CONNECTED 2
+#define VOICESTATUS_TALKING 3
+#define VOICESTATUS_HUNGUP 5
 
 // ============================================================================
 
-
-
-class VoicePhoneScreenInterface : public RemoteInterfaceScreen
-{
+class VoicePhoneScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
-	void AddToText ( char *newtext );
+	void AddToText(const char* newtext);
 
 protected:
-
-    int voiceindex;
+	int voiceindex;
 	int numrings;
 	int numwords;
 	int timesync;
 	bool answer;
 
 public:
-
 	int STATUS;
 
 public:
+	VoicePhoneScreenInterface();
+	~VoicePhoneScreenInterface();
 
-	VoicePhoneScreenInterface ();
-	~VoicePhoneScreenInterface ();
+	bool ReturnKeyPressed();
 
-	bool ReturnKeyPressed ();
+	void Create(ComputerScreen* cs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ( ComputerScreen *cs );
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
-
 
 #endif

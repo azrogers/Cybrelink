@@ -14,16 +14,13 @@
 
 #include "mainmenu/mainmenu.h"
 
-#include "network/network.h"
-#include "network/networkclient.h"
-#include "network/interfaces/networkscreen.h"
 #include "network/interfaces/clientcommsinterface.h"
 #include "network/interfaces/clientstatusinterface.h"
+#include "network/interfaces/networkscreen.h"
+#include "network/network.h"
+#include "network/networkclient.h"
 
 #include "world/vlocation.h"
-
-
-
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -39,17 +36,17 @@ NetworkClient::NetworkClient()
 	clienttype = CLIENT_NONE;
 	currentscreencode = CLIENT_NONE;
 	screen = NULL;
-
 }
 
 NetworkClient::~NetworkClient()
 {
 
-	if (screen) delete screen;
-
+	if (screen) {
+		delete screen;
+	}
 }
 
-bool NetworkClient::StartClient(char* ip)
+bool NetworkClient::StartClient(const char* ip)
 {
 
 #if ENABLE_NETWORK
@@ -59,11 +56,13 @@ bool NetworkClient::StartClient(char* ip)
 
 	int result = TcpConnect(&socket, ip, NULL, &portnum);
 
-	if (result != TCP4U_SUCCESS)
+	if (result != TCP4U_SUCCESS) {
 		return false;
+	}
 
-	else
+	else {
 		return true;
+	}
 #else
 	return false;
 #endif
@@ -74,13 +73,13 @@ bool NetworkClient::StopClient()
 #if ENABLE_NETWORK
 	int result = TcpClose(&socket);
 
-	if (result == TCP4U_SUCCESS)
+	if (result == TCP4U_SUCCESS) {
 		return true;
+	}
 
 	else
 #endif
 		return false;
-
 }
 
 void NetworkClient::SetClientType(int newtype)
@@ -99,19 +98,13 @@ void NetworkClient::SetClientType(int newtype)
 		clienttype = newtype;
 		RunScreen(clienttype);
 
-	}
-	else
+	} else {
 		printf("NetworkClient::SetClientType, failed to convince server to co-operate\n");
+	}
 #endif
-
 }
 
-int NetworkClient::InScreen()
-{
-
-	return currentscreencode;
-
-}
+int NetworkClient::InScreen() { return currentscreencode; }
 
 void NetworkClient::RunScreen(int SCREENCODE)
 {
@@ -127,18 +120,20 @@ void NetworkClient::RunScreen(int SCREENCODE)
 
 	switch (currentscreencode) {
 
+	case CLIENT_COMMS:
+		screen = new ClientCommsInterface();
+		break;
+	case CLIENT_STATUS:
+		screen = new ClientStatusInterface();
+		break;
 
-	case CLIENT_COMMS:			screen = new ClientCommsInterface();				break;
-	case CLIENT_STATUS:			screen = new ClientStatusInterface();				break;
-
-	case CLIENT_NONE:			return;
+	case CLIENT_NONE:
+		return;
 	default:
 		UplinkAbort("Tried to create a screen with unknown SCREENCODE");
-
 	}
 
 	screen->Create();
-
 }
 
 NetworkScreen* NetworkClient::GetNetworkScreen()
@@ -146,7 +141,6 @@ NetworkScreen* NetworkClient::GetNetworkScreen()
 
 	UplinkAssert(screen);
 	return screen;
-
 }
 
 bool NetworkClient::Load(FILE* file)
@@ -167,7 +161,6 @@ void NetworkClient::Print()
 	printf("NetworkClient : SOCKET:%d\n", socket);
 	printf("\tcurrentscreen:%d\n", currentscreencode);
 #endif
-
 }
 
 void NetworkClient::Handle_ClientCommsData(char* buffer)
@@ -214,8 +207,7 @@ void NetworkClient::Handle_ClientCommsData(char* buffer)
 			((ClientCommsInterface*)screen)->connection.PutData(const_cast<char*>(ip.c_str()));
 		}
 
-	}
-	else if (strcmp(msgtype, "CLIENTCOMMS-TRACEPROGRESS") == 0) {
+	} else if (strcmp(msgtype, "CLIENTCOMMS-TRACEPROGRESS") == 0) {
 
 		// This is an update on the trace progress
 
@@ -225,8 +217,7 @@ void NetworkClient::Handle_ClientCommsData(char* buffer)
 
 		printf("Traceprogress is now %d\n", traceprogress);
 
-	}
-	else if (strcmp(msgtype, "CLIENTCOMMS-IPNAME") == 0) {
+	} else if (strcmp(msgtype, "CLIENTCOMMS-IPNAME") == 0) {
 
 		// This is the name of a computer at one of the IP's in your connection
 
@@ -244,14 +235,13 @@ void NetworkClient::Handle_ClientCommsData(char* buffer)
 		msgstream.getline(compname, SIZE_COMPUTER_NAME);
 		cout << "'" << compname << "'\n";
 
-		BTree <VLocation*>* locations = &(((ClientCommsInterface*)screen)->locations);
+		BTree<VLocation*>* locations = &(((ClientCommsInterface*)screen)->locations);
 		VLocation* vl = locations->GetData(ip);
 		if (vl) {
 			vl->SetComputer(compname);
 			vl->SetPLocation(x, y);
 			((ClientCommsInterface*)screen)->LayoutLabels();
-		}
-		else {
+		} else {
 
 			VLocation* vl = new VLocation();
 			vl->SetPLocation(x, y);
@@ -259,16 +249,12 @@ void NetworkClient::Handle_ClientCommsData(char* buffer)
 			vl->SetComputer(compname);
 			((ClientCommsInterface*)screen)->locations.PutData(ip, vl);
 			((ClientCommsInterface*)screen)->LayoutLabels();
-
 		}
 
-	}
-	else {
+	} else {
 
 		UplinkWarning("NetworkClient::Handle_ClientCommsData, received data but did not recognise it");
-
 	}
-
 }
 
 void NetworkClient::Handle_ClientStatusData(char* buffer)
@@ -286,43 +272,34 @@ void NetworkClient::Handle_ClientStatusData(char* buffer)
 
 		((ClientStatusInterface*)screen)->AddNewsStory(data);
 
-	}
-	else if (strcmp(msgtype, "CLIENTSTATUS-RATING") == 0) {
+	} else if (strcmp(msgtype, "CLIENTSTATUS-RATING") == 0) {
 
 		((ClientStatusInterface*)screen)->SetRating(data);
 
-	}
-	else if (strcmp(msgtype, "CLIENTSTATUS-FINANCE") == 0) {
+	} else if (strcmp(msgtype, "CLIENTSTATUS-FINANCE") == 0) {
 
 		((ClientStatusInterface*)screen)->SetFinancial(data);
 
-	}
-	else if (strcmp(msgtype, "CLIENTSTATUS-CRIMINAL") == 0) {
+	} else if (strcmp(msgtype, "CLIENTSTATUS-CRIMINAL") == 0) {
 
 		((ClientStatusInterface*)screen)->SetCriminal(data);
 
-	}
-	else if (strcmp(msgtype, "CLIENTSTATUS-HUD") == 0) {
+	} else if (strcmp(msgtype, "CLIENTSTATUS-HUD") == 0) {
 
 		((ClientStatusInterface*)screen)->SetHUDUpgrades(data);
 
-	}
-	else if (strcmp(msgtype, "CLIENTSTATUS-HW") == 0) {
+	} else if (strcmp(msgtype, "CLIENTSTATUS-HW") == 0) {
 
 		((ClientStatusInterface*)screen)->SetHardware(data);
 
-	}
-	else if (strcmp(msgtype, "CLIENTSTATUS-IP") == 0) {
+	} else if (strcmp(msgtype, "CLIENTSTATUS-IP") == 0) {
 
 		((ClientStatusInterface*)screen)->SetConnection(data);
 
-	}
-	else {
+	} else {
 
 		UplinkWarning("NetworkClient::Handle_ClientStatusData, received data but did not recognise it");
-
 	}
-
 }
 
 void NetworkClient::Update()
@@ -342,7 +319,7 @@ void NetworkClient::Update()
 
 		case TCP4U_SOCKETCLOSED:
 			EclReset(app->GetOptions()->GetOptionValue("graphics_screenwidth"),
-				app->GetOptions()->GetOptionValue("graphics_screenheight"));
+					 app->GetOptions()->GetOptionValue("graphics_screenheight"));
 			socket = -1;
 			app->GetNetwork()->SetStatus(NETWORK_NONE);
 			app->GetMainMenu()->RunScreen(MAINMENU_NETWORKOPTIONS);
@@ -353,33 +330,30 @@ void NetworkClient::Update()
 
 		case TCP4U_ERROR:
 			UplinkAbort("Tcp4u Error occured");
-
 		};
 
 		if (strcmp(buffer, "") != 0) {
 
 			// Deal with the input
 
-
-			if (clienttype == CLIENT_COMMS)			Handle_ClientCommsData(buffer);
-			else if (clienttype == CLIENT_STATUS)			Handle_ClientStatusData(buffer);
-			else if (clienttype == CLIENT_NONE)			printf("Client type not set");
-			else
+			if (clienttype == CLIENT_COMMS) {
+				Handle_ClientCommsData(buffer);
+			} else if (clienttype == CLIENT_STATUS) {
+				Handle_ClientStatusData(buffer);
+			} else if (clienttype == CLIENT_NONE) {
+				printf("Client type not set");
+			} else {
 				UplinkWarning("Unrecognised client type");
-
+			}
 		}
-
 	}
 
 	// Update interface
 
-	if (screen) screen->Update();
+	if (screen) {
+		screen->Update();
+	}
 #endif
 }
 
-char* NetworkClient::GetID()
-{
-
-	return "CLIENT";
-
-}
+std::string NetworkClient::GetID() { return "CLIENT"; }

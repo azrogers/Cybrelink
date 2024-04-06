@@ -1,32 +1,25 @@
 #include "sha1.hpp"
 #include <istream>
 
-struct membuf : std::streambuf
-{
-	membuf(char* begin, char* end) {
-		this->setg(begin, begin, end);
-	}
+struct membuf : std::streambuf {
+	membuf(char* begin, char* end) { this->setg(begin, begin, end); }
 };
-
 
 void* HashInitial()
 {
 	SHA1* checksum = new SHA1;
 	return checksum;
-
 }
 
 void HashData(void* context, unsigned char* data, unsigned int lendata)
 {
 	SHA1* checksum = (SHA1*)context;
 	membuf sbuf(reinterpret_cast<char*>(data), reinterpret_cast<char*>(data + lendata));
-	checksum->update(std::istream(&sbuf));
+	std::istream stream(&sbuf);
+	checksum->update(stream);
 }
 
-unsigned int HashResultSize()
-{
-	return (5 * sizeof(uint32_t));
-}
+unsigned int HashResultSize() { return (5 * sizeof(uint32_t)); }
 
 unsigned int HashFinal(void* context, unsigned char* result, unsigned int lenresult)
 {

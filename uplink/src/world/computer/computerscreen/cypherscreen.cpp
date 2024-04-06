@@ -3,84 +3,61 @@
 
 #include "world/computer/computerscreen/cypherscreen.h"
 
-
-
-
-CypherScreen::CypherScreen ()
+CypherScreen::CypherScreen()
 {
 
 	nextpage = -1;
 	difficulty = 1;
-
 }
 
-CypherScreen::~CypherScreen ()
-{
-}
+CypherScreen::~CypherScreen() { }
 
-void CypherScreen::SetNextPage ( int newnextpage )
-{
-	
-	nextpage = newnextpage;
+void CypherScreen::SetNextPage(int newnextpage) { nextpage = newnextpage; }
 
-}
+void CypherScreen::SetDifficulty(int newdifficulty) { difficulty = newdifficulty; }
 
-void CypherScreen::SetDifficulty ( int newdifficulty )
+bool CypherScreen::Load(FILE* file)
 {
 
-	difficulty = newdifficulty;
+	LoadID(file);
 
-}
+	if (!ComputerScreen::Load(file)) {
+		return false;
+	}
 
-bool CypherScreen::Load  ( FILE *file )
-{
+	if (!FileReadData(&nextpage, sizeof(nextpage), 1, file)) {
+		return false;
+	}
+	if (!FileReadData(&difficulty, sizeof(difficulty), 1, file)) {
+		return false;
+	}
 
-	LoadID ( file );
-
-	if ( !ComputerScreen::Load ( file ) ) return false;
-
-	if ( !FileReadData ( &nextpage, sizeof(nextpage), 1, file ) ) return false;
-	if ( !FileReadData ( &difficulty, sizeof(difficulty), 1, file ) ) return false;
-
-	LoadID_END ( file );
+	LoadID_END(file);
 
 	return true;
-
 }
 
-void CypherScreen::Save  ( FILE *file )
+void CypherScreen::Save(FILE* file)
 {
 
-	SaveID ( file );
+	SaveID(file);
 
-	ComputerScreen::Save ( file );
+	ComputerScreen::Save(file);
 
-	fwrite ( &nextpage, sizeof(nextpage), 1, file );
-	fwrite ( &difficulty, sizeof(difficulty), 1, file );
+	fwrite(&nextpage, sizeof(nextpage), 1, file);
+	fwrite(&difficulty, sizeof(difficulty), 1, file);
 
-	SaveID_END ( file );
-
+	SaveID_END(file);
 }
 
-void CypherScreen::Print ()
-{
-	
-	printf ( "CypherScreen : \n" );
-	ComputerScreen::Print ();
-	printf ( "\tNextPage:%d, Difficulty:%d\n", nextpage, difficulty );
-
-}
-
-char *CypherScreen::GetID ()
+void CypherScreen::Print()
 {
 
-	return "SCR_CYPH";
-
+	printf("CypherScreen : \n");
+	ComputerScreen::Print();
+	printf("\tNextPage:%d, Difficulty:%d\n", nextpage, difficulty);
 }
 
-int CypherScreen::GetOBJECTID ()
-{
+std::string CypherScreen::GetID() { return "SCR_CYPH"; }
 
-	return OID_CYPHERSCREEN;
-
-}
+int CypherScreen::GetOBJECTID() { return OID_CYPHERSCREEN; }

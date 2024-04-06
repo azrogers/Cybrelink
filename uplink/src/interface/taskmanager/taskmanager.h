@@ -1,6 +1,6 @@
 
-/* 
-	
+/*
+
   Task Manager class object
 
 	Part of the Interface sub-system
@@ -15,7 +15,6 @@
 #ifndef _included_tasks_h
 #define _included_tasks_h
 
-
 #include "vanbakel.h"
 
 #include "app/uplinkobject.h"
@@ -24,47 +23,39 @@ class UplinkTask;
 
 // ============================================================================
 
-
-
-class TaskManager : public UplinkObject
-{
+class TaskManager : public UplinkObject {
 
 protected:
+	int targetprogram; // PID of running program targetted
+	int targetprogramreason; // Reason the target program was changed
+	int lasttargetprogram; // PID of last running program targetted
+	UplinkObject* programtarget; // Object to be targeted by program
 
-	int			  targetprogram;						// PID of running program targetted
-	int			  targetprogramreason;					// Reason the target program was changed
-	int			  lasttargetprogram;					// PID of last running program targetted
-	UplinkObject *programtarget;						// Object to be targeted by program
-
-	int	lastcycle;									// Used to regulate cycle speed
+	int lastcycle; // Used to regulate cycle speed
 
 public:
+	TaskManager();
+	~TaskManager();
 
-	TaskManager ();
-	~TaskManager ();
+	void RunSoftware(const char* name, float version);
+	void RunHighestVersionOf(const char* name);
 
-	void RunSoftware ( char *name, float version );
-	void RunHighestVersionOf(char* name);
-												
-	void SetProgramTarget ( UplinkObject *newprogramtarget, char *targetstring, int targetint );
-	void SetTargetProgram ( int newtargetprogram );
+	void SetProgramTarget(UplinkObject* newprogramtarget, std::string targetstring, int targetint);
+	void SetTargetProgram(int newtargetprogram);
 
-	bool IsTargetProgramLast ( int newtargetprogram );
+	bool IsTargetProgramLast(int newtargetprogram);
 
-	UplinkTask *GetTargetProgram ();					// Can return NULL
-    char *GetTargetProgramName ();                      // Can return NULL
+	UplinkTask* GetTargetProgram(); // Can return NULL
+	char* GetTargetProgramName(); // Can return NULL
 
 	// Common functions
 
-	bool Load   ( FILE *file );
-	void Save   ( FILE *file );
-	void Print  ();
-	void Update ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
 
-	char *GetID ();
-
+	std::string GetID();
 };
 
-
 #endif
-

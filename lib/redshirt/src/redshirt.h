@@ -8,61 +8,51 @@
 
   */
 
-
 #ifndef _included_redshirt_h
 #define _included_redshirt_h
 
 #include <stdio.h>
 
 #include "tosser.h"
+#include "vfs.h"
 
-//#ifdef _DEBUG
-//#include "slasher.h"
-//#endif
-
+// #ifdef _DEBUG
+// #include "slasher.h"
+// #endif
 
 // ============================================================
 // Basic routines =============================================
 
-
-void RsInitialise ( char *apppath );                                            // Creates a temp directory
-void RsCleanUp ();																// Deletes all created files
-
-
+void RsInitialise(const char* newapppath); // Creates a temp directory
+void RsCleanUp(); // Deletes all created files
 
 // ============================================================
 // Encryption routines ========================================
 
+bool RsFileExists(const char* filename);
+bool RsFileEncrypted(const char* filename);
+bool RsFileEncryptedNoVerify(const char* filename);
 
+bool RsEncryptFile(const char* filename); // Overwrites origional with encrypted
+bool RsDecryptFile(const char* filename); // Overwrites origional with decrypted
 
-bool RsFileExists		( char *filename );
-bool RsFileEncrypted	( char *filename );
-bool RsFileEncryptedNoVerify ( char *filename );
-
-
-bool RsEncryptFile		( char *filename );						// Overwrites origional with encrypted
-bool RsDecryptFile		( char *filename );						// Overwrites origional with decrypted
-
-
-FILE *RsFileOpen		( char *filename, char *mode = "rb" );		// preserves origional
-void  RsFileClose		( char *filename, FILE *file );
-
-
+FILE* RsFileOpen(const char* filename, const char* mode); // preserves origional
+void RsFileClose(const char* filename, FILE* file);
 
 // ============================================================
 // Archive file routines ======================================
 
+bool RsLoadArchive(const char* filename);
 
-bool RsLoadArchive			( char *filename );
+FILE* RsArchiveFileOpen(const char* filename, const char* mode); // Looks for file apppath/filename
+std::string RsArchiveFileOpen(std::string filename);
+char* RsArchiveFileOpen(const char* filename); // Opens from filename first, then from zip file
+bool RsArchiveFileLoaded(const char* filename);
 
-FILE *RsArchiveFileOpen		( char *filename, char *mode );		      // Looks for file apppath/filename					
-char *RsArchiveFileOpen		( char *filename );					      // Opens from filename first, then from zip file
-bool RsArchiveFileLoaded	( char *filename );
+void RsArchiveFileClose(const char* filename, FILE* file = NULL);
 
-void RsArchiveFileClose		( char *filename, FILE *file = NULL );
+void RsCloseArchive(const char* filename); // Frees all memory (how nice)
 
-void RsCloseArchive			( char *filename );									// Frees all memory (how nice)
-
-DArray <char *> *RsListArchive ( char *path = NULL, char *filter = NULL );
+DArray<char*>* RsListArchive(const char* path = NULL, const char* filter = NULL);
 
 #endif

@@ -1,26 +1,30 @@
 // -*- tab-width:4 c-file-style:"cc-mode" -*-
 
+#include <algorithm>
+#include <cctype>
+#include <string>
+
+#include <GL/glew.h>
+#include <GL/gl.h>
+#include <GL/glu.h> /* glu extention library */
+
 #include "stdafx.h"
 
 #include "redshirt.h"
 
 #include "gucci.h"
 
-#include <GL/gl.h>
-#include <GL/glu.h> /* glu extention library */
-
-#include <cpptrace/cpptrace.hpp>
-#include <cppfs/fs.h>
 #include <cppfs/FileHandle.h>
 #include <cppfs/FileIterator.h>
 #include <cppfs/FilePath.h>
+#include <cppfs/fs.h>
+#include <cpptrace/cpptrace.hpp>
 
 #include "app/app.h"
 #include "app/globals.h"
 #include "app/miscutils.h"
 
 #include "options/options.h"
-
 
 char* GetFilePath(const char* filename)
 {
@@ -40,13 +44,17 @@ char* GetFilePath(const char* filename)
 	  */
 
 	char* p = strrchr(newstring, '/');
-	if (!p) p = strrchr(newstring, '\\');
+	if (!p) {
+		p = strrchr(newstring, '\\');
+	}
 
-	if (p) *(p + 1) = '\x0';
-	else     UplinkStrncpy(newstring, "./", newstringsize);
+	if (p) {
+		*(p + 1) = '\x0';
+	} else {
+		UplinkStrncpy(newstring, "./", newstringsize);
+	}
 
 	return newstring;
-
 }
 
 char* LowerCaseString(const char* thestring)
@@ -57,12 +65,21 @@ char* LowerCaseString(const char* thestring)
 	char* thecopy = new char[strlen(thestring) + 1];
 	UplinkSafeStrcpy(thecopy, thestring);
 
-	for (char* p = thecopy; *p != '\x0'; ++p)
-		if (*p >= 'A' && *p <= 'Z')
+	for (char* p = thecopy; *p != '\x0'; ++p) {
+		if (*p >= 'A' && *p <= 'Z') {
 			*p += 'a' - 'A';
+		}
+	}
 
 	return thecopy;
+}
 
+std::string LowerCaseString(std::string thestring)
+{
+	std::string result = thestring;
+	std::transform(
+		result.begin(), result.end(), result.begin(), [](unsigned char c) { return std::tolower(c); });
+	return result;
 }
 
 char* StripCarriageReturns(const char* thestring)
@@ -82,8 +99,7 @@ char* StripCarriageReturns(const char* thestring)
 		UplinkSafeStrcpy(result, thestring);
 		return result;
 
-	}
-	else {
+	} else {
 
 		// Found a cr - so shorten string to that point
 
@@ -92,9 +108,7 @@ char* StripCarriageReturns(const char* thestring)
 		strncpy(result, thestring, newlength);
 		result[newlength] = '\x0';
 		return result;
-
 	}
-
 }
 
 char* TrimSpaces(const char* thestring)
@@ -108,64 +122,52 @@ char* TrimSpaces(const char* thestring)
 	int indexlastnospace = -1;
 
 	for (int i = 0; thestring[i] != '\0'; i++) {
-		if (indexlastnospace == -1)
+		if (indexlastnospace == -1) {
 			indexfirstnospace = i;
-		if (thestring[i] != ' ')
+		}
+		if (thestring[i] != ' ') {
 			indexlastnospace = i;
+		}
 	}
 
 	int lenretstring;
-	if (indexfirstnospace == -1 || indexlastnospace == -1)
+	if (indexfirstnospace == -1 || indexlastnospace == -1) {
 		lenretstring = 0;
-	else
+	} else {
 		lenretstring = (indexlastnospace - indexfirstnospace) + 1;
+	}
 
 	retstring = new char[lenretstring + 1];
-	if (lenretstring > 0)
+	if (lenretstring > 0) {
 		memcpy(retstring, thestring + indexfirstnospace, lenretstring);
+	}
 	retstring[lenretstring] = '\0';
 
 	return retstring;
-
 }
 
-void MakeDirectory(const char* dirname)
-{
-	MakeDirectory(std::string(dirname));
-}
+void MakeDirectory(const char* dirname) { MakeDirectory(std::string(dirname)); }
 
 void MakeDirectory(std::string directory)
 {
 	cppfs::FileHandle handle = cppfs::fs::open(directory);
-	if (!handle.isDirectory())
-	{
+	if (!handle.isDirectory()) {
 		handle.createDirectory();
 		handle.setPermissions(0700);
 	}
 }
 
-bool DoesFileExist(const char* filename)
-{
-	return DoesFileExist(std::string(filename));
-}
+bool DoesFileExist(const char* filename) { return DoesFileExist(std::string(filename)); }
 
-bool DoesFileExist(std::string filename)
-{
-	return cppfs::fs::open(filename).exists();
-}
+bool DoesFileExist(std::string filename) { return cppfs::fs::open(filename).exists(); }
 
-void EmptyDirectory(const char* directory)
-{
-	EmptyDirectory(std::string(directory));
-}
+void EmptyDirectory(const char* directory) { EmptyDirectory(std::string(directory)); }
 
 void EmptyDirectory(std::string directory)
 {
 	cppfs::FileHandle dir = cppfs::fs::open(directory);
-	if (dir.isDirectory())
-	{
-		for (cppfs::FileIterator it = dir.begin(); it != dir.end(); ++it)
-		{
+	if (dir.isDirectory()) {
+		for (cppfs::FileIterator it = dir.begin(); it != dir.end(); ++it) {
 			RemoveFile(*it);
 		}
 	}
@@ -179,8 +181,7 @@ bool CopyFilePlain(const char* oldfilename, const char* newfilename)
 bool CopyFilePlain(std::string oldFilename, std::string newFilename)
 {
 	cppfs::FileHandle oldFile = cppfs::fs::open(oldFilename);
-	if (!oldFile.isFile())
-	{
+	if (!oldFile.isFile()) {
 		return false;
 	}
 
@@ -192,7 +193,7 @@ bool CopyFileUplink(const char* oldfilename, const char* newfilename)
 {
 
 	bool success = false;
-	FILE* fileread = RsFileOpen(const_cast<char*>(oldfilename));
+	FILE* fileread = RsFileOpen(oldfilename, "rb");
 	FILE* filewrite = fopen(newfilename, "wb");
 
 	if (fileread && filewrite) {
@@ -206,13 +207,14 @@ bool CopyFileUplink(const char* oldfilename, const char* newfilename)
 		success = true;
 	}
 
-	if (filewrite)
+	if (filewrite) {
 		fclose(filewrite);
-	if (fileread)
+	}
+	if (fileread) {
 		RsFileClose(const_cast<char*>(oldfilename), fileread);
+	}
 
 	return success;
-
 }
 
 bool CopyFileUplink(std::string oldFilename, std::string newFilename)
@@ -220,23 +222,19 @@ bool CopyFileUplink(std::string oldFilename, std::string newFilename)
 	return CopyFileUplink(oldFilename.c_str(), newFilename.c_str());
 }
 
-bool RemoveFile(const char* filename)
-{
-	return RemoveFile(std::string(filename));
-}
+bool RemoveFile(const char* filename) { return RemoveFile(std::string(filename)); }
 
 bool RemoveFile(std::string filename)
 {
 	cppfs::FileHandle handle = cppfs::fs::open(filename);
-	if (!handle.exists())
-	{
+	if (!handle.exists()) {
 		return true;
 	}
 
 	return handle.remove();
 }
 
-DArray <char*>* ListDirectory(char* directory, char* filter)
+DArray<char*>* ListDirectory(const char* directory, const char* filter)
 {
 	//
 	// Start with a listing from Redshirt archives
@@ -248,16 +246,13 @@ DArray <char*>* ListDirectory(char* directory, char* filter)
 
 	cppfs::FileHandle handle = cppfs::fs::open(path);
 
-	if (!handle.isDirectory())
-	{
+	if (!handle.isDirectory()) {
 		return result;
 	}
 
-	for (cppfs::FileIterator it = handle.begin(); it != handle.end(); ++it)
-	{
+	for (cppfs::FileIterator it = handle.begin(); it != handle.end(); ++it) {
 		std::string filename = *it;
-		if (filename.find(filter) != std::string::npos)
-		{
+		if (filename.find(filter) != std::string::npos) {
 			char* data = new char[filename.length() + 1];
 			UplinkSafeStrcpy(data, filename.c_str());
 			result->PutData(data);
@@ -269,7 +264,8 @@ DArray <char*>* ListDirectory(char* directory, char* filter)
 
 std::vector<std::string> ListDirectoryVector(std::string directory, std::string filter)
 {
-	return ConsumeToStringVector(ListDirectory(const_cast<char*>(directory.c_str()), const_cast<char*>(filter.c_str())));
+	return ConsumeToStringVector(
+		ListDirectory(const_cast<char*>(directory.c_str()), const_cast<char*>(filter.c_str())));
 }
 
 std::vector<std::string> ListSubdirs(std::string directory)
@@ -277,53 +273,45 @@ std::vector<std::string> ListSubdirs(std::string directory)
 	std::vector<std::string> result;
 
 	cppfs::FileHandle dir = cppfs::fs::open(directory);
-	if (!dir.isDirectory())
-	{
+	if (!dir.isDirectory()) {
 		return result;
 	}
 
-	for (cppfs::FileIterator it = dir.begin(); it != dir.end(); ++it)
-	{
+	for (cppfs::FileIterator it = dir.begin(); it != dir.end(); ++it) {
 		std::string filename = *it;
 		cppfs::FileHandle handle = cppfs::fs::open(filename);
-		if (handle.isDirectory())
-		{
+		if (handle.isDirectory()) {
 			result.push_back(filename);
 		}
 	}
-	
+
 	return result;
 }
 
-void SetColour(char* colourName)
+void SetColour(const char* colourName)
 {
 
-	if (!app ||
-		!app->GetOptions() ||
-		!app->GetOptions()->GetColour(colourName)) {
+	if (!app || !app->GetOptions() || !app->GetOptions()->GetColour(colourName)) {
 
 		printf("SetColour WARNING : Failed to find colour %s\n", colourName);
 		glColor3f(0.0f, 0.0f, 0.0f);
 		return;
-
 	}
 
 	ColourOption* col = app->GetOptions()->GetColour(colourName);
 	UplinkAssert(col);
 	glColor3f(col->r, col->g, col->b);
-
 }
 
-void PrintStackTrace()
-{
-	cpptrace::generate_trace().print();
-}
+// calls glColour3f
+void SetColour(std::string colourName) { SetColour(colourName.c_str()); }
+
+void PrintStackTrace() { cpptrace::generate_trace().print(); }
 
 std::vector<std::string> ConsumeToStringVector(DArray<char*>* sourceArray)
 {
 	std::vector<std::string> result(sourceArray->NumUsed());
-	for (int i = 0; i < sourceArray->NumUsed(); i++)
-	{
+	for (int i = 0; i < sourceArray->NumUsed(); i++) {
 		result[i] = std::string(sourceArray->GetData(i));
 		delete sourceArray->GetData(i);
 	}

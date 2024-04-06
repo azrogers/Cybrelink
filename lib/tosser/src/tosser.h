@@ -18,7 +18,6 @@ using namespace std;
 #endif
 */
 
-
 //=================================================================
 // Linked list object
 // Source :: llist.cc
@@ -27,58 +26,48 @@ using namespace std;
 // Indexes of data are not constant
 // Sequential access is fast, random access is slow
 
-template <class T>
-class LListItem
-{
+template <class T> class LListItem {
 
 protected:
-
 public:
-
 	T data;
-	LListItem *next;
-	LListItem *previous;
+	LListItem* next;
+	LListItem* previous;
 
-	LListItem ();
-	~LListItem ();
-
+	LListItem();
+	~LListItem();
 };
 
-template <class T>
-class LList
-{
+template <class T> class LList {
 
 protected:
+	LListItem<T>* first; // Pointer to first node
+	LListItem<T>* last; // Pointer to last node
 
-	LListItem <T> *first;                 // Pointer to first node
-	LListItem <T> *last;                  // Pointer to last node
-
-	LListItem <T> *previous;              // Used to get quick access
-	int previousindex;                    // for sequential reads (common)
+	LListItem<T>* previous; // Used to get quick access
+	int previousindex; // for sequential reads (common)
 
 	int numitems;
 
 public:
+	LList();
+	~LList();
 
-	LList ();
-	~LList ();
+	void PutData(const T& newdata); // Adds in data at the end
+	void PutDataAtEnd(const T& newdata);
+	void PutDataAtStart(const T& newdata);
+	void PutDataAtIndex(const T& newdata, int index);
 
-	void PutData        ( const T &newdata );     // Adds in data at the end	
-	void PutDataAtEnd   ( const T &newdata );
-	void PutDataAtStart ( const T &newdata );	
-	void PutDataAtIndex ( const T &newdata, int index );
+	T GetData(int index); // slow unless sequential
+	void RemoveData(int index); // slow
+	int FindData(const T& data); // -1 means 'not found'
 
-    T GetData          ( int index );			// slow unless sequential
-	void RemoveData    ( int index );			// slow 
-    int  FindData      ( const T &data );		// -1 means 'not found'
-  
-    int Size ();			 // Returns the total size of the array
-    bool ValidIndex ( int index );
+	int Size(); // Returns the total size of the array
+	bool ValidIndex(int index);
 
-    void Empty ();				 // Resets the array to empty    
-    
-    T operator [] (int index);
+	void Empty(); // Resets the array to empty
 
+	T operator[](int index);
 };
 
 //=================================================================
@@ -87,48 +76,43 @@ public:
 // Use : A dynamically sized list of data
 // Which can be indexed into - an entry's index never changes
 
-template <class T>
-class DArray
-{
+template <class T> class DArray {
 
 protected:
-    
-    int stepsize;
-    int arraysize;
+	int stepsize;
+	int arraysize;
 
-    T *dynarray;
-    char *shadow;				 //0=not used, 1=used
-    
+	T* dynarray;
+	char* shadow; // 0=not used, 1=used
+
 public:
+	DArray();
+	DArray(const DArray<T>& da);
+	DArray(int newstepsize);
+	~DArray();
 
-    DArray ();
-    DArray ( const DArray<T>& da );
-    DArray ( int newstepsize );
-    ~DArray ();
+	void SetSize(int newsize);
+	void SetStepSize(int newstepsize);
 
-    void SetSize ( int newsize );
-	void SetStepSize ( int newstepsize );
+	int PutData(const T& newdata); // Returns index used
+	void PutData(const T& newdata, int index);
+	T GetData(int index) const;
+	void ChangeData(const T& newdata, int index);
+	void RemoveData(int index);
+	int FindData(const T& data) const; // -1 means 'not found'
 
-    int  PutData    ( const T &newdata );			 // Returns index used
-    void PutData    ( const T &newdata, int index );
-    T    GetData    ( int index ) const;
-    void ChangeData ( const T &newdata, int index );
-    void RemoveData ( int index );
-    int  FindData   ( const T &data ) const;		 // -1 means 'not found'
-    
-    int NumUsed () const;		 // Returns the number of used entries
-    int Size () const;			 // Returns the total size of the array
-    
-    bool ValidIndex ( int index ) const;		    // Returns true if the index contains used data
-    
-    void Empty ();				 // Resets the array to empty    
-    
-    T& operator [] (int index);
+	int NumUsed() const; // Returns the number of used entries
+	int Size() const; // Returns the total size of the array
 
-    typedef int ( * Comparator ) ( const T *data1, const T *data2 );
+	bool ValidIndex(int index) const; // Returns true if the index contains used data
 
-    void Sort ( Comparator comp ); 
+	void Empty(); // Resets the array to empty
 
+	T& operator[](int index);
+
+	typedef int (*Comparator)(const T* data1, const T* data2);
+
+	void Sort(Comparator comp);
 };
 
 //=================================================================
@@ -138,51 +122,46 @@ public:
 // Every data item has a string id which is used for ordering
 // Allows very fast data lookups
 
-template <class T>
-class BTree
-{
+template <class T> class BTree {
 
-protected :
+protected:
+	BTree* ltree;
+	BTree* rtree;
 
-    BTree *ltree;
-    BTree *rtree;
-    
-    void RecursiveConvertToDArray ( DArray <T> *darray, BTree <T> *btree );
-    void RecursiveConvertIndexToDArray ( DArray <char *> *darray, BTree <T> *btree );
-    
-    void AppendRight ( BTree <T> *tempright );                            // Used by Remove
-    
-public :
+	void RecursiveConvertToDArray(DArray<T>* darray, BTree<T>* btree);
+	void RecursiveConvertIndexToDArray(DArray<char*>* darray, BTree<T>* btree);
 
-    char *id;
-    T data;
+	void AppendRight(BTree<T>* tempright); // Used by Remove
 
-    BTree ();
-    BTree ( const char *newid, const T &newdata );
-    BTree ( const BTree<T> &copy );
+public:
+	char* id;
+	T data;
 
-    ~BTree ();
-    void Copy( const BTree<T> &copy );
+	BTree();
+	BTree(const char* newid, const T& newdata);
+	BTree(const BTree<T>& copy);
 
-    void PutData ( const char *newid, const T &newdata );
-    void RemoveData ( const char *newid );                     // Requires a solid copy constructor in T class
-    void RemoveData ( const char *newid, const T &newdata );   // Requires a solid copy constructor in T class
-    T GetData ( const char *searchid );
+	~BTree();
+	void Copy(const BTree<T>& copy);
 
-    BTree *LookupTree( const char *searchid );
-    
-    void Empty ();
-    
-    int Size () const;							 // Returns the size in elements
-    
-    void Print ();                              // Prints this tree to stdout
-    
-    BTree *Left () const;
-    BTree *Right () const;
-    
-    DArray <T> *ConvertToDArray ();
-    DArray <char *> *ConvertIndexToDArray ();
-    
+	void PutData(const char* newid, const T& newdata);
+	void RemoveData(const char* newid); // Requires a solid copy constructor in T class
+	void RemoveData(const char* newid, const T& newdata); // Requires a solid copy constructor in T class
+	T GetData(const char* searchid);
+
+	BTree* LookupTree(const char* searchid);
+
+	void Empty();
+
+	int Size() const; // Returns the size in elements
+
+	void Print(); // Prints this tree to stdout
+
+	BTree* Left() const;
+	BTree* Right() const;
+
+	DArray<T>* ConvertToDArray();
+	DArray<char*>* ConvertIndexToDArray();
 };
 
 #include "btree.cpp"

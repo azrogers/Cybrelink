@@ -17,46 +17,39 @@ class GenericScreen;
 
 // ============================================================================
 
-
-class SWSalesScreenInterface : public RemoteInterfaceScreen
-{
+class SWSalesScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
 	static int baseoffset;
 	static int currentselect;
 	static int currentversion;
 
 protected:
+	static void DrawSWButton(Button* button, bool highlighted, bool clicked);
+	static void ClickSWButton(Button* button);
+	static void MousedownSWButton(Button* button);
+	static void HighlightSWButton(Button* button);
 
-	static void DrawSWButton       ( Button *button, bool highlighted, bool clicked );
-	static void ClickSWButton      ( Button *button );
-	static void MousedownSWButton  ( Button *button );
-	static void HighlightSWButton  ( Button *button );
+	static void DrawDetails(Button* button, bool highlighted, bool clicked);
 
-	static void DrawDetails     ( Button *button, bool highlighted, bool clicked );
+	static void AcceptClick(Button* button);
+	static void NextVersionClick(Button* button);
+	static void PrevVersionClick(Button* button);
+	static void ExitClick(Button* button);
+	static void ScrollChange(const char* scrollname, int newValue);
 
-	static void AcceptClick		 ( Button *button );
-	static void NextVersionClick ( Button *button );
-	static void PrevVersionClick ( Button *button );
-	static void ExitClick		 ( Button *button );
-    static void ScrollChange     ( char *scrollname, int newValue );
-
-    static int NumItemsOnScreen ();
+	static int NumItemsOnScreen();
 
 public:
+	bool EscapeKeyPressed();
 
-    bool EscapeKeyPressed ();
+	void Create(ComputerScreen* cs);
+	void Remove();
+	bool IsVisible();
 
-	void Create ( ComputerScreen *cs );
-	void Remove ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
 #endif
-

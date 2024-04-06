@@ -8,37 +8,34 @@
 
   */
 
-
 #ifndef _included_laninterface_h
 #define _included_laninterface_h
 
-  // ============================================================================
+// ============================================================================
 
-#include "world/computer/lancomputer.h"
 #include "interface/localinterface/localinterfacescreen.h"
+#include "world/computer/lancomputer.h"
 
+#include <string>
 
-struct LanInterfaceObject
-{
-	char* name;
-	char* filename;
-	int     width;
-	int     height;
-	char* description;
+struct LanInterfaceObject {
+	std::string name;
+	std::string filename;
+	int width;
+	int height;
+	std::string description;
 };
 
 // ============================================================================
 
+#define LANHIGHLIGHT_NONE 0
+#define LANHIGHLIGHT_VALIDSUBNET 1
+#define LANHIGHLIGHT_CONTROLS 2
 
-#define LANHIGHLIGHT_NONE               0
-#define LANHIGHLIGHT_VALIDSUBNET        1
-#define LANHIGHLIGHT_CONTROLS           2
-
-class LanInterfaceHighlight
-{
+class LanInterfaceHighlight {
 public:
-	LanInterfaceHighlight(int _systemIndex, char* _text)
-		: systemIndex(_systemIndex)
+	LanInterfaceHighlight(int _systemIndex, const char* _text) :
+		systemIndex(_systemIndex)
 	{
 		UplinkStrncpy(text, _text, sizeof(text));
 	}
@@ -47,15 +44,11 @@ public:
 	char text[64];
 };
 
-
 // ============================================================================
 
-
-class LanInterface : public LocalInterfaceScreen
-{
+class LanInterface : public LocalInterfaceScreen {
 
 protected:
-
 	static LanInterfaceObject lanInterfaceObjects[LANSYSTEM_NUMTYPES];
 
 	static void TitleDraw(Button* button, bool highlighted, bool clicked);
@@ -84,28 +77,24 @@ protected:
 
 	static void GenerateClick(Button* button);
 
-	static void DrawLink(LanComputerLink* link,
-		float fromX, float fromY,
-		float toX, float toY);
+	static void DrawLink(LanComputerLink* link, float fromX, float fromY, float toX, float toY);
 
 	static void ScrollClick(Button* button);
 
 protected:
-
 	char ip[SIZE_VLOCATION_IP];
-	LList <LanInterfaceHighlight*> highlights;
+	LList<LanInterfaceHighlight*> highlights;
 
 	static int offsetX;
 	static int offsetY;
 
 public:
-
 	LanInterface();
 	~LanInterface();
 
 	void CreateLayout();
 	void RemoveLayout();
-	void PositionLayout();                         // Moves all buttons
+	void PositionLayout(); // Moves all buttons
 
 	void SelectSystem(int systemIndex);
 
@@ -116,10 +105,7 @@ public:
 	virtual void Update();
 	virtual bool IsVisible();
 
-	virtual int  ScreenID();
-
+	virtual int ScreenID();
 };
 
-
 #endif
-

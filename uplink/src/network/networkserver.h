@@ -8,7 +8,7 @@
 // ============================================================================
 
 #if ENABLE_NETWORK
-#include <tcp4u.h>
+	#include <tcp4u.h>
 #endif
 
 #include <time.h>
@@ -21,11 +21,9 @@ class ClientConnection;
 
 // ============================================================================
 
-class NetworkServer : public UplinkObject
-{
+class NetworkServer : public UplinkObject {
 
 protected:
-
 #if ENABLE_NETWORK
 	SOCKET listensocket;
 #endif
@@ -34,11 +32,9 @@ protected:
 	bool listening;
 
 public:
-
-	DArray <ClientConnection*> clients;
+	DArray<ClientConnection*> clients;
 
 public:
-
 	NetworkServer();
 	virtual ~NetworkServer();
 
@@ -57,8 +53,7 @@ public:
 	void Save(FILE* file);
 	void Print();
 	void Update();
-	char* GetID();
-
+	std::string GetID();
 };
 
-#endif 
+#endif

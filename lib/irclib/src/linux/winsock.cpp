@@ -1,21 +1,13 @@
 
 #ifndef WIN32
 
-#include <winsock.h>
-#include <unistd.h>
+	#include <unistd.h>
+	#include <winsock.h>
 
-int WSAStartup(WORD versionRequested, WSADATA *w)
-{
-  return 1;
-}
+int WSAStartup(WORD versionRequested, WSADATA* w) { return 1; }
 
-void WSACleanup()
-{
-}
+void WSACleanup() { }
 
-int closesocket(int socket)
-{
-  return close(socket);
-}
+int closesocket(int socket) { return close(socket); }
 
 #endif

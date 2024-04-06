@@ -1,14 +1,14 @@
 // -*- tab-width:4 c-file-style:"cc-mode" -*-
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <GL/gl.h>
 
 #include <GL/glu.h>
 
-#include "soundgarden.h"
 #include "redshirt.h"
+#include "soundgarden.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -22,17 +22,13 @@
 #include "mainmenu/mainmenu.h"
 #include "mainmenu/theme_interface.h"
 
-
-
 std::vector<std::string> ThemeInterface::themes;
 int ThemeInterface::currentSelect = -1;
-
 
 void ThemeInterface::ReturnToMainMenuClick(Button* button)
 {
 
 	app->GetMainMenu()->RunScreen(MAINMENU_OPTIONS);
-
 }
 
 void ThemeInterface::ApplyClick(Button* button)
@@ -43,10 +39,9 @@ void ThemeInterface::ApplyClick(Button* button)
 	}
 
 	EclReset(app->GetOptions()->GetOptionValue("graphics_screenwidth"),
-		app->GetOptions()->GetOptionValue("graphics_screenheight"));
+			 app->GetOptions()->GetOptionValue("graphics_screenheight"));
 
 	app->GetMainMenu()->RunScreen(MAINMENU_THEME);
-
 }
 
 void ThemeInterface::DefaultClick(Button* button)
@@ -55,20 +50,15 @@ void ThemeInterface::DefaultClick(Button* button)
 	app->GetOptions()->SetThemeName("graphics");
 
 	EclReset(app->GetOptions()->GetOptionValue("graphics_screenwidth"),
-		app->GetOptions()->GetOptionValue("graphics_screenheight"));
+			 app->GetOptions()->GetOptionValue("graphics_screenheight"));
 
 	app->GetMainMenu()->RunScreen(MAINMENU_THEME);
 	currentSelect = -1;
-
 }
 
-ThemeInterface::ThemeInterface()
-{
-}
+ThemeInterface::ThemeInterface() { }
 
-ThemeInterface::~ThemeInterface()
-{
-}
+ThemeInterface::~ThemeInterface() { }
 
 std::vector<std::string> ThemeInterface::ListAvailableThemes()
 {
@@ -96,10 +86,9 @@ std::vector<std::string> ThemeInterface::ListAvailableThemes()
 
 		return themes = validThemes;
 
-	}
-	else
+	} else {
 		return themes;
-
+	}
 }
 
 void ThemeInterface::ThemeNameDraw(Button* button, bool highlighted, bool clicked)
@@ -109,27 +98,33 @@ void ThemeInterface::ThemeNameDraw(Button* button, bool highlighted, bool clicke
 
 	char unused[64];
 	int index;
-	sscanf(button->name, "%s %d", unused, &index);
+	sscanf(button->name.c_str(), "%s %d", unused, &index);
 
 	if (highlighted || clicked || index == currentSelect) {
 
 		glBegin(GL_QUADS);
-		SetColour("PanelHighlightA");	glVertex2i(button->x, button->y + button->height);
-		SetColour("PanelHighlightB");	glVertex2i(button->x, button->y);
-		SetColour("PanelHighlightA");	glVertex2i(button->x + button->width, button->y);
-		SetColour("PanelHighlightB");	glVertex2i(button->x + button->width, button->y + button->height);
+		SetColour("PanelHighlightA");
+		glVertex2i(button->x, button->y + button->height);
+		SetColour("PanelHighlightB");
+		glVertex2i(button->x, button->y);
+		SetColour("PanelHighlightA");
+		glVertex2i(button->x + button->width, button->y);
+		SetColour("PanelHighlightB");
+		glVertex2i(button->x + button->width, button->y + button->height);
 		glEnd();
 
-	}
-	else {
+	} else {
 
 		glBegin(GL_QUADS);
-		SetColour("PanelBackgroundA");   glVertex2i(button->x, button->y + button->height);
-		SetColour("PanelBackgroundB");   glVertex2i(button->x, button->y);
-		SetColour("PanelBackgroundA");   glVertex2i(button->x + button->width, button->y);
-		SetColour("PanelBackgroundB");   glVertex2i(button->x + button->width, button->y + button->height);
+		SetColour("PanelBackgroundA");
+		glVertex2i(button->x, button->y + button->height);
+		SetColour("PanelBackgroundB");
+		glVertex2i(button->x, button->y);
+		SetColour("PanelBackgroundA");
+		glVertex2i(button->x + button->width, button->y);
+		SetColour("PanelBackgroundB");
+		glVertex2i(button->x + button->width, button->y + button->height);
 		glEnd();
-
 	}
 
 	if (clicked || index == currentSelect) {
@@ -137,12 +132,10 @@ void ThemeInterface::ThemeNameDraw(Button* button, bool highlighted, bool clicke
 		SetColour("PanelHighlightBorder");
 		border_draw(button);
 
-	}
-	else {
+	} else {
 
 		SetColour("PanelBorder");
 		border_draw(button);
-
 	}
 
 	int xpos = (button->x + button->width / 2) - (GciTextWidth(button->caption) / 2);
@@ -150,7 +143,6 @@ void ThemeInterface::ThemeNameDraw(Button* button, bool highlighted, bool clicke
 
 	SetColour("DefaultText");
 	GciDrawText(xpos, ypos, button->caption);
-
 }
 
 void ThemeInterface::ThemeNameClick(Button* button)
@@ -160,13 +152,12 @@ void ThemeInterface::ThemeNameClick(Button* button)
 
 	char unused[64];
 	int index;
-	sscanf(button->name, "%s %d", unused, &index);
+	sscanf(button->name.c_str(), "%s %d", unused, &index);
 
 	currentSelect = index;
 
 	std::vector<std::string> themes = ListAvailableThemes();
-	for (int i = 0; i < themes.size(); i++)
-	{
+	for (int i = 0; i < themes.size(); i++) {
 		char bname[64];
 		UplinkSnprintf(bname, sizeof(bname), "theme %d", i);
 		EclDirtyButton(bname);
@@ -188,7 +179,13 @@ void ThemeInterface::Create()
 
 		// Title
 
-		EclRegisterButton(screenw - 210, screenh - 40, 200, 15, "THEME options", "Close this options screen", "theme_title");
+		EclRegisterButton(screenw - 210,
+						  screenh - 40,
+						  200,
+						  15,
+						  "THEME options",
+						  "Close this options screen",
+						  "theme_title");
 		EclRegisterButtonCallback("theme_title", ReturnToMainMenuClick);
 		EclRegisterMovement("theme_title", screenw - 210, screenh - 170 - numThemes * 20, 500);
 
@@ -212,21 +209,29 @@ void ThemeInterface::Create()
 			ypos -= 20;
 		}
 
-		// Apply button 
+		// Apply button
 
-		EclRegisterButton(screenw - 210, screenh - 40, 200, 15, "Apply", "Set the current theme", "theme_apply");
+		EclRegisterButton(
+			screenw - 210, screenh - 40, 200, 15, "Apply", "Set the current theme", "theme_apply");
 		EclRegisterButtonCallback("theme_apply", ApplyClick);
 		EclRegisterMovement("theme_apply", screenw - 210, screenh - 90, 500);
 
-		// Default button 
+		// Default button
 
-		EclRegisterButton(screenw - 210, screenh - 40, 200, 15, "Restore Default", "Set the theme back to standard", "theme_default");
+		EclRegisterButton(screenw - 210,
+						  screenh - 40,
+						  200,
+						  15,
+						  "Restore Default",
+						  "Set the theme back to standard",
+						  "theme_default");
 		EclRegisterButtonCallback("theme_default", DefaultClick);
 		EclRegisterMovement("theme_default", screenw - 210, screenh - 70, 500);
 
 		// Close button
 
-		EclRegisterButton(screenw - 60, screenh - 40, 50, 15, "Close", "Return to Options menu", "theme_return");
+		EclRegisterButton(
+			screenw - 60, screenh - 40, 50, 15, "Close", "Return to Options menu", "theme_return");
 		EclRegisterButtonCallback("theme_return", ReturnToMainMenuClick);
 
 		// Put some icons left of the screen for a sample
@@ -244,15 +249,14 @@ void ThemeInterface::Create()
 		EclRegisterMovement("theme_finance", 290, 332, 500);
 
 		EclRegisterButton(290, screenh + 90, 24, 24, "hardware", " ", "theme_hardware");
-		button_assignbitmaps("theme_hardware", "hud/hardware.tif", "hud/hardware_h.tif", "hud/hardware_c.tif");
+		button_assignbitmaps(
+			"theme_hardware", "hud/hardware.tif", "hud/hardware_h.tif", "hud/hardware_c.tif");
 		EclRegisterMovement("theme_hardware", 290, 364, 500);
 
 		EclRegisterButton(290, screenh + 130, 24, 24, "status", " ", "theme_status");
 		button_assignbitmaps("theme_status", "hud/status.tif", "hud/status_h.tif", "hud/status_c.tif");
 		EclRegisterMovement("theme_status", 290, 396, 500);
-
 	}
-
 }
 
 void ThemeInterface::Remove()
@@ -283,27 +287,11 @@ void ThemeInterface::Remove()
 		EclRemoveButton("theme_finance");
 		EclRemoveButton("theme_hardware");
 		EclRemoveButton("theme_status");
-
 	}
-
 }
 
-void ThemeInterface::Update()
-{
-}
+void ThemeInterface::Update() { }
 
-bool ThemeInterface::IsVisible()
-{
+bool ThemeInterface::IsVisible() { return (EclGetButton("theme_return") != NULL); }
 
-	return (EclGetButton("theme_return") != NULL);
-
-}
-
-
-int  ThemeInterface::ScreenID()
-{
-
-	return MAINMENU_THEME;
-
-}
-
+int ThemeInterface::ScreenID() { return MAINMENU_THEME; }

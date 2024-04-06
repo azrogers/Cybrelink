@@ -5,86 +5,61 @@
 
 #include "world/computer/computerscreen/genericscreen.h"
 
-
-
-
-
-GenericScreen::GenericScreen ()
+GenericScreen::GenericScreen()
 {
-	
+
 	nextpage = -1;
 	SCREEN_TYPE = SCREEN_UNKNOWN;
-
 }
 
-GenericScreen::~GenericScreen ()
-{
-}
+GenericScreen::~GenericScreen() { }
 
-void GenericScreen::SetNextPage ( int newnextpage )
-{
-	
-	nextpage = newnextpage;
+void GenericScreen::SetNextPage(int newnextpage) { nextpage = newnextpage; }
 
-}
+void GenericScreen::SetScreenType(int newSCREEN_TYPE) { SCREEN_TYPE = newSCREEN_TYPE; }
 
-void GenericScreen::SetScreenType ( int newSCREEN_TYPE )
-{
-	
-	SCREEN_TYPE = newSCREEN_TYPE;
-
-}
-
-bool GenericScreen::Load ( FILE *file )
+bool GenericScreen::Load(FILE* file)
 {
 
-	LoadID ( file );
+	LoadID(file);
 
-	if ( !ComputerScreen::Load ( file ) ) return false;
+	if (!ComputerScreen::Load(file)) {
+		return false;
+	}
 
-	if ( !FileReadData ( &nextpage, sizeof(nextpage), 1, file ) ) return false;
-	if ( !FileReadData ( &SCREEN_TYPE, sizeof(SCREEN_TYPE), 1, file ) ) return false;
+	if (!FileReadData(&nextpage, sizeof(nextpage), 1, file)) {
+		return false;
+	}
+	if (!FileReadData(&SCREEN_TYPE, sizeof(SCREEN_TYPE), 1, file)) {
+		return false;
+	}
 
-	LoadID_END ( file );
+	LoadID_END(file);
 
 	return true;
-
 }
 
-void GenericScreen::Save ( FILE *file )
+void GenericScreen::Save(FILE* file)
 {
 
-	SaveID ( file );
+	SaveID(file);
 
-	ComputerScreen::Save ( file );
+	ComputerScreen::Save(file);
 
-	fwrite ( &nextpage, sizeof(nextpage), 1, file );
-	fwrite ( &SCREEN_TYPE, sizeof(SCREEN_TYPE), 1, file );
+	fwrite(&nextpage, sizeof(nextpage), 1, file);
+	fwrite(&SCREEN_TYPE, sizeof(SCREEN_TYPE), 1, file);
 
-	SaveID_END ( file );
-
+	SaveID_END(file);
 }
 
-void GenericScreen::Print ()
-{
-	
-	printf ( "GenericScreen :\n" );
-	ComputerScreen::Print ();
-	printf ( "TYPE=%d, nextpage=%d\n", SCREEN_TYPE, nextpage );
-
-}
-	
-char *GenericScreen::GetID ()
-{
-	
-	return "SCR_GEN";
-
-}
-
-int GenericScreen::GetOBJECTID ()
+void GenericScreen::Print()
 {
 
-	return OID_GENERICSCREEN;
-
+	printf("GenericScreen :\n");
+	ComputerScreen::Print();
+	printf("TYPE=%d, nextpage=%d\n", SCREEN_TYPE, nextpage);
 }
 
+std::string GenericScreen::GetID() { return "SCR_GEN"; }
+
+int GenericScreen::GetOBJECTID() { return OID_GENERICSCREEN; }

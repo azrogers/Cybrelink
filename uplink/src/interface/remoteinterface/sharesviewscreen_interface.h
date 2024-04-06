@@ -10,7 +10,6 @@
 
   */
 
-
 #ifndef _included_sharesviewscreeninterface_h
 #define _included_sharesviewscreeninterface_h
 
@@ -19,48 +18,40 @@
 
 #include "interface/remoteinterface/remoteinterfacescreen.h"
 
-
-class SharesViewScreenInterface : public RemoteInterfaceScreen 
-{
+class SharesViewScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
-	char companyname [SIZE_COMPANY_NAME];
-	int sharehistory [12];
+	char companyname[SIZE_COMPANY_NAME];
+	int sharehistory[12];
 	int lastmonthset;
 
 protected:
-	
-	static void DrawPriceGraph ( Button *button, bool highlighted, bool clicked );
-    static void DrawProfit ( Button *button, bool highlighted, bool clicked );
+	static void DrawPriceGraph(Button* button, bool highlighted, bool clicked);
+	static void DrawProfit(Button* button, bool highlighted, bool clicked);
 
-	static void BuyClick ( Button *button );
-	static void SellClick ( Button *button );
-	static void CloseClick ( Button *button );
+	static void BuyClick(Button* button);
+	static void SellClick(Button* button);
+	static void CloseClick(Button* button);
 
-	static void UpdateStatus ();							// Updates caption on number owned / profit etc
+	static void UpdateStatus(); // Updates caption on number owned / profit etc
 
 public:
+	SharesViewScreenInterface();
+	~SharesViewScreenInterface();
 
-	SharesViewScreenInterface ();
-	~SharesViewScreenInterface ();
+	bool EscapeKeyPressed();
 
-    bool EscapeKeyPressed ();
+	void SetCompanyName(char* newcompanyname);
 
-	void SetCompanyName ( char *newcompanyname );
+	void Create();
+	void Create(ComputerScreen* newcs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Create ( ComputerScreen *newcs );
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
-
 #endif
-

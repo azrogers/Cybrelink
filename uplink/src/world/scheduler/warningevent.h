@@ -8,45 +8,35 @@
 
   */
 
-
 #ifndef _included_warningevent_h
 #define _included_warningevent_h
 
-
 #include "world/scheduler/uplinkevent.h"
 
-
-class WarningEvent : public UplinkEvent
-{
+class WarningEvent : public UplinkEvent {
 
 protected:
-
-	UplinkEvent *event;
+	UplinkEvent* event;
 
 public:
+	WarningEvent();
+	~WarningEvent();
 
-	WarningEvent ();
-	~WarningEvent ();
+	void SetEvent(UplinkEvent* newevent);
 
-	void SetEvent ( UplinkEvent *newevent );
+	void Run();
 
-	void Run ();
-
-	char *GetShortString ();
-	char *GetLongString ();
+	char* GetShortString();
+	char* GetLongString();
 
 	// Common functions
 
-	bool Load  ( FILE *file );
-	void Save  ( FILE *file );
-	void Print ();
-	
-	char *GetID ();		
-	int   GetOBJECTID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
 
-
-
 #endif
-

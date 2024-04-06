@@ -11,11 +11,12 @@
 #ifndef _included_ircinterface_h
 #define _included_ircinterface_h
 
-  // ============================================================================
+// ============================================================================
 
-#pragma warning( disable:4786 )
+#pragma warning(disable : 4786)
 
 #include <irc.h>
+#include <string>
 
 #include "interface/localinterface/localinterfacescreen.h"
 
@@ -29,12 +30,9 @@ using namespace irc;
 
 // ============================================================================
 
-
-class IRCInterface : public LocalInterfaceScreen
-{
+class IRCInterface : public LocalInterfaceScreen {
 
 protected:
-
 	static void BackBlackoutDraw(Button* button, bool highlighted, bool clicked);
 	static void MainTextDraw(Button* button, bool highlighted, bool clicked);
 	static void ConnectDraw(Button* button, bool highlighted, bool clicked);
@@ -43,18 +41,16 @@ protected:
 	static void ConnectClick(Button* button);
 	static void PostClick(Button* button);
 
-	static void TextScrollChange(char* name, int newValue);
-	static void UserScrollChange(char* name, int newValue);
-	static void AddEmoticons(int row, char* smiley, Image* imgSmiley);
+	static void TextScrollChange(const char* name, int newValue);
+	static void UserScrollChange(const char* name, int newValue);
+	static void AddEmoticons(int row, const char* smiley, Image* imgSmiley);
 
 protected:
-
-	static Image* imgSmileyHappy;                           //          :)
-	static Image* imgSmileySad;                             //          :(
-	static Image* imgSmileyWink;                            //          ;)
+	static Image* imgSmileyHappy; //          :)
+	static Image* imgSmileySad; //          :(
+	static Image* imgSmileyWink; //          ;)
 
 public:
-
 	static bool connected;
 	static LList<UplinkIRCMessage*> buffer;
 	static LList<UplinkIRCUser*> users;
@@ -64,10 +60,9 @@ public:
 	static WinsockInit* winSockInit;
 	static CIrcSession* cIrcSession;
 	static UplinkIRCMonitor* uplinkIRCMonitor;
-	//static CIrcSessionInfo *cIrcSessionInfo;
+	// static CIrcSessionInfo *cIrcSessionInfo;
 
 public:
-
 	IRCInterface();
 	virtual ~IRCInterface();
 
@@ -76,8 +71,7 @@ public:
 
 	bool ReturnKeyPressed();
 
-	static void AddText(char* user, const char* text,
-		float r = 1.0, float g = 1.0, float b = 1.0);
+	static void AddText(const char* user, const char* text, float r = 1.0, float g = 1.0, float b = 1.0);
 
 	static void ResetUsers();
 	static void AddUser(char* name);
@@ -89,54 +83,40 @@ public:
 	void Update();
 	bool IsVisible();
 
-	int  ScreenID();
-
+	int ScreenID();
 };
 
-
-class UplinkIRCMessage
-{
+class UplinkIRCMessage {
 
 public:
-
 	UplinkIRCMessage();
-	~UplinkIRCMessage();
 
-	void Set(char* newuser, char* newtext, float r, float g, float b);
+	void Set(std::string newuser, std::string newtext, float r, float g, float b);
 
 public:
-
-	char* user;
-	char* text;
+	std::string user;
+	std::string text;
 	float red;
 	float green;
 	float blue;
-
 };
 
-class UplinkIRCUser
-{
+class UplinkIRCUser {
 
 public:
-
 	UplinkIRCUser();
 	~UplinkIRCUser();
 
 	void Set(char* newname);
 
 public:
-
 	char* name;
 	int status;
-
 };
 
-class UplinkIRCMonitor : public CIrcDefaultMonitor
-{
+class UplinkIRCMonitor : public CIrcDefaultMonitor {
 
 public:
-
-
 	void OnIrcDefault(const CIrcMessage* pmsg);
 	bool Received_PRIVMSG(const CIrcMessage* pmsg);
 	bool Received_JOIN(const CIrcMessage* pmsg);
@@ -158,11 +138,6 @@ public:
 	UplinkIRCMonitor(CIrcSession& session);
 
 	DEFINE_IRC_MAP();
-
 };
 
-
-
-
 #endif
-

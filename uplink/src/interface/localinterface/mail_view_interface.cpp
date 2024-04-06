@@ -3,25 +3,24 @@
 //////////////////////////////////////////////////////////////////////
 
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <GL/gl.h>
 
 #include <GL/glu.h>
 
-
 #include "eclipse.h"
-#include "soundgarden.h"
 #include "redshirt.h"
+#include "soundgarden.h"
 
 #include "app/app.h"
 #include "app/globals.h"
 #include "app/miscutils.h"
 #include "app/opengl_interface.h"
 
-#include "game/game.h"
 #include "game/data/data.h"
+#include "game/game.h"
 #include "world/vlocation.h"
 
 #include "options/options.h"
@@ -31,18 +30,16 @@
 #include "interface/localinterface/mail_view_interface.h"
 #include "interface/localinterface/mission_interface.h"
 
-#include "world/world.h"
-#include "world/player.h"
+#include "world/company/mission.h"
 #include "world/computer/recordbank.h"
 #include "world/generator/recordgenerator.h"
-#include "world/company/mission.h"
 #include "world/message.h"
+#include "world/player.h"
+#include "world/world.h"
 
-
-
-Image *MailViewInterface::iclose_tif = NULL;
-Image *MailViewInterface::iclose_h_tif = NULL;
-Image *MailViewInterface::iclose_c_tif = NULL;
+Image* MailViewInterface::iclose_tif = NULL;
+Image* MailViewInterface::iclose_h_tif = NULL;
+Image* MailViewInterface::iclose_c_tif = NULL;
 
 MailViewInterface::MailViewInterface()
 {
@@ -55,22 +52,20 @@ MailViewInterface::MailViewInterface()
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-void MailViewInterface::TitleClick(Button *button)
+void MailViewInterface::TitleClick(Button* button)
 {
 
 	game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
-
 }
 
-void MailViewInterface::MiniTitleDraw(Button *button, bool highlighted, bool clicked)
+void MailViewInterface::MiniTitleDraw(Button* button, bool highlighted, bool clicked)
 {
 
 	SetColour("TitleText");
 	GciDrawText(button->x + 10, button->y + 10, button->caption, HELVETICA_18);
-
 }
 
-void MailViewInterface::DrawMissionsTitle(Button *button, bool highlighted, bool clicked)
+void MailViewInterface::DrawMissionsTitle(Button* button, bool highlighted, bool clicked)
 {
 	text_draw(button, highlighted, clicked);
 
@@ -85,10 +80,9 @@ void MailViewInterface::DrawMissionsTitle(Button *button, bool highlighted, bool
 void MailViewInterface::SelectMission(Button* button)
 {
 	int missionIndex;
-	sscanf(button->name, "mailview_selectmission %d", &missionIndex);
+	sscanf(button->name.c_str(), "mailview_selectmission %d", &missionIndex);
 
-	if(game->GetWorld()->GetPlayer()->missions.ValidIndex(missionIndex))
-	{
+	if (game->GetWorld()->GetPlayer()->missions.ValidIndex(missionIndex)) {
 		game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_MISSION, missionIndex);
 		//((MissionInterface *)game->GetInterface()->GetLocalInterface())->SetMission(missionIndex);
 	}
@@ -97,10 +91,9 @@ void MailViewInterface::SelectMission(Button* button)
 void MailViewInterface::RemoveMail(Button* button)
 {
 	int mailIndex;
-	sscanf(button->name, "mailview_removemail %d", &mailIndex);
+	sscanf(button->name.c_str(), "mailview_removemail %d", &mailIndex);
 
-	if(game->GetWorld()->GetPlayer()->messages.ValidIndex(mailIndex))
-	{
+	if (game->GetWorld()->GetPlayer()->messages.ValidIndex(mailIndex)) {
 		game->GetWorld()->GetPlayer()->messages.RemoveData(mailIndex);
 	}
 }
@@ -108,57 +101,58 @@ void MailViewInterface::RemoveMail(Button* button)
 void MailViewInterface::ViewMail(Button* button)
 {
 	int mailIndex;
-	sscanf(button->name, "mailview_viewmail %d", &mailIndex);
+	sscanf(button->name.c_str(), "mailview_viewmail %d", &mailIndex);
 
-	if(game->GetWorld()->GetPlayer()->messages.ValidIndex(mailIndex))
-	{
+	if (game->GetWorld()->GetPlayer()->messages.ValidIndex(mailIndex)) {
 		game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_EMAIL, mailIndex);
 	}
 }
 
-void MailViewInterface::MailMouseDown(Button *button)
+void MailViewInterface::MailMouseDown(Button* button)
 {
 	UplinkAssert(button);
 
 	int index;
-	sscanf(button->name, "mailview_viewmail %d", &index);
+	sscanf(button->name.c_str(), "mailview_viewmail %d", &index);
 
-	if(game->GetWorld()->GetPlayer()->messages.ValidIndex(index))
-	{
+	if (game->GetWorld()->GetPlayer()->messages.ValidIndex(index)) {
 		button_click(button);
 	}
 }
 
-void MailViewInterface::MailMouseMove(Button *button)
+void MailViewInterface::MailMouseMove(Button* button)
 {
 	UplinkAssert(button);
 
 	int index;
-	sscanf(button->name, "mailview_viewmail %d", &index);
+	sscanf(button->name.c_str(), "mailview_viewmail %d", &index);
 
-	if(game->GetWorld()->GetPlayer()->messages.ValidIndex(index))
-	{
+	if (game->GetWorld()->GetPlayer()->messages.ValidIndex(index)) {
 		button_highlight(button);
 	}
 }
 
-void MailViewInterface::DrawMailButton(Button *button, bool highlighted, bool clicked)
+void MailViewInterface::DrawMailButton(Button* button, bool highlighted, bool clicked)
 {
 	UplinkAssert(button);
 
 	clear_draw(button->x, button->y, button->width, button->height);
 
 	int index;
-	sscanf(button->name, "mailview_viewmail %d", &index);
+	sscanf(button->name.c_str(), "mailview_viewmail %d", &index);
 
-	char* aColor = (highlighted || clicked ? "DarkPanelB" : "DarkPanelA");
-	char* bColor = (highlighted || clicked ? "DarkPanelA" : "DarkPanelB");
+	const char* aColor = (highlighted || clicked ? "DarkPanelB" : "DarkPanelA");
+	const char* bColor = (highlighted || clicked ? "DarkPanelA" : "DarkPanelB");
 
 	glBegin(GL_QUADS);
-	SetColour(bColor);   glVertex2i(button->x, button->y);
-	SetColour(aColor);   glVertex2i(button->x + button->width, button->y);
-	SetColour(bColor);   glVertex2i(button->x + button->width, button->y + button->height);
-	SetColour(aColor);   glVertex2i(button->x, button->y + button->height);
+	SetColour(bColor);
+	glVertex2i(button->x, button->y);
+	SetColour(aColor);
+	glVertex2i(button->x + button->width, button->y);
+	SetColour(bColor);
+	glVertex2i(button->x + button->width, button->y + button->height);
+	SetColour(aColor);
+	glVertex2i(button->x, button->y + button->height);
 	glEnd();
 
 	SetColour("DefaultText");
@@ -169,8 +163,7 @@ void MailViewInterface::DrawMailButton(Button *button, bool highlighted, bool cl
 
 	// Draw a box around the text if highlighted
 
-	if(highlighted || clicked)
-	{
+	if (highlighted || clicked) {
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		border_draw(button);
 	}
@@ -179,8 +172,7 @@ void MailViewInterface::DrawMailButton(Button *button, bool highlighted, bool cl
 void MailViewInterface::Create()
 {
 
-	if(!IsVisible())
-	{
+	if (!IsVisible()) {
 
 		LocalInterfaceScreen::Create();
 
@@ -191,11 +183,18 @@ void MailViewInterface::Create()
 
 		int cwidth = 95;
 
-		EclRegisterButton(screenw - panelwidth, paneltop + 3, panelwidth - 7, 15, "MAIL", "Remove the mail screen", "mailview_title");
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + 3,
+						  panelwidth - 7,
+						  15,
+						  "MAIL",
+						  "Remove the mail screen",
+						  "mailview_title");
 		EclRegisterButtonCallback("mailview_title", TitleClick);
 
-		/*EclRegisterButton(screenw - panelwidth, paneltop + 30, panelwidth - 7, 15, "Missions", "", "mailview_missiontitle");
-		EclRegisterButtonCallbacks("mailview_missiontitle", DrawMissionsTitle, NULL, NULL, NULL);
+		/*EclRegisterButton(screenw - panelwidth, paneltop + 30, panelwidth - 7, 15, "Missions", "",
+		"mailview_missiontitle"); EclRegisterButtonCallbacks("mailview_missiontitle", DrawMissionsTitle, NULL,
+		NULL, NULL);
 
 		// draw all missions
 		char name[128];
@@ -231,15 +230,20 @@ void MailViewInterface::Create()
 		}
 
 		numMissions = game->GetWorld()->GetPlayer()->missions.Size();*/
-		
-		EclRegisterButton(screenw - panelwidth, paneltop + 30, panelwidth - 7, 15, "Messages", "", "mailview_messagestitle");
+
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + 30,
+						  panelwidth - 7,
+						  15,
+						  "Messages",
+						  "",
+						  "mailview_messagestitle");
 		EclRegisterButtonCallbacks("mailview_messagestitle", DrawMissionsTitle, NULL, NULL, NULL);
 
 		char name[128];
 		char caption[128];
 		int nextY = paneltop + 50;
-		for(int i = 0; i < game->GetWorld()->GetPlayer()->messages.Size(); i++)
-		{
+		for (int i = 0; i < game->GetWorld()->GetPlayer()->messages.Size(); i++) {
 			UplinkSnprintf(name, sizeof(name), "mailview_removemail %d", i);
 
 			EclRegisterButton(screenw - panelwidth + 1, nextY + 1, 13, 13, "", "Remove mail", name);
@@ -249,7 +253,8 @@ void MailViewInterface::Create()
 			UplinkSnprintf(name, sizeof(name), "mailview_viewmail %d", i);
 			auto message = game->GetWorld()->GetPlayer()->messages.GetData(i);
 			UplinkSnprintf(caption, sizeof(caption), "%s", message->GetSubject());
-			EclRegisterButton(screenw - panelwidth + 15 + 2, nextY, panelwidth - 7 - 15 - 2, 15, caption, name);
+			EclRegisterButton(
+				screenw - panelwidth + 15 + 2, nextY, panelwidth - 7 - 15 - 2, 15, caption, name);
 			EclRegisterButtonCallbacks(name, DrawMailButton, ViewMail, MailMouseDown, MailMouseMove);
 
 			nextY += 15 + 2;
@@ -262,8 +267,7 @@ void MailViewInterface::Create()
 void MailViewInterface::Remove()
 {
 
-	if(IsVisible())
-	{
+	if (IsVisible()) {
 
 		LocalInterfaceScreen::Remove();
 
@@ -279,8 +283,7 @@ void MailViewInterface::Remove()
 		}*/
 
 		char name[128];
-		for(int i = 0; i < numMails; i++)
-		{
+		for (int i = 0; i < numMails; i++) {
 			UplinkSnprintf(name, sizeof(name), "mailview_removemail %d", i);
 			EclRemoveButton(name);
 			UplinkSnprintf(name, sizeof(name), "mailview_viewmail %d", i);
@@ -301,23 +304,12 @@ void MailViewInterface::Update()
 	}*/
 
 	auto currentNumMails = game->GetWorld()->GetPlayer()->messages.Size();
-	if(currentNumMails != numMails)
-	{
+	if (currentNumMails != numMails) {
 		Remove();
 		Create();
 	}
 }
 
-bool MailViewInterface::IsVisible()
-{
+bool MailViewInterface::IsVisible() { return (EclGetButton("mailview_title") != NULL); }
 
-	return (EclGetButton("mailview_title") != NULL);
-
-}
-
-int MailViewInterface::ScreenID()
-{
-
-	return SCREEN_MAILVIEW;
-
-}
+int MailViewInterface::ScreenID() { return SCREEN_MAILVIEW; }

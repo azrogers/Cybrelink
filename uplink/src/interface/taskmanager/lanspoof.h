@@ -17,56 +17,47 @@
 #include "eclipse.h"
 #include "interface/taskmanager/uplinktask.h"
 
-#define LANSPOOF_UNUSED			0
-#define LANSPOOF_SPOOFING		1
-#define LANSPOOF_FAILED			2
-#define LANSPOOF_SPOOFED		3
+#define LANSPOOF_UNUSED 0
+#define LANSPOOF_SPOOFING 1
+#define LANSPOOF_FAILED 2
+#define LANSPOOF_SPOOFED 3
 
 class LanComputer;
 
 // ============================================================================
 
-
-
-class LanSpoof : public UplinkTask
-{
+class LanSpoof : public UplinkTask {
 
 protected:
-
 	int status;
 	int progress;
 	int numticksrequired;
 
-	LanComputer *comp;
+	LanComputer* comp;
 	int systemIndex;
 
 protected:
+	static void BorderDraw(Button* button, bool highlighted, bool clicked);
+	static void ProgressDraw(Button* button, bool highlighted, bool clicked);
 
-	static void BorderDraw    ( Button *button, bool highlighted, bool clicked );
-	static void ProgressDraw  ( Button *button, bool highlighted, bool clicked );
-
-	static void CloseClick    ( Button *button );
-	static void BorderClick   ( Button *button );
+	static void CloseClick(Button* button);
+	static void BorderClick(Button* button);
 
 public:
-
 	LanSpoof();
 	~LanSpoof();
 
-	void SetTarget ( UplinkObject *uo, char *uos, int uoi );
-	void MoveTo ( int x, int y, int time_ms );							// Origin top left		
+	void SetTarget(UplinkObject* uo, char* uos, int uoi);
+	void MoveTo(int x, int y, int time_ms); // Origin top left
 
-	void Initialise ();     
-	void Tick ( int n );    
-	
-	void CreateInterface ();       
-	void RemoveInterface ();
-	void ShowInterface ();
+	void Initialise();
+	void Tick(int n);
 
-	bool IsInterfaceVisible ();     
+	void CreateInterface();
+	void RemoveInterface();
+	void ShowInterface();
 
+	bool IsInterfaceVisible();
 };
 
-
 #endif
-

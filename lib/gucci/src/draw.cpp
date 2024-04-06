@@ -84,8 +84,8 @@ BLImage* DrawRenderBufferPool::GrabImage()
 			}
 
 			images[i] = new BLImage(
-				ScreenRect.BottomRight.X, 
-				ScreenRect.BottomRight.Y, 
+				ScreenRect.BottomRight.X,
+				ScreenRect.BottomRight.Y,
 				BL_FORMAT_PRGB32);
 
 			return images[i];

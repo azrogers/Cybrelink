@@ -1,247 +1,230 @@
 
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <GL/gl.h>
 
 #include <GL/glu.h> /*_glu_extention_library_*/
 
-
-#include "vanbakel.h"
 #include "eclipse.h"
+#include "vanbakel.h"
 
 #include "app/app.h"
 #include "app/globals.h"
-#include "app/opengl_interface.h"
 #include "app/miscutils.h"
+#include "app/opengl_interface.h"
 
 #include "game/game.h"
 
 #include "interface/taskmanager/iplookup.h"
 
-#include "world/world.h"
-#include "world/vlocation.h"
 #include "world/player.h"
+#include "world/vlocation.h"
+#include "world/world.h"
 
-
-
-void IPLookup::DisplayDraw ( Button *button, bool highlighted, bool clicked )
+void IPLookup::DisplayDraw(Button* button, bool highlighted, bool clicked)
 {
 
 	// Draw a grey background
 
-	glBegin ( GL_QUADS );
-		glColor4f ( 0.6f, 0.6f, 0.6f, ALPHA );		glVertex2i ( button->x, button->y );
-		glColor4f ( 0.4f, 0.4f, 0.4f, ALPHA );		glVertex2i ( button->x + button->width, button->y );
-		glColor4f ( 0.6f, 0.6f, 0.6f, ALPHA );		glVertex2i ( button->x + button->width, button->y + button->height );
-		glColor4f ( 0.4f, 0.4f, 0.4f, ALPHA );		glVertex2i ( button->x, button->y + button->height );
-	glEnd ();
+	glBegin(GL_QUADS);
+	glColor4f(0.6f, 0.6f, 0.6f, ALPHA);
+	glVertex2i(button->x, button->y);
+	glColor4f(0.4f, 0.4f, 0.4f, ALPHA);
+	glVertex2i(button->x + button->width, button->y);
+	glColor4f(0.6f, 0.6f, 0.6f, ALPHA);
+	glVertex2i(button->x + button->width, button->y + button->height);
+	glColor4f(0.4f, 0.4f, 0.4f, ALPHA);
+	glVertex2i(button->x, button->y + button->height);
+	glEnd();
 
 	// Draw ordinary text
 
-	text_draw ( button, highlighted, clicked );
+	text_draw(button, highlighted, clicked);
 
 	// Draw a border
 
-	if ( highlighted || clicked ) border_draw ( button );
-
+	if (highlighted || clicked) {
+		border_draw(button);
+	}
 }
 
-void IPLookup::CloseClick ( Button *button )
+void IPLookup::CloseClick(Button* button)
 {
 
 	int pid;
-	sscanf ( button->name, "iplookup_close %d", &pid );
+	sscanf(button->name.c_str(), "iplookup_close %d", &pid);
 
-	SvbRemoveTask ( pid );
-
+	SvbRemoveTask(pid);
 }
 
-void IPLookup::GoClick ( Button *button )
+void IPLookup::GoClick(Button* button)
 {
 
 	int pid;
-	sscanf ( button->name, "iplookup_go %d", &pid );
+	sscanf(button->name.c_str(), "iplookup_go %d", &pid);
 
-	IPLookup *task = (IPLookup *) SvbGetTask ( pid );
+	IPLookup* task = (IPLookup*)SvbGetTask(pid);
 
-	if ( task->status == IPLOOKUP_IDLE )
+	if (task->status == IPLOOKUP_IDLE) {
 		task->status = IPLOOKUP_INPROGRESS;
+	}
 
-	else
+	else {
 		task->status = IPLOOKUP_IDLE;
-
+	}
 }
 
-IPLookup::IPLookup () : UplinkTask ()
+IPLookup::IPLookup() :
+	UplinkTask()
 {
 
 	status = IPLOOKUP_IDLE;
-
 }
 
-IPLookup::~IPLookup ()
-{
-}
+IPLookup::~IPLookup() { }
 
-void IPLookup::Initialise ()
-{
-}
+void IPLookup::Initialise() { }
 
-void IPLookup::Tick ( int n )
+void IPLookup::Tick(int n)
 {
 
-	if ( IsInterfaceVisible () ) {
+	if (IsInterfaceVisible()) {
 
-		if ( status == IPLOOKUP_IDLE ) {
+		if (status == IPLOOKUP_IDLE) {
 
 			// Do nothing
 
-		}
-		else if ( status == IPLOOKUP_INPROGRESS ) {
+		} else if (status == IPLOOKUP_INPROGRESS) {
 
 			// Try to lookup the IP in the box
 
-			int pid = SvbLookupPID ( this );
-			char name_display [64];
-			UplinkSnprintf ( name_display, sizeof ( name_display ), "iplookup_display %d", pid );
-			
-			Button *button = EclGetButton ( name_display );
-			UplinkAssert ( button );
-			char *ip = StripCarriageReturns (button->caption);
+			int pid = SvbLookupPID(this);
+			char name_display[64];
+			UplinkSnprintf(name_display, sizeof(name_display), "iplookup_display %d", pid);
 
-			VLocation *vl = game->GetWorld ()->GetVLocation ( ip );
+			Button* button = EclGetButton(name_display);
+			UplinkAssert(button);
+			char* ip = StripCarriageReturns(button->caption.c_str());
 
-			if ( vl ) {
+			VLocation* vl = game->GetWorld()->GetVLocation(ip);
+
+			if (vl) {
 
 				// Found - add to links
-				EclRegisterCaptionChange ( name_display, vl->computer );
-				game->GetWorld ()->GetPlayer ()->GiveLink ( ip );
+				EclRegisterCaptionChange(name_display, vl->computer);
+				game->GetWorld()->GetPlayer()->GiveLink(ip);
 
-			}
-			else {
+			} else {
 
 				// Not found
-				EclRegisterCaptionChange ( name_display, "IP Not found" );
-
+				EclRegisterCaptionChange(name_display, "IP Not found");
 			}
 
-            delete [] ip;
+			delete[] ip;
 			timeout = time(NULL);
 			status = IPLOOKUP_FINISHED;
 
-
-		}
-		else if ( status == IPLOOKUP_FINISHED ) {
+		} else if (status == IPLOOKUP_FINISHED) {
 
 			// Revert to idle after 5 secs
 
-			if ( time (NULL) > timeout + 5 ) {
+			if (time(NULL) > timeout + 5) {
 
-				int pid = SvbLookupPID ( this );
-				char name_display [64];
-				UplinkSnprintf ( name_display, sizeof ( name_display ), "iplookup_display %d", pid );
+				int pid = SvbLookupPID(this);
+				char name_display[64];
+				UplinkSnprintf(name_display, sizeof(name_display), "iplookup_display %d", pid);
 
-				EclRegisterCaptionChange ( name_display, "Enter IP" );
+				EclRegisterCaptionChange(name_display, "Enter IP");
 				status = IPLOOKUP_IDLE;
-				
 			}
 
+		} else {
+
+			UplinkAbort("Unkown Status");
 		}
-		else {
+	}
+}
 
-			UplinkAbort ( "Unkown Status" );
+void IPLookup::CreateInterface()
+{
 
-		}
+	if (!IsInterfaceVisible()) {
 
+		int pid = SvbLookupPID(this);
+
+		char name_go[64];
+		char name_display[64];
+		char name_close[64];
+
+		UplinkSnprintf(name_go, sizeof(name_go), "iplookup_go %d", pid);
+		UplinkSnprintf(name_display, sizeof(name_display), "iplookup_display %d", pid);
+		UplinkSnprintf(name_close, sizeof(name_close), "iplookup_close %d", pid);
+
+		EclRegisterButton(305, 444, 20, 15, "", "Perform the lookup", name_go);
+		EclRegisterButton(325, 444, 185, 14, "Enter IP", "Type your IP here", name_display);
+		EclRegisterButton(510, 445, 13, 13, "", "Close the IP Lookup program", name_close);
+
+		button_assignbitmap(name_go, "software/go.tif");
+		EclRegisterButtonCallback(name_go, GoClick);
+		EclRegisterButtonCallbacks(name_display, DisplayDraw, NULL, button_click, button_highlight);
+		button_assignbitmaps(name_close, "close.tif", "close_h.tif", "close_c.tif");
+		EclRegisterButtonCallback(name_close, CloseClick);
+
+		EclMakeButtonEditable(name_display);
+	}
+}
+
+void IPLookup::RemoveInterface()
+{
+
+	if (IsInterfaceVisible()) {
+
+		int pid = SvbLookupPID(this);
+
+		char name_go[64];
+		char name_display[64];
+		char name_close[64];
+
+		UplinkSnprintf(name_go, sizeof(name_go), "iplookup_go %d", pid);
+		UplinkSnprintf(name_display, sizeof(name_display), "iplookup_display %d", pid);
+		UplinkSnprintf(name_close, sizeof(name_close), "iplookup_close %d", pid);
+
+		EclRemoveButton(name_go);
+		EclRemoveButton(name_display);
+		EclRemoveButton(name_close);
+	}
+}
+
+void IPLookup::ShowInterface()
+{
+
+	if (!IsInterfaceVisible()) {
+		CreateInterface();
 	}
 
+	int pid = SvbLookupPID(this);
+
+	char name_go[64];
+	char name_display[64];
+	char name_close[64];
+
+	UplinkSnprintf(name_go, sizeof(name_go), "iplookup_go %d", pid);
+	UplinkSnprintf(name_display, sizeof(name_display), "iplookup_display %d", pid);
+	UplinkSnprintf(name_close, sizeof(name_close), "iplookup_close %d", pid);
+
+	EclButtonBringToFront(name_go);
+	EclButtonBringToFront(name_display);
+	EclButtonBringToFront(name_close);
 }
 
-void IPLookup::CreateInterface ()
-{
-	
-	if ( !IsInterfaceVisible () ) {
-
-		int pid = SvbLookupPID ( this );
-
-		char name_go [64];
-		char name_display [64];
-		char name_close [64];
-
-		UplinkSnprintf ( name_go, sizeof ( name_go ), "iplookup_go %d", pid );
-		UplinkSnprintf ( name_display, sizeof ( name_display ), "iplookup_display %d", pid );
-		UplinkSnprintf ( name_close, sizeof ( name_close ), "iplookup_close %d", pid );
-
-		EclRegisterButton ( 305, 444, 20, 15, "", "Perform the lookup", name_go );
-		EclRegisterButton ( 325, 444, 185, 14, "Enter IP", "Type your IP here", name_display );
-		EclRegisterButton ( 510, 445, 13, 13, "", "Close the IP Lookup program", name_close );
-
-		button_assignbitmap ( name_go, "software/go.tif" );
-		EclRegisterButtonCallback ( name_go, GoClick );
-		EclRegisterButtonCallbacks ( name_display, DisplayDraw, NULL, button_click, button_highlight );
-		button_assignbitmaps ( name_close, "close.tif", "close_h.tif", "close_c.tif" );
-		EclRegisterButtonCallback ( name_close, CloseClick );
-
-		EclMakeButtonEditable ( name_display );
-
-	}
-
-}
-
-void IPLookup::RemoveInterface ()
+bool IPLookup::IsInterfaceVisible()
 {
 
-	if ( IsInterfaceVisible () ) {
+	int pid = SvbLookupPID(this);
+	char name_display[64];
+	UplinkSnprintf(name_display, sizeof(name_display), "iplookup_display %d", pid);
 
-		int pid = SvbLookupPID ( this );
-
-		char name_go [64];
-		char name_display [64];
-		char name_close [64];
-
-		UplinkSnprintf ( name_go, sizeof ( name_go ), "iplookup_go %d", pid );
-		UplinkSnprintf ( name_display, sizeof ( name_display ), "iplookup_display %d", pid );
-		UplinkSnprintf ( name_close, sizeof ( name_close ), "iplookup_close %d", pid );
-
-		EclRemoveButton ( name_go );
-		EclRemoveButton ( name_display );
-		EclRemoveButton ( name_close );
-
-	}
-
-}
-
-void IPLookup::ShowInterface ()
-{
-
-	if ( !IsInterfaceVisible () ) CreateInterface ();
-
-	int pid = SvbLookupPID ( this );
-
-	char name_go [64];
-	char name_display [64];
-	char name_close [64];
-
-	UplinkSnprintf ( name_go, sizeof ( name_go ), "iplookup_go %d", pid );
-	UplinkSnprintf ( name_display, sizeof ( name_display ), "iplookup_display %d", pid );
-	UplinkSnprintf ( name_close, sizeof ( name_close ), "iplookup_close %d", pid );
-
-	EclButtonBringToFront ( name_go );
-	EclButtonBringToFront ( name_display );
-	EclButtonBringToFront ( name_close );
-
-
-}
-
-bool IPLookup::IsInterfaceVisible ()
-{
-
-	int pid = SvbLookupPID ( this );
-	char name_display [64];
-	UplinkSnprintf ( name_display, sizeof ( name_display ), "iplookup_display %d", pid );
-
-	return ( EclGetButton ( name_display ) != 0 );
-
+	return (EclGetButton(name_display) != 0);
 }

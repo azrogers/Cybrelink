@@ -1,12 +1,11 @@
 
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <GL/gl.h>
 
 #include <GL/glu.h>
-
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -17,63 +16,153 @@
 
 #include "game/game.h"
 
-#include "world/world.h"
-#include "world/vlocation.h"
-#include "world/player.h"
 #include "world/computer/computer.h"
 #include "world/computer/lancomputer.h"
 #include "world/computer/lanmonitor.h"
 #include "world/generator/langenerator.h"
+#include "world/player.h"
+#include "world/vlocation.h"
+#include "world/world.h"
 
 #include "interface/interface.h"
-#include "interface/localinterface/localinterface.h"
-#include "interface/localinterface/lan_interface.h"
 #include "interface/localinterface/cheat_interface.h"
+#include "interface/localinterface/lan_interface.h"
+#include "interface/localinterface/localinterface.h"
 #include "interface/remoteinterface/remoteinterface.h"
 #include "interface/taskmanager/taskmanager.h"
-
-
-
 
 LanInterfaceObject LanInterface::lanInterfaceObjects[] = {
 
 	//  NAME                        FILENAME                    W   H   DESCRIPTION
 	//  ---------------------------------------------------------------------------
 
-		"None",                     " ",                        0,  0,  "None",
-		"Router",                   "lan/router.tif",           48, 32, "A router.\n\nThe public entry point to this LAN. The main external Internet connection runs through here.",
-		"Hub",                      "lan/hub.tif",              48, 20, "A hub.\n\nConnects numerous seperate systems together.",
-		"Switch",                   "lan/hub.tif",              48, 20, "A switch.\n\nConnects two computer systems together.",
-		"Terminal",                 "lan/terminal.tif",         38, 37, "A terminal.\n\nA system inside the company, used by the employees.",
-		"Main Server",              "lan/centralsystem.tif",    72, 51, "A main server.\n\nThe central controlling computer system.",
-		"Mail Server",              "lan/mailserver.tif",       48, 51, "A mail server.\n\nStores employees personal emails, messages and address books.",
-		"File Server",              "lan/mailserver.tif",       48, 51, "A file server.\n\nThe central file repository of the Network.",
-		"Authentication Server",    "lan/authentication.tif",   48, 51, "An authentication server\n\nDirectly controls the status of a Lock system, permitting or denying access.",
-		"Lock",                     "lan/lock.tif",             32, 32, "A lock.\n\nPrevents any access to the systems behind the lock when activated.",
-		"Isolation Bridge",         "lan/isolation.tif",        32, 32, "An isolation bridge\n\nToggles the status of two Lock systems on the network.",
-		"Modem",                    "lan/modem.tif",            32, 32, "A modem.\n\nCan be used as an external access point to the network.",
-		"Session Key Server",       "lan/session.tif",          32, 32, "A session key server",
-		"Wireless Transmitter",     "lan/radiotrans.tif",       32, 32, "A Wireless LAN transmitter.\n\nCan be used to connect to a Wireless receiver on the network.",
-		"Wireless Receiver",        "lan/radiorec.tif",         32, 32, "A Wireless LAN receiver.\n\nCan be accessed by a Wireless transmitter on the network.",
-		"Fax Printer",              "lan/hub.tif",              48, 20, "A fax printer",
-		"Log Server",               "lan/centralsystem.tif",    72, 51, "A log server.  Stores all access logs for this LAN."
-
+	{
+		"None",
+		" ",
+		0,
+		0,
+		"None",
+	},
+	{
+		"Router",
+		"lan/router.tif",
+		48,
+		32,
+		"A router.\n\nThe public entry point to this LAN. The main external Internet connection runs through "
+		"here.",
+	},
+	{
+		"Hub",
+		"lan/hub.tif",
+		48,
+		20,
+		"A hub.\n\nConnects numerous seperate systems together.",
+	},
+	{
+		"Switch",
+		"lan/hub.tif",
+		48,
+		20,
+		"A switch.\n\nConnects two computer systems together.",
+	},
+	{
+		"Terminal",
+		"lan/terminal.tif",
+		38,
+		37,
+		"A terminal.\n\nA system inside the company, used by the employees.",
+	},
+	{ "Main Server",
+	  "lan/centralsystem.tif",
+	  72,
+	  51,
+	  "A main server.\n\nThe central controlling computer system." },
+	{
+		"Mail Server",
+		"lan/mailserver.tif",
+		48,
+		51,
+		"A mail server.\n\nStores employees personal emails, messages and address books.",
+	},
+	{
+		"File Server",
+		"lan/mailserver.tif",
+		48,
+		51,
+		"A file server.\n\nThe central file repository of the Network.",
+	},
+	{
+		"Authentication Server",
+		"lan/authentication.tif",
+		48,
+		51,
+		"An authentication server\n\nDirectly controls the status of a Lock system, permitting or denying "
+		"access.",
+	},
+	{
+		"Lock",
+		"lan/lock.tif",
+		32,
+		32,
+		"A lock.\n\nPrevents any access to the systems behind the lock when activated.",
+	},
+	{
+		"Isolation Bridge",
+		"lan/isolation.tif",
+		32,
+		32,
+		"An isolation bridge\n\nToggles the status of two Lock systems on the network.",
+	},
+	{
+		"Modem",
+		"lan/modem.tif",
+		32,
+		32,
+		"A modem.\n\nCan be used as an external access point to the network.",
+	},
+	{
+		"Session Key Server",
+		"lan/session.tif",
+		32,
+		32,
+		"A session key server",
+	},
+	{
+		"Wireless Transmitter",
+		"lan/radiotrans.tif",
+		32,
+		32,
+		"A Wireless LAN transmitter.\n\nCan be used to connect to a Wireless receiver on the network.",
+	},
+	{
+		"Wireless Receiver",
+		"lan/radiorec.tif",
+		32,
+		32,
+		"A Wireless LAN receiver.\n\nCan be accessed by a Wireless transmitter on the network.",
+	},
+	{
+		"Fax Printer",
+		"lan/hub.tif",
+		48,
+		20,
+		"A fax printer",
+	},
+	{ "Log Server", "lan/centralsystem.tif", 72, 51, "A log server.  Stores all access logs for this LAN." }
 };
-
 
 int LanInterface::offsetX = 0;
 int LanInterface::offsetY = 0;
 
-
 static int stippleindex = 0;
-static int STIPPLE[] = { 0x1111,		//		0001000100010001
-						   0x1111,		//		0001000100010001
-						   0x2222,		//		0010001000100010
-						   0x2222,		//		0010001000100010
-						   0x4444,		//		0100010001000100
-						   0x4444,		//		0100010001000100
-						   0x8888,		//		1000100010001000
-						   0x8888 };	//		1000100010001000
+static int STIPPLE[] = { 0x1111, //		0001000100010001
+						 0x1111, //		0001000100010001
+						 0x2222, //		0010001000100010
+						 0x2222, //		0010001000100010
+						 0x4444, //		0100010001000100
+						 0x4444, //		0100010001000100
+						 0x8888, //		1000100010001000
+						 0x8888 }; //		1000100010001000
 
 static int stipplepattern = STIPPLE[0];
 static int stippleupdate = 0;
@@ -82,24 +171,19 @@ void CycleStipplePattern()
 {
 
 	--stippleindex;
-	if (stippleindex < 0) stippleindex = 7;
+	if (stippleindex < 0) {
+		stippleindex = 7;
+	}
 
 	stipplepattern = STIPPLE[stippleindex];
-
 }
 
-LanInterfaceObject* LanInterface::GetLanInterfaceObject(int TYPE)
-{
-
-	return &(lanInterfaceObjects[TYPE]);
-
-}
+LanInterfaceObject* LanInterface::GetLanInterfaceObject(int TYPE) { return &(lanInterfaceObjects[TYPE]); }
 
 void LanInterface::TitleClick(Button* button)
 {
 
 	game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
-
 }
 
 void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clicked)
@@ -113,17 +197,16 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 	glColor3ub(81, 138, 215);
 	border_draw(button);
 
-
-	Button * background = EclGetButton("lan_background");
+	Button* background = EclGetButton("lan_background");
 	UplinkAssert(background);
 
 	//
 	// Lookup computer details
 
 	char* remotehost = game->GetWorld()->GetPlayer()->remotehost;
-	VLocation * vl = game->GetWorld()->GetVLocation(remotehost);
+	VLocation* vl = game->GetWorld()->GetVLocation(remotehost);
 	UplinkAssert(vl);
-	Computer * comp = vl->GetComputer();
+	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
 
 	if (comp->TYPE != COMPUTER_TYPE_LAN) {
@@ -131,12 +214,12 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 		glColor3f(1.0f, 1.0f, 1.0f);
 		char message[] = "No Local Area Network (LAN) detected.";
 		GciDrawText((background->x + background->width / 2) - (GciTextWidth(message) / 2),
-			background->y + background->height / 2, message);
+					background->y + background->height / 2,
+					message);
 		return;
-
 	}
 
-	LanComputer * lanComp = (LanComputer*)comp;
+	LanComputer* lanComp = (LanComputer*)comp;
 
 	//
 	// Draw current selection box
@@ -169,7 +252,6 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 
 		glLineWidth(1);
 		glDisable(GL_LINE_STIPPLE);
-
 	}
 
 	//
@@ -205,7 +287,6 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 		glEnd();
 
 		glDisable(GL_LINE_STIPPLE);
-
 	}
 
 	//
@@ -242,11 +323,10 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 				int toX = (int)(background->x + (to->x) + toSystem->width * link->toX + offsetX);
 				int toY = (int)(background->y + (to->y) + toSystem->height * link->toY + offsetY);
 
-				// 
+				//
 				// Draw the FROM link point
 
-				if (link->visible == LANLINKVISIBLE_FROMAWARE ||
-					link->visible >= LANLINKVISIBLE_AWARE) {
+				if (link->visible == LANLINKVISIBLE_FROMAWARE || link->visible >= LANLINKVISIBLE_AWARE) {
 
 					glBegin(GL_QUADS);
 					glVertex2i(fromX - 2, fromY - 2);
@@ -254,14 +334,12 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 					glVertex2i(fromX + 2, fromY + 2);
 					glVertex2i(fromX - 2, fromY + 2);
 					glEnd();
-
 				}
 
-				// 
+				//
 				// Draw the TO link point
 
-				if (link->visible == LANLINKVISIBLE_TOAWARE ||
-					link->visible >= LANLINKVISIBLE_AWARE) {
+				if (link->visible == LANLINKVISIBLE_TOAWARE || link->visible >= LANLINKVISIBLE_AWARE) {
 
 					glBegin(GL_QUADS);
 					glVertex2i(toX - 2, toY - 2);
@@ -269,7 +347,6 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 					glVertex2i(toX + 2, toY + 2);
 					glVertex2i(toX - 2, toY + 2);
 					glEnd();
-
 				}
 
 				//
@@ -285,8 +362,8 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 					int fromIndex = LanMonitor::GetNodeIndex(link->from);
 					int sysAdminIndex = LanMonitor::GetNodeIndex(LanMonitor::sysAdminCurrentSystem);
 
-					if (toIndex != -1 && fromIndex != -1 &&
-						(toIndex == fromIndex - 1 || fromIndex == toIndex - 1)) {
+					if (toIndex != -1 && fromIndex != -1
+						&& (toIndex == fromIndex - 1 || fromIndex == toIndex - 1)) {
 
 						glEnable(GL_LINE_STIPPLE);
 						glLineStipple(2, stipplepattern);
@@ -295,12 +372,14 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 						glLineWidth(4.0);
 						DrawLink(link, (float)fromX, (float)fromY, (float)toX, (float)toY);
 
-						if ((sysAdminIndex >= toIndex && toIndex >= fromIndex) ||
-							(sysAdminIndex >= fromIndex && fromIndex >= toIndex))
+						if ((sysAdminIndex >= toIndex && toIndex >= fromIndex)
+							|| (sysAdminIndex >= fromIndex && fromIndex >= toIndex)) {
 							glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
+						}
 
-						else
+						else {
 							glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+						}
 
 						glLineWidth(2.0);
 						DrawLink(link, (float)fromX, (float)fromY, (float)toX, (float)toY);
@@ -308,17 +387,11 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 						glColor4f(0.0f, 0.5f, 0.6f, 1.0f);
 						glDisable(GL_LINE_STIPPLE);
 						glLineWidth(1.0);
-
 					}
-
 				}
-
 			}
-
 		}
 	}
-
-
 
 	//
 	// Draw highlights
@@ -359,13 +432,10 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 			glLineWidth(1.0);
 
 			GciDrawText(x - 10, y + height + 15, lih->text);
-
 		}
-
 	}
 
 	glLineWidth(1.0f);
-
 
 	//
 	// Draw sys Admin details
@@ -375,13 +445,17 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 	clear_draw(xPos, yPos, 300, 14);
 	glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
 
-	switch (LanMonitor::sysAdminState)
-	{
-	case SYSADMIN_CURIOUS:          GciDrawText(xPos, yPos, "The System Administrator has logged on");                break;
-	case SYSADMIN_SEARCHING:        GciDrawText(xPos, yPos, "The System Administrator is searching for you");         break;
-	case SYSADMIN_FOUNDYOU:         GciDrawText(xPos, yPos, "The System Administrator has found you");                break;
+	switch (LanMonitor::sysAdminState) {
+	case SYSADMIN_CURIOUS:
+		GciDrawText(xPos, yPos, "The System Administrator has logged on");
+		break;
+	case SYSADMIN_SEARCHING:
+		GciDrawText(xPos, yPos, "The System Administrator is searching for you");
+		break;
+	case SYSADMIN_FOUNDYOU:
+		GciDrawText(xPos, yPos, "The System Administrator has found you");
+		break;
 	}
-
 
 	int sysAdminCurrentSystem = LanMonitor::sysAdminCurrentSystem;
 
@@ -411,29 +485,23 @@ void LanInterface::LanBackgroundDraw(Button* button, bool highlighted, bool clic
 
 		glLineWidth(1);
 		glDisable(GL_LINE_STIPPLE);
-
 	}
 
-
 	glDisable(GL_SCISSOR_TEST);
-
 }
 
-void LanInterface::DrawLink(LanComputerLink * link,
-	float fromX, float fromY,
-	float toX, float toY)
+void LanInterface::DrawLink(LanComputerLink* link, float fromX, float fromY, float toX, float toY)
 {
 
-	if ((link->fromY == 1.0 && link->toY == 0.0) ||				  // Bottom to top
-		(link->fromY == 0.0 && link->toY == 1.0)) {                 // Top to bottom
+	if ((link->fromY == 1.0 && link->toY == 0.0) || // Bottom to top
+		(link->fromY == 0.0 && link->toY == 1.0)) { // Top to bottom
 
 		glBegin(GL_LINE_STRIP);
 		glVertex2f(fromX, fromY);
 		if (fromX > toX) {
 			glVertex2f(fromX, fromY + (toY - fromY) * link->fromX);
 			glVertex2f(toX, fromY + (toY - fromY) * link->fromX);
-		}
-		else {
+		} else {
 			glVertex2f(fromX, fromY + (toY - fromY) * (1.0f - link->fromX));
 			glVertex2f(toX, fromY + (toY - fromY) * (1.0f - link->fromX));
 		}
@@ -441,28 +509,25 @@ void LanInterface::DrawLink(LanComputerLink * link,
 		glVertex2f(toX, toY);
 		glEnd();
 
-	}
-	else if ((link->fromX == 1.0 && link->toX == 0.0) ||               // Right to left
-		(link->fromX == 0.0 && link->toX == 1.0)) {				// Left to right
+	} else if ((link->fromX == 1.0 && link->toX == 0.0) || // Right to left
+			   (link->fromX == 0.0 && link->toX == 1.0)) { // Left to right
 
 		glBegin(GL_LINE_STRIP);
 		glVertex2f(fromX, fromY);
 		if (fromY > toY) {
 			glVertex2f(fromX + (toX - fromX) * link->fromY, fromY);
 			glVertex2f(fromX + (toX - fromX) * link->fromY, toY);
-		}
-		else {
+		} else {
 			glVertex2f(fromX + (toX - fromX) * (1.0f - link->fromY), fromY);
 			glVertex2f(fromX + (toX - fromX) * (1.0f - link->fromY), toY);
 		}
 		glVertex2f(toX, toY);
 		glEnd();
 
-	}
-	else if ((link->fromY == 0 && link->toX == 0) ||				// Top to left
-		(link->fromY == 1 && link->toX == 1) || 				// Bottom to right
-		(link->fromY == 1 && link->toX == 0) ||				// Bottom to left
-		(link->fromY == 0 && link->toX == 1)) {				// Top to right
+	} else if ((link->fromY == 0 && link->toX == 0) || // Top to left
+			   (link->fromY == 1 && link->toX == 1) || // Bottom to right
+			   (link->fromY == 1 && link->toX == 0) || // Bottom to left
+			   (link->fromY == 0 && link->toX == 1)) { // Top to right
 
 		glBegin(GL_LINE_STRIP);
 		glVertex2f(fromX, fromY);
@@ -470,11 +535,10 @@ void LanInterface::DrawLink(LanComputerLink * link,
 		glVertex2f(toX, toY);
 		glEnd();
 
-	}
-	else if ((link->fromX == 1 && link->toY == 0) ||					// Right to top
-		(link->fromX == 0 && link->toY == 1) ||					// Left to bottom
-		(link->fromX == 0 && link->toY == 0) ||					// Left to top
-		(link->fromX == 1 && link->toY == 1)) {					// Right to bottom
+	} else if ((link->fromX == 1 && link->toY == 0) || // Right to top
+			   (link->fromX == 0 && link->toY == 1) || // Left to bottom
+			   (link->fromX == 0 && link->toY == 0) || // Left to top
+			   (link->fromX == 1 && link->toY == 1)) { // Right to bottom
 
 		glBegin(GL_LINE_STRIP);
 		glVertex2f(fromX, fromY);
@@ -482,21 +546,17 @@ void LanInterface::DrawLink(LanComputerLink * link,
 		glVertex2f(toX, toY);
 		glEnd();
 
-	}
-	else {																// Fuck knows
+	} else { // Fuck knows
 
 		glBegin(GL_LINE_STRIP);
 		glVertex2f(fromX, fromY);
 		glVertex2f(toX, fromY);
 		glVertex2f(toX, toY);
 		glEnd();
-
 	}
-
 }
 
-
-void LanInterface::LanSystemDraw(Button * button, bool highlighted, bool clicked)
+void LanInterface::LanSystemDraw(Button* button, bool highlighted, bool clicked)
 {
 
 	//
@@ -505,28 +565,36 @@ void LanInterface::LanSystemDraw(Button * button, bool highlighted, bool clicked
 	Button* background = EclGetButton("lan_background");
 	UplinkAssert(background);
 	int screenheight = app->GetOptions()->GetOptionValue("graphics_screenheight");
-	glScissor(background->x, screenheight - (background->y + background->height), background->width - 2, background->height);
+	glScissor(background->x,
+			  screenheight - (background->y + background->height),
+			  background->width - 2,
+			  background->height);
 	glEnable(GL_SCISSOR_TEST);
-
 
 	//
 	// Look up the computer
 
 	char* remotehost = game->GetWorld()->GetPlayer()->remotehost;
-	VLocation * vl = game->GetWorld()->GetVLocation(remotehost);
+	VLocation* vl = game->GetWorld()->GetVLocation(remotehost);
 	UplinkAssert(vl);
-	Computer * comp = vl->GetComputer();
+	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
-	if (comp->TYPE != COMPUTER_TYPE_LAN) return;
-	LanComputer * lancomp = (LanComputer*)comp;
+	if (comp->TYPE != COMPUTER_TYPE_LAN) {
+		return;
+	}
+	LanComputer* lancomp = (LanComputer*)comp;
 
 	char unused[64];
 	int systemIndex;
-	sscanf(button->name, "%s %d", unused, &systemIndex);
+	sscanf(button->name.c_str(), "%s %d", unused, &systemIndex);
 
-	if (!lancomp->systems.ValidIndex(systemIndex)) return;
-	LanComputerSystem * system = lancomp->systems.GetData(systemIndex);
-	if (!system) return;
+	if (!lancomp->systems.ValidIndex(systemIndex)) {
+		return;
+	}
+	LanComputerSystem* system = lancomp->systems.GetData(systemIndex);
+	if (!system) {
+		return;
+	}
 
 	//
 	// Draw it
@@ -550,35 +618,33 @@ void LanInterface::LanSystemDraw(Button * button, bool highlighted, bool clicked
 		UplinkAssert(button->image_standard);
 		button->image_standard->Draw(button->x, button->y);
 		break;
-
 	}
 
 	//
 	// Un scissor
 
 	glDisable(GL_SCISSOR_TEST);
-
 }
 
-void LanInterface::LanSystemMiddleClick(Button * button)
+void LanInterface::LanSystemMiddleClick(Button* button)
 {
 	game->GetInterface()->GetTaskManager()->RunHighestVersionOf("LAN_Probe");
 	LanSystemClick(button);
 }
 
-void LanInterface::LanSystemClick(Button * button)
+void LanInterface::LanSystemClick(Button* button)
 {
 
 	char unused[64];
 	int systemIndex;
-	sscanf(button->name, "%s %d", unused, &systemIndex);
+	sscanf(button->name.c_str(), "%s %d", unused, &systemIndex);
 
 	LanInterface* thisInt = (LanInterface*)game->GetInterface()->GetLocalInterface()->GetInterfaceScreen();
 	UplinkAssert(thisInt);
 
 	thisInt->SelectSystem(systemIndex);
 
-	// 
+	//
 	// Make this system the target for task programs
 
 	char* remotehost = game->GetWorld()->GetPlayer()->remotehost;
@@ -586,20 +652,23 @@ void LanInterface::LanSystemClick(Button * button)
 	UplinkAssert(vl);
 	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
-	if (comp->TYPE != COMPUTER_TYPE_LAN) return;
-	LanComputer * lancomp = (LanComputer*)comp;
+	if (comp->TYPE != COMPUTER_TYPE_LAN) {
+		return;
+	}
+	LanComputer* lancomp = (LanComputer*)comp;
 
-	LanComputerSystem * system = NULL;
-	if (lancomp->systems.ValidIndex(systemIndex))
+	LanComputerSystem* system = NULL;
+	if (lancomp->systems.ValidIndex(systemIndex)) {
 		system = lancomp->systems.GetData(systemIndex);
-	if (system && system->visible != LANSYSTEMVISIBLE_NONE)
+	}
+	if (system && system->visible != LANSYSTEMVISIBLE_NONE) {
 		game->GetInterface()->GetTaskManager()->SetProgramTarget(lancomp, button->name, systemIndex);
+	}
 
 	EclDirtyButton("localint_background");
-
 }
 
-void LanInterface::LanSystemMouseMove(Button * button)
+void LanInterface::LanSystemMouseMove(Button* button)
 {
 
 	char* remotehost = game->GetWorld()->GetPlayer()->remotehost;
@@ -607,17 +676,21 @@ void LanInterface::LanSystemMouseMove(Button * button)
 	UplinkAssert(vl);
 	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
-	if (comp->TYPE != COMPUTER_TYPE_LAN) return;
-	LanComputer * lancomp = (LanComputer*)comp;
-
+	if (comp->TYPE != COMPUTER_TYPE_LAN) {
+		return;
+	}
+	LanComputer* lancomp = (LanComputer*)comp;
 
 	char unused[64];
 	int systemIndex;
-	sscanf(button->name, "%s %d", unused, &systemIndex);
-	if (!lancomp->systems.ValidIndex(systemIndex)) return;
-	LanComputerSystem * system = lancomp->systems.GetData(systemIndex);
-	if (!system) return;
-
+	sscanf(button->name.c_str(), "%s %d", unused, &systemIndex);
+	if (!lancomp->systems.ValidIndex(systemIndex)) {
+		return;
+	}
+	LanComputerSystem* system = lancomp->systems.GetData(systemIndex);
+	if (!system) {
+		return;
+	}
 
 	switch (system->visible) {
 
@@ -633,13 +706,10 @@ void LanInterface::LanSystemMouseMove(Button * button)
 		button->SetTooltip("Target this system");
 		button_highlight(button);
 		break;
-
 	}
-
 }
 
-
-void LanInterface::ConnectDraw(Button * button, bool highlighted, bool clicked)
+void LanInterface::ConnectDraw(Button* button, bool highlighted, bool clicked)
 {
 
 	char* remotehost = game->GetWorld()->GetPlayer()->remotehost;
@@ -648,25 +718,16 @@ void LanInterface::ConnectDraw(Button * button, bool highlighted, bool clicked)
 	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
 
-	if (comp->TYPE == COMPUTER_TYPE_LAN &&
-		LanMonitor::currentSystem != LanMonitor::currentSelected &&
-		LanMonitor::currentSelected != -1) {
+	if (comp->TYPE == COMPUTER_TYPE_LAN && LanMonitor::currentSystem != LanMonitor::currentSelected
+		&& LanMonitor::currentSelected != -1) {
 
 		button_draw(button, highlighted, clicked);
-
 	}
-
 }
 
-void LanInterface::ConnectClick(Button* button)
-{
-	ConnectHandleClick(true);
-}
+void LanInterface::ConnectClick(Button* button) { ConnectHandleClick(true); }
 
-void LanInterface::ConnectMiddleClick(Button* button)
-{
-	ConnectHandleClick(false);
-}
+void LanInterface::ConnectMiddleClick(Button* button) { ConnectHandleClick(false); }
 
 void LanInterface::ConnectHandleClick(bool showScreen)
 {
@@ -676,10 +737,8 @@ void LanInterface::ConnectHandleClick(bool showScreen)
 	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
 
-	if (comp->TYPE == COMPUTER_TYPE_LAN &&
-		LanMonitor::currentSystem != LanMonitor::currentSelected &&
-		LanMonitor::currentSelected != -1 &&
-		LanMonitor::IsInConnection(LanMonitor::currentSelected)) {
+	if (comp->TYPE == COMPUTER_TYPE_LAN && LanMonitor::currentSystem != LanMonitor::currentSelected
+		&& LanMonitor::currentSelected != -1 && LanMonitor::IsInConnection(LanMonitor::currentSelected)) {
 
 		LanMonitor::SetCurrentSystem(LanMonitor::currentSelected);
 
@@ -690,19 +749,18 @@ void LanInterface::ConnectHandleClick(bool showScreen)
 			int systemIndex = LanMonitor::connection.GetData(i);
 			if (systemIndex == LanMonitor::currentSelected) {
 
-				while (LanMonitor::connection.ValidIndex(i + 1))
+				while (LanMonitor::connection.ValidIndex(i + 1)) {
 					LanMonitor::connection.RemoveData(i + 1);
+				}
 
 				break;
-
 			}
 		}
 
 		//
 		// Show the screen attached to this system
 
-		if (showScreen)
-		{
+		if (showScreen) {
 			LanComputer* lanComp = (LanComputer*)comp;
 
 			if (lanComp->systems.ValidIndex(LanMonitor::currentSelected)) {
@@ -712,14 +770,12 @@ void LanInterface::ConnectHandleClick(bool showScreen)
 					game->GetInterface()->GetRemoteInterface()->RunScreen(system->screenIndex, lanComp);
 					game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
 				}
-
 			}
 		}
 	}
-
 }
 
-void LanInterface::ConnectMouseMove(Button * button)
+void LanInterface::ConnectMouseMove(Button* button)
 {
 
 	char* remotehost = game->GetWorld()->GetPlayer()->remotehost;
@@ -728,17 +784,14 @@ void LanInterface::ConnectMouseMove(Button * button)
 	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
 
-	if (comp->TYPE == COMPUTER_TYPE_LAN &&
-		LanMonitor::currentSystem != LanMonitor::currentSelected &&
-		LanMonitor::currentSelected != -1) {
+	if (comp->TYPE == COMPUTER_TYPE_LAN && LanMonitor::currentSystem != LanMonitor::currentSelected
+		&& LanMonitor::currentSelected != -1) {
 
 		button_highlight(button);
-
 	}
-
 }
 
-void LanInterface::CancelClick(Button * button)
+void LanInterface::CancelClick(Button* button)
 {
 
 	LanMonitor::BeginAttack();
@@ -751,8 +804,7 @@ void LanInterface::CancelClick(Button * button)
 	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
 
-	if (comp->TYPE == COMPUTER_TYPE_LAN)
-	{
+	if (comp->TYPE == COMPUTER_TYPE_LAN) {
 
 		LanComputer* lc = (LanComputer*)comp;
 		if (lc->systems.ValidIndex(currentSystem)) {
@@ -762,12 +814,10 @@ void LanInterface::CancelClick(Button * button)
 			game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
 			game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_LAN);
 		}
-
 	}
-
 }
 
-void LanInterface::BackDraw(Button * button, bool highlighted, bool clicked)
+void LanInterface::BackDraw(Button* button, bool highlighted, bool clicked)
 {
 
 	char* remotehost = game->GetWorld()->GetPlayer()->remotehost;
@@ -776,16 +826,13 @@ void LanInterface::BackDraw(Button * button, bool highlighted, bool clicked)
 	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
 
-	if (comp->TYPE == COMPUTER_TYPE_LAN &&
-		LanMonitor::connection.Size() > 1) {
+	if (comp->TYPE == COMPUTER_TYPE_LAN && LanMonitor::connection.Size() > 1) {
 
 		button_draw(button, highlighted, clicked);
-
 	}
-
 }
 
-void LanInterface::BackMouseMove(Button * button)
+void LanInterface::BackMouseMove(Button* button)
 {
 
 	char* remotehost = game->GetWorld()->GetPlayer()->remotehost;
@@ -794,28 +841,20 @@ void LanInterface::BackMouseMove(Button * button)
 	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
 
-	if (comp->TYPE == COMPUTER_TYPE_LAN &&
-		LanMonitor::connection.Size() > 1) {
+	if (comp->TYPE == COMPUTER_TYPE_LAN && LanMonitor::connection.Size() > 1) {
 
 		button_highlight(button);
-
 	}
-
 }
 
-void LanInterface::BackClick(Button * button)
-{
+void LanInterface::BackClick(Button* button) { LanMonitor::RetractConnection(); }
 
-	LanMonitor::RetractConnection();
-
-}
-
-void LanInterface::GenerateClick(Button * button)
+void LanInterface::GenerateClick(Button* button)
 {
 
 	char unused[64];
 	int size;
-	sscanf(button->name, "%s %d", unused, &size);
+	sscanf(button->name.c_str(), "%s %d", unused, &size);
 
 	char* remotehost = game->GetWorld()->GetPlayer()->remotehost;
 	VLocation* vl = game->GetWorld()->GetVLocation(remotehost);
@@ -830,32 +869,38 @@ void LanInterface::GenerateClick(Button * button)
 		lanComp->systems.Empty();
 		lanComp->links.Empty();
 
-		switch (size)
-		{
-		case 0:   LanGenerator::GenerateLANCluster(lanComp, 0);  break;
-		case 1:   LanGenerator::GenerateLANCluster(lanComp, 1);  break;
-		case 2:   LanGenerator::GenerateLANCluster(lanComp, 2);  break;
-		case 3:   LanGenerator::GenerateLANCluster(lanComp, 3);  break;
-		case 4:   LanGenerator::GenerateLANCluster(lanComp, 4);  break;
+		switch (size) {
+		case 0:
+			LanGenerator::GenerateLANCluster(lanComp, 0);
+			break;
+		case 1:
+			LanGenerator::GenerateLANCluster(lanComp, 1);
+			break;
+		case 2:
+			LanGenerator::GenerateLANCluster(lanComp, 2);
+			break;
+		case 3:
+			LanGenerator::GenerateLANCluster(lanComp, 3);
+			break;
+		case 4:
+			LanGenerator::GenerateLANCluster(lanComp, 4);
+			break;
 		};
 
 		CheatInterface::ShowLANClick(NULL);
 		LanMonitor::ResetAll();
 		game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_LAN);
-
 	}
-
 }
 
-void LanInterface::TitleDraw(Button * button, bool highlighted, bool clicked)
+void LanInterface::TitleDraw(Button* button, bool highlighted, bool clicked)
 {
 
 	SetColour("TitleText");
 	GciDrawText(button->x + 10, button->y + 10, button->caption, HELVETICA_18);
-
 }
 
-void LanInterface::PanelBackgroundDraw(Button * button, bool highlighted, bool clicked)
+void LanInterface::PanelBackgroundDraw(Button* button, bool highlighted, bool clicked)
 {
 
 	glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
@@ -869,39 +914,37 @@ void LanInterface::PanelBackgroundDraw(Button * button, bool highlighted, bool c
 
 	SetColour("PanelBorder");
 	border_draw(button);
-
 }
 
-void LanInterface::ScrollClick(Button * button)
+void LanInterface::ScrollClick(Button* button)
 {
 
 	UplinkAssert(button);
 
 	char unused[64];
 	int direction;
-	sscanf(button->name, "%s %d", unused, &direction);
+	sscanf(button->name.c_str(), "%s %d", unused, &direction);
 
 	int scrollSpeed = 100;
 
-	if (direction == 1) offsetY += scrollSpeed;
-	else if (direction == 2) offsetY -= scrollSpeed;
-	else if (direction == 3) offsetX += scrollSpeed;
-	else if (direction == 4) offsetX -= scrollSpeed;
+	if (direction == 1) {
+		offsetY += scrollSpeed;
+	} else if (direction == 2) {
+		offsetY -= scrollSpeed;
+	} else if (direction == 3) {
+		offsetX += scrollSpeed;
+	} else if (direction == 4) {
+		offsetX -= scrollSpeed;
+	}
 
-	LanInterface * thisInt = (LanInterface*)game->GetInterface()->GetLocalInterface()->GetInterfaceScreen();
+	LanInterface* thisInt = (LanInterface*)game->GetInterface()->GetLocalInterface()->GetInterfaceScreen();
 	UplinkAssert(thisInt);
 	thisInt->PositionLayout();
-
 }
 
-LanInterface::LanInterface()
-{
-	UplinkStrncpy(ip, "None", sizeof(ip));
-}
+LanInterface::LanInterface() { UplinkStrncpy(ip, "None", sizeof(ip)); }
 
-LanInterface::~LanInterface()
-{
-}
+LanInterface::~LanInterface() { }
 
 void LanInterface::SelectSystem(int systemIndex)
 {
@@ -911,17 +954,21 @@ void LanInterface::SelectSystem(int systemIndex)
 	UplinkAssert(vl);
 	Computer* comp = vl->GetComputer();
 	UplinkAssert(comp);
-	if (comp->TYPE != COMPUTER_TYPE_LAN) return;
-	LanComputer * lancomp = (LanComputer*)comp;
+	if (comp->TYPE != COMPUTER_TYPE_LAN) {
+		return;
+	}
+	LanComputer* lancomp = (LanComputer*)comp;
 
-	LanComputerSystem * system = NULL;
+	LanComputerSystem* system = NULL;
 
 	if (lancomp->systems.ValidIndex(systemIndex)) {
 		system = lancomp->systems.GetData(systemIndex);
-		if (!system || system->visible == LANSYSTEMVISIBLE_NONE)
+		if (!system || system->visible == LANSYSTEMVISIBLE_NONE) {
 			return;
+		}
+	} else {
+		return;
 	}
-	else return;
 
 	//
 	// Update the connection
@@ -929,31 +976,35 @@ void LanInterface::SelectSystem(int systemIndex)
 	if (system->visible > LANSYSTEMVISIBLE_AWARE) {
 		LanMonitor::SetCurrentSelected(systemIndex);
 
-		if (!LanMonitor::IsInConnection(systemIndex))
+		if (!LanMonitor::IsInConnection(systemIndex)) {
 			LanMonitor::ExtendConnection(systemIndex);
-
+		}
 	}
-
 
 	//
 	// Update the side panel
 
 	int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
 	int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
-	//int paneltop = SY(100) + 30;
+	// int paneltop = SY(100) + 30;
 	int paneltop = (int)(100.0 * ((screenw * PANELSIZE) / 188.0) + 30);
 	int panelwidth = (int)(screenw * PANELSIZE);
 
-	LanInterfaceObject * intObj = &lanInterfaceObjects[system->TYPE];
+	LanInterfaceObject* intObj = &lanInterfaceObjects[system->TYPE];
 	UplinkAssert(intObj);
 
 	EclRemoveButton("lan_preview");
-	EclRegisterButton(screenw - 90, paneltop + 60, intObj->width, intObj->height, " ", "Shows the currently selected system", "lan_preview");
+	EclRegisterButton(screenw - 90,
+					  paneltop + 60,
+					  intObj->width,
+					  intObj->height,
+					  " ",
+					  "Shows the currently selected system",
+					  "lan_preview");
 	button_assignbitmap_blend("lan_preview", intObj->filename);
 
 	EclRegisterCaptionChange("lan_systemname", intObj->name);
 	EclRegisterCaptionChange("lan_systemdesc", intObj->description, 2000);
-
 
 	//
 	// Update the highlights
@@ -965,39 +1016,51 @@ void LanInterface::SelectSystem(int systemIndex)
 	}
 	highlights.Empty();
 
-	switch (system->TYPE)
-	{
-	case LANSYSTEM_AUTHENTICATION:      highlights.PutData(new LanInterfaceHighlight(system->data1, "Locks/Unlocks"));             break;
-	case LANSYSTEM_ISOLATIONBRIDGE:     highlights.PutData(new LanInterfaceHighlight(system->data1, "Locks"));
-		highlights.PutData(new LanInterfaceHighlight(system->data2, "Unlocks"));                   break;
+	switch (system->TYPE) {
+	case LANSYSTEM_AUTHENTICATION:
+		highlights.PutData(new LanInterfaceHighlight(system->data1, "Locks/Unlocks"));
+		break;
+	case LANSYSTEM_ISOLATIONBRIDGE:
+		highlights.PutData(new LanInterfaceHighlight(system->data1, "Locks"));
+		highlights.PutData(new LanInterfaceHighlight(system->data2, "Unlocks"));
+		break;
 
-	case LANSYSTEM_LOCK:
-	{
+	case LANSYSTEM_LOCK: {
 		for (int i = 0; i < lancomp->systems.Size(); ++i) {
 			if (lancomp->systems.ValidIndex(i)) {
 				LanComputerSystem* thisSys = lancomp->systems.GetData(i);
-				if (thisSys->TYPE == LANSYSTEM_AUTHENTICATION && (thisSys->data1 == systemIndex || thisSys->data2 == systemIndex || thisSys->data3 == systemIndex))
+				if (thisSys->TYPE == LANSYSTEM_AUTHENTICATION
+					&& (thisSys->data1 == systemIndex || thisSys->data2 == systemIndex
+						|| thisSys->data3 == systemIndex)) {
 					highlights.PutData(new LanInterfaceHighlight(i, "Controller"));
-				if (thisSys->TYPE == LANSYSTEM_ISOLATIONBRIDGE && (thisSys->data1 == systemIndex || thisSys->data2 == systemIndex))
+				}
+				if (thisSys->TYPE == LANSYSTEM_ISOLATIONBRIDGE
+					&& (thisSys->data1 == systemIndex || thisSys->data2 == systemIndex)) {
 					highlights.PutData(new LanInterfaceHighlight(i, "Controller"));
+				}
 			}
 		}
-	}
-	break;
+	} break;
 
 	case LANSYSTEM_MAINSERVER:
 
-		if (system->data1 != -1)      highlights.PutData(new LanInterfaceHighlight(system->data1, "GuardedBy"));
-		if (system->data2 != -1)      highlights.PutData(new LanInterfaceHighlight(system->data2, "GuardedBy"));
-		if (system->data3 != -1)      highlights.PutData(new LanInterfaceHighlight(system->data3, "GuardedBy"));
+		if (system->data1 != -1) {
+			highlights.PutData(new LanInterfaceHighlight(system->data1, "GuardedBy"));
+		}
+		if (system->data2 != -1) {
+			highlights.PutData(new LanInterfaceHighlight(system->data2, "GuardedBy"));
+		}
+		if (system->data3 != -1) {
+			highlights.PutData(new LanInterfaceHighlight(system->data3, "GuardedBy"));
+		}
 		break;
-
 	}
 
-	for (int i = 0; i < system->validSubnets.Size(); ++i)
-		if (system->validSubnets.ValidIndex(i))
+	for (int i = 0; i < system->validSubnets.Size(); ++i) {
+		if (system->validSubnets.ValidIndex(i)) {
 			highlights.PutData(new LanInterfaceHighlight(system->validSubnets.GetData(i), "Valid Subnet"));
-
+		}
+	}
 }
 
 void LanInterface::CreateLayout()
@@ -1011,10 +1074,12 @@ void LanInterface::CreateLayout()
 		Computer* comp = vl->GetComputer();
 		UplinkAssert(comp);
 
-		if (comp->TYPE != COMPUTER_TYPE_LAN) return;
+		if (comp->TYPE != COMPUTER_TYPE_LAN) {
+			return;
+		}
 
-		LanComputer * lancomp = (LanComputer*)comp;
-		Button * background = EclGetButton("lan_background");
+		LanComputer* lancomp = (LanComputer*)comp;
+		Button* background = EclGetButton("lan_background");
 		UplinkAssert(background);
 
 		//
@@ -1036,11 +1101,11 @@ void LanInterface::CreateLayout()
 
 				EclRegisterButton(x, y, intObj->width, intObj->height, " ", "Access this system", name);
 				button_assignbitmap(name, intObj->filename);
-				EclRegisterButtonCallbacks(name, LanSystemDraw, LanSystemClick, button_click, LanSystemMouseMove);
+				EclRegisterButtonCallbacks(
+					name, LanSystemDraw, LanSystemClick, button_click, LanSystemMouseMove);
 				EclRegisterMiddleClickCallback(name, LanSystemMiddleClick);
 			}
 		}
-
 
 		//
 		// Centre on the current system
@@ -1053,11 +1118,9 @@ void LanInterface::CreateLayout()
 			UplinkAssert(background);
 			offsetX = (background->width / 2) - (system->x);
 			offsetY = (background->height / 2) - (system->y);
-
 		}
 
 		PositionLayout();
-
 
 		//
 		// Make sure scroll buttons are still on top
@@ -1066,9 +1129,7 @@ void LanInterface::CreateLayout()
 		EclButtonBringToFront("lan_scroll 2");
 		EclButtonBringToFront("lan_scroll 3");
 		EclButtonBringToFront("lan_scroll 4");
-
 	}
-
 }
 
 void LanInterface::RemoveLayout()
@@ -1083,9 +1144,7 @@ void LanInterface::RemoveLayout()
 		EclRemoveButton(name);
 		++i;
 		UplinkSnprintf(name, sizeof(name), "lansystem %d", i);
-
 	}
-
 }
 
 void LanInterface::PositionLayout()
@@ -1102,10 +1161,12 @@ void LanInterface::PositionLayout()
 		Computer* comp = vl->GetComputer();
 		UplinkAssert(comp);
 
-		if (comp->TYPE != COMPUTER_TYPE_LAN) return;
+		if (comp->TYPE != COMPUTER_TYPE_LAN) {
+			return;
+		}
 
-		LanComputer * lancomp = (LanComputer*)comp;
-		Button * background = EclGetButton("lan_background");
+		LanComputer* lancomp = (LanComputer*)comp;
+		Button* background = EclGetButton("lan_background");
 		UplinkAssert(background);
 
 		//
@@ -1129,14 +1190,11 @@ void LanInterface::PositionLayout()
 				button->x = x;
 				button->y = y;
 				EclDirtyButton(button->name);
-
 			}
 		}
 
 		EclDirtyButton("localint_background");
-
 	}
-
 }
 
 void LanInterface::Create()
@@ -1146,38 +1204,65 @@ void LanInterface::Create()
 
 		int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
 		int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
-		//int paneltop = SY(100) + 30;
+		// int paneltop = SY(100) + 30;
 		int paneltop = (int)(100.0 * ((screenw * PANELSIZE) / 188.0) + 30);
 		int panelwidth = (int)(screenw * PANELSIZE);
 
 		//
 		// Create the side panel
 
-		//EclRegisterButton ( screenw - panelwidth - 3, paneltop, panelwidth, SY(300), "", "", "localint_background" );
-		//EclRegisterButtonCallbacks ( "localint_background", PanelBackgroundDraw, NULL, NULL, NULL );
+		// EclRegisterButton ( screenw - panelwidth - 3, paneltop, panelwidth, SY(300), "", "",
+		// "localint_background" ); EclRegisterButtonCallbacks ( "localint_background", PanelBackgroundDraw,
+		// NULL, NULL, NULL );
 		LocalInterfaceScreen::Create();
 
-		EclRegisterButton(screenw - panelwidth, paneltop + 3, panelwidth - 7, 15, "LOCAL AREA NETWORK", "Remove the LAN screen", "lan_title");
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + 3,
+						  panelwidth - 7,
+						  15,
+						  "LOCAL AREA NETWORK",
+						  "Remove the LAN screen",
+						  "lan_title");
 		EclRegisterButtonCallback("lan_title", TitleClick);
 
-		EclRegisterButton(screenw - panelwidth + 10, paneltop + 30, panelwidth - 10, 30, " ", " ", "lan_systemname");
+		EclRegisterButton(
+			screenw - panelwidth + 10, paneltop + 30, panelwidth - 10, 30, " ", " ", "lan_systemname");
 		EclRegisterButtonCallbacks("lan_systemname", TitleDraw, NULL, NULL, NULL);
 
 		EclRegisterButton(screenw - 90, paneltop + 60, 32, 32, " ", " ", "lan_preview");
 		EclRegisterButtonCallbacks("lan_preview", NULL, NULL, NULL, NULL);
 
 		int infoWidth = (screenw - 90) - (screenw - panelwidth) - 10;
-		EclRegisterButton(screenw - panelwidth + 10, paneltop + 60, infoWidth, 200, " ", " ", "lan_systemdesc");
-		//EclRegisterButtonCallbacks ( "lan_systemdesc", textbutton_draw, NULL, NULL, NULL );
+		EclRegisterButton(
+			screenw - panelwidth + 10, paneltop + 60, infoWidth, 200, " ", " ", "lan_systemdesc");
+		// EclRegisterButtonCallbacks ( "lan_systemdesc", textbutton_draw, NULL, NULL, NULL );
 		EclRegisterButtonCallbacks("lan_systemdesc", text_draw, NULL, NULL, NULL);
 
-		EclRegisterButton(screenw - panelwidth, paneltop + SY(300) - 60, panelwidth - 7, 15, "Back", "Remove the last system from your connection", "lan_back");
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + SY(300) - 60,
+						  panelwidth - 7,
+						  15,
+						  "Back",
+						  "Remove the last system from your connection",
+						  "lan_back");
 		EclRegisterButtonCallbacks("lan_back", BackDraw, BackClick, button_click, BackMouseMove);
 
-		EclRegisterButton(screenw - panelwidth, paneltop + SY(300) - 40, panelwidth - 7, 15, "Reset", "Reset the current LAN connection", "lan_cancel");
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + SY(300) - 40,
+						  panelwidth - 7,
+						  15,
+						  "Reset",
+						  "Reset the current LAN connection",
+						  "lan_cancel");
 		EclRegisterButtonCallbacks("lan_cancel", BackDraw, CancelClick, button_click, BackMouseMove);
 
-		EclRegisterButton(screenw - panelwidth, paneltop + SY(300) - 20, panelwidth - 7, 15, "Connect", "Connect to the currently selected system", "lan_connect");
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + SY(300) - 20,
+						  panelwidth - 7,
+						  15,
+						  "Connect",
+						  "Connect to the currently selected system",
+						  "lan_connect");
 		EclRegisterButtonCallbacks("lan_connect", ConnectDraw, ConnectClick, button_click, ConnectMouseMove);
 		EclRegisterMiddleClickCallback("lan_connect", ConnectMiddleClick);
 
@@ -1218,9 +1303,7 @@ void LanInterface::Create()
 
 		CreateLayout();
 		SelectSystem(LanMonitor::currentSystem);
-
 	}
-
 }
 
 void LanInterface::Remove()
@@ -1228,7 +1311,7 @@ void LanInterface::Remove()
 
 	if (IsVisible()) {
 
-		//EclRemoveButton ( "localint_background" );
+		// EclRemoveButton ( "localint_background" );
 		LocalInterfaceScreen::Remove();
 
 		EclRemoveButton("lan_title");
@@ -1255,9 +1338,7 @@ void LanInterface::Remove()
 		EclRemoveButton("lan_scroll 4");
 
 		RemoveLayout();
-
 	}
-
 }
 
 void LanInterface::Update()
@@ -1272,7 +1353,6 @@ void LanInterface::Update()
 		return;
 	}
 
-
 	// Update the stipple patterns
 	// AT A FIXED RATE ;)
 
@@ -1281,20 +1361,9 @@ void LanInterface::Update()
 		CycleStipplePattern();
 		EclDirtyButton("lan_background");
 		stippleupdate = (int)(EclGetAccurateTime() + 20);
-
 	}
-
 }
 
-bool LanInterface::IsVisible()
-{
+bool LanInterface::IsVisible() { return (EclGetButton("lan_background") != NULL); }
 
-	return (EclGetButton("lan_background") != NULL);
-
-}
-
-int  LanInterface::ScreenID()
-{
-	return SCREEN_LAN;
-}
-
+int LanInterface::ScreenID() { return SCREEN_LAN; }

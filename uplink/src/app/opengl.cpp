@@ -1,4 +1,4 @@
-// -*- tab-width:4; c-file-style:"cc-mode" -*- 
+// -*- tab-width:4; c-file-style:"cc-mode" -*-
 /*
 
 	All generic OpenGL code goes in here
@@ -8,24 +8,25 @@
 
 #include "stdafx.h"
 
+#include <GL/glew.h>
 #include <GL/gl.h>
 
 #include <GL/glu.h>
 
-#include "tosser.h"
 #include "eclipse.h"
-#include "vanbakel.h"
 #include "gucci.h"
 #include "soundgarden.h"
+#include "tosser.h"
+#include "vanbakel.h"
 
 #include "options/options.h"
 
 #include "app/app.h"
-#include "app/serialise.h"
-#include "app/opengl.h"
 #include "app/globals.h"
-#include "app/opengl_interface.h"
 #include "app/miscutils.h"
+#include "app/opengl.h"
+#include "app/opengl_interface.h"
+#include "app/serialise.h"
 
 #include "mainmenu/mainmenu.h"
 #include "mainmenu/mainmenuscreen.h"
@@ -35,84 +36,75 @@
 #include "game/game.h"
 
 #include "interface/interface.h"
-#include "interface/scrollbox.h"
-#include "interface/remoteinterface/remoteinterface.h"
-#include "world/computer/computerscreen/computerscreen.h"
-#include "interface/localinterface/localinterface.h"
 #include "interface/localinterface/hud_interface.h"
 #include "interface/localinterface/irc_interface.h"
+#include "interface/localinterface/localinterface.h"
 #include "interface/remoteinterface/linksscreen_interface.h"
 #include "interface/remoteinterface/remoteinterface.h"
+#include "interface/scrollbox.h"
 #include "interface/taskmanager/taskmanager.h"
 #include "interface/taskmanager/uplinktask.h"
+#include "world/computer/computerscreen/computerscreen.h"
 
-#include "world/world.h"
 #include "world/player.h"
-
+#include "world/world.h"
 
 #include "game/data/data.h"
 
 #define CHEATMODES_ENABLED
 
-  //#define  DRAWMOUSE
+// #define  DRAWMOUSE
 
-  // ============================================================================
-  // Local function definitions
+// ============================================================================
+// static function definitions
 
+static void init(void);
+static void keyboard(unsigned char, int, int);
+static void specialkeyboard(int, int, int);
+static void mouse(int, int, int, int);
+static void mousemove(int, int);
+static void passivemouse(int, int);
+static void resize(int, int);
+static void drawcube(int, int, int);
+static void idle(void);
 
-local void init(void);
-local void keyboard(unsigned char, int, int);
-local void specialkeyboard(int, int, int);
-local void mouse(int, int, int, int);
-local void mousemove(int, int);
-local void passivemouse(int, int);
-local void resize(int, int);
-local void drawcube(int, int, int);
-local void idle(void);
-
-local int lastidleupdate = 0;
-local int mouseX = 0;
-local int mouseY = 0;
+static int lastidleupdate = 0;
+static int mouseX = 0;
+static int mouseY = 0;
 
 // ============================================================================
 
-
-void opengl_initialise(int argc, char **argv)
+void opengl_initialise(int argc, char** argv)
 {
 
 	bool debugging = false;
-	if(app->GetOptions()->IsOptionEqualTo("game_debugstart", 1))
+	if (app->GetOptions()->IsOptionEqualTo("game_debugstart", 1)) {
 		debugging = true;
+	}
 
 	int screenWidth = app->GetOptions()->GetOptionValue("graphics_screenwidth");
 	int screenHeight = app->GetOptions()->GetOptionValue("graphics_screenheight");
-	bool runFullScreen = app->GetOptions()->IsOptionEqualTo("graphics_fullscreen", 1) &&
-		!app->GetOptions()->IsOptionEqualTo("graphics_safemode", 1);
-	bool runBorderless = app->GetOptions()->IsOptionEqualTo("graphics_borderless", 1) &&
-		!app->GetOptions()->IsOptionEqualTo("graphics_safemode", 1);
+	bool runFullScreen = app->GetOptions()->IsOptionEqualTo("graphics_fullscreen", 1)
+		&& !app->GetOptions()->IsOptionEqualTo("graphics_safemode", 1);
+	bool runBorderless = app->GetOptions()->IsOptionEqualTo("graphics_borderless", 1)
+		&& !app->GetOptions()->IsOptionEqualTo("graphics_safemode", 1);
 	int screenDepth = app->GetOptions()->GetOptionValue("graphics_screendepth");
 	int screenRefresh = app->GetOptions()->GetOptionValue("graphics_screenrefresh");
 
-	int graphics_flags = GCI_DOUBLE |
-		GCI_RGB |
-		((runFullScreen || runBorderless) ? GCI_FULLSCREEN : 0) |
-		(runBorderless ? GCI_BORDERLESS : 0) | 
-		(debugging ? GCI_DEBUGSTART : 0);
+	int graphics_flags = GCI_DOUBLE | GCI_RGB | ((runFullScreen || runBorderless) ? GCI_FULLSCREEN : 0)
+		| (runBorderless ? GCI_BORDERLESS : 0) | (debugging ? GCI_DEBUGSTART : 0);
 
-	char *errorMessageInitLib = GciInitGraphicsLibrary(graphics_flags);
-	if(errorMessageInitLib)
-	{
+	char* errorMessageInitLib = GciInitGraphicsLibrary(graphics_flags);
+	if (errorMessageInitLib) {
 		UplinkAbort(errorMessageInitLib);
 	}
 
-	GciScreenMode *mode = GciGetClosestScreenMode(screenWidth, screenHeight);
-	if (runBorderless)
-	{
+	GciScreenMode* mode = GciGetClosestScreenMode(screenWidth, screenHeight);
+	if (runBorderless) {
 		delete mode;
 		mode = GciGetClosestBorderlessMode();
 	}
-	if(mode->w != screenWidth || mode->h != screenHeight)
-	{
+	if (mode->w != screenWidth || mode->h != screenHeight) {
 		app->GetOptions()->SetOptionValue("graphics_screenwidth", mode->w);
 		app->GetOptions()->SetOptionValue("graphics_screenheight", mode->h);
 		screenWidth = mode->w;
@@ -120,33 +112,30 @@ void opengl_initialise(int argc, char **argv)
 	}
 	delete mode;
 
-	char *errorMessageInit = GciInitGraphics("CybreLink",
-		graphics_flags,
-		screenWidth, screenHeight,
-		screenDepth, screenRefresh,
-		argc, argv);
-	if(errorMessageInit)
-	{
+	char* errorMessageInit = GciInitGraphics(
+		"CybreLink", graphics_flags, screenWidth, screenHeight, screenDepth, screenRefresh, argc, argv);
+	if (errorMessageInit) {
 		UplinkAbort(errorMessageInit);
 	}
 
-	if(debugging) printf("Initialising OpenGL...\n");
+	if (debugging) {
+		printf("Initialising OpenGL...\n");
+	}
 	init();
-	if(debugging) printf("Finished initialising OpenGL.\n");
+	if (debugging) {
+		printf("Finished initialising OpenGL.\n");
+	}
 
-
-	if(debugging) printf("Now registering callback functions...");
+	if (debugging) {
+		printf("Now registering callback functions...");
+	}
 	setcallbacks();
-	if(debugging) printf("done\n ");
-
+	if (debugging) {
+		printf("done\n ");
+	}
 }
 
-void opengl_run()
-{
-
-	GciMainLoop();
-
-}
+void opengl_run() { GciMainLoop(); }
 
 void opengl_close()
 {
@@ -164,7 +153,6 @@ bool opengl_isSoftwareRendering()
 	UplinkSnprintf(path_opengl32_dll, sizeof(path_opengl32_dll), "%sopengl32.dll", app->path);
 
 	return DoesFileExist(path_opengl32_dll);
-
 }
 
 bool opengl_setSoftwareRendering(bool softwareRendering)
@@ -178,41 +166,27 @@ bool opengl_setSoftwareRendering(bool softwareRendering)
 	char new_path_opengl32_dll[256];
 	UplinkSnprintf(new_path_opengl32_dll, sizeof(new_path_opengl32_dll), "%sopengl32.dll", app->userpath);
 
-	if(softwareRendering)
-	{
-		if(!DoesFileExist(path_opengl32_dll))
-		{
-			if(DoesFileExist(path_opengl32_dll_bak) && CopyFilePlain(path_opengl32_dll_bak, path_opengl32_dll))
-			{
+	if (softwareRendering) {
+		if (!DoesFileExist(path_opengl32_dll)) {
+			if (DoesFileExist(path_opengl32_dll_bak)
+				&& CopyFilePlain(path_opengl32_dll_bak, path_opengl32_dll)) {
 				return true;
 			}
-		}
-		else
-		{
+		} else {
 			return true;
 		}
-	}
-	else
-	{
-		if(!DoesFileExist(path_opengl32_dll))
-		{
+	} else {
+		if (!DoesFileExist(path_opengl32_dll)) {
 			return true;
-		}
-		else
-		{
-			if(!DoesFileExist(path_opengl32_dll_bak))
-			{
+		} else {
+			if (!DoesFileExist(path_opengl32_dll_bak)) {
 				CopyFilePlain(path_opengl32_dll, path_opengl32_dll_bak);
 			}
-			if(RemoveFile(path_opengl32_dll))
-			{
+			if (RemoveFile(path_opengl32_dll)) {
 				return true;
-			}
-			else
-			{
+			} else {
 				RemoveFile(new_path_opengl32_dll);
-				if(MoveFile(path_opengl32_dll, new_path_opengl32_dll) != 0)
-				{
+				if (MoveFile(path_opengl32_dll, new_path_opengl32_dll) != 0) {
 					return true;
 				}
 			}
@@ -220,12 +194,11 @@ bool opengl_setSoftwareRendering(bool softwareRendering)
 	}
 
 	return false;
-
 }
 
 #endif
 
-local void init(void)
+static void init(void)
 {
 
 	/*
@@ -241,7 +214,7 @@ local void init(void)
 
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 
-	// ====================================================================== 
+	// ======================================================================
 	// Fix for Riva TNT cards (these don't automatically clear the background
 	// UPDATE : Should now 	be covered by the GLUT_NORMAL_DAMAGED code in display()
 	// int screenwidth = app->GetOptions ()->GetOptionValue ( "graphics_screenwidth" );
@@ -249,7 +222,7 @@ local void init(void)
 	// clear_draw ( 0, 0, screenwidth, screenheight );
 	// ======================================================================
 
-//	glEnable(GL_DEPTH_TEST);
+	//	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_DEPTH_TEST);
 
 	glMatrixMode(GL_MODELVIEW);
@@ -289,35 +262,34 @@ local void init(void)
 	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 
 	EclReset(app->GetOptions()->GetOptionValue("graphics_screenwidth"),
-		app->GetOptions()->GetOptionValue("graphics_screenheight"));
+			 app->GetOptions()->GetOptionValue("graphics_screenheight"));
 	EclRegisterClearDrawFunction(clear_draw);
 	EclRegisterDefaultButtonCallbacks(button_draw, NULL, button_click, button_highlight);
 	EclRegisterSuperHighlightFunction(3, superhighlight_draw);
 
-	if(app->GetOptions()->GetOption("graphics_buttonanimations") &&
-		app->GetOptions()->GetOption("graphics_buttonanimations")->value == 0)
-	{
+	if (app->GetOptions()->GetOption("graphics_buttonanimations")
+		&& app->GetOptions()->GetOption("graphics_buttonanimations")->value == 0) {
 
 		EclDisableAnimations();
-
 	}
 
-	if(app->GetOptions()->GetOption("graphics_fasterbuttonanimations") &&
-		app->GetOptions()->GetOption("graphics_fasterbuttonanimations")->value != 0)
-	{
+	if (app->GetOptions()->GetOption("graphics_fasterbuttonanimations")
+		&& app->GetOptions()->GetOption("graphics_fasterbuttonanimations")->value != 0) {
 
 		EclEnableFasterAnimations();
-
 	}
-
 }
 
 void display(void)
 {
 
-	if(app->Closed()) return;
+	if (app->Closed()) {
+		return;
+	}
 
-	if(!GciAppVisible()) return;
+	if (!GciAppVisible()) {
+		return;
+	}
 
 	/*
 
@@ -360,9 +332,9 @@ void display(void)
 	//  Draw the Eclipse buttons
 
 	////For speed testing
-	//static int counter = 0;
-	//int inter1, inter2;
-	//inter1 = (int) ( EclGetAccurateTime () * 100 );
+	// static int counter = 0;
+	// int inter1, inter2;
+	// inter1 = (int) ( EclGetAccurateTime () * 100 );
 
 	glPushMatrix();
 	glLoadIdentity();
@@ -371,14 +343,20 @@ void display(void)
 	glLoadIdentity();
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 
-	glOrtho(0.0, app->GetOptions()->GetOptionValue("graphics_screenwidth"),
-		app->GetOptions()->GetOptionValue("graphics_screenheight"), 0.0, -1.0, 1.0);
+	glOrtho(0.0,
+			app->GetOptions()->GetOptionValue("graphics_screenwidth"),
+			app->GetOptions()->GetOptionValue("graphics_screenheight"),
+			0.0,
+			-1.0,
+			1.0);
 
 	glTranslatef(0.375f, 0.375f, 0.0f);
 
 	// Added by François for testing new display
-	EclClearRectangle(0, 0, app->GetOptions()->GetOptionValue("graphics_screenwidth"),
-		app->GetOptions()->GetOptionValue("graphics_screenheight"));
+	EclClearRectangle(0,
+					  0,
+					  app->GetOptions()->GetOptionValue("graphics_screenwidth"),
+					  app->GetOptions()->GetOptionValue("graphics_screenheight"));
 
 	EclDrawAllButtons();
 
@@ -395,8 +373,8 @@ void display(void)
 	glFinish();
 
 	////For speed testing
-	//inter2 = (int) ( EclGetAccurateTime () * 100 );
-	//counter++;
+	// inter2 = (int) ( EclGetAccurateTime () * 100 );
+	// counter++;
 	////if ( counter % 5 == 0 ) {
 	//	FILE *debugfile = fopen("c:/uplink_time.txt", "a");
 	//	if ( debugfile ) {
@@ -414,99 +392,87 @@ void display(void)
 	EclDirtyClear ();
 
 	*/
-
 }
-
 
 void keyboard(unsigned char key, int x, int y)
 {
 
-	if(app->Closed()) return;
+	if (app->Closed()) {
+		return;
+	}
 
-	if(key == 13)
-	{									// ======== Return key
+	if (key == 13) { // ======== Return key
 
 		bool returned = false;
 
-		if(game->IsRunning())
-		{
-			if(game->GetInterface()->GetLocalInterface()->InScreen() != SCREEN_NONE &&
-				game->GetInterface()->GetLocalInterface()->GetInterfaceScreen()->ScreenID() == SCREEN_IRC)
-				returned = ((IRCInterface *)game->GetInterface()->GetLocalInterface()->GetInterfaceScreen())->ReturnKeyPressed();
-			else
-				returned = game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen()->ReturnKeyPressed();
-		}
-		else if(app->GetMainMenu()->InScreen() != MAINMENU_UNKNOWN)
+		if (game->IsRunning()) {
+			if (game->GetInterface()->GetLocalInterface()->InScreen() != SCREEN_NONE
+				&& game->GetInterface()->GetLocalInterface()->GetInterfaceScreen()->ScreenID()
+					== SCREEN_IRC) {
+				returned = ((IRCInterface*)game->GetInterface()->GetLocalInterface()->GetInterfaceScreen())
+							   ->ReturnKeyPressed();
+			} else {
+				returned =
+					game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen()->ReturnKeyPressed();
+			}
+		} else if (app->GetMainMenu()->InScreen() != MAINMENU_UNKNOWN) {
 			returned = app->GetMainMenu()->GetMenuScreen()->ReturnKeyPressed();
+		}
 
-		if(!returned)
-		{
+		if (!returned) {
 
 			// Pass the key press on to the box under the mouse
-			char *name = EclGetHighlightedButton();
-			if(EclIsButtonEditable(name))
-				textbutton_keypress(EclGetButton(name), key);
-
+			Button* button = EclGetHighlightedButton();
+			if (EclIsButtonEditable(button->name)) {
+				textbutton_keypress(button, key);
+			}
 		}
 
-	}
-	else if(key == 27)
-	{                             // ======== Esc key
+	} else if (key == 27) { // ======== Esc key
 
-		char *name = EclGetHighlightedButton();
+		Button* button = EclGetHighlightedButton();
 
-		if(EclIsButtonEditable(name))
-		{
+		if (EclIsButtonEditable(button->name)) {
 
-			textbutton_keypress(EclGetButton(name), key);
+			textbutton_keypress(button, key);
 
-		}
-		else
-		{
+		} else {
 
-			if(game->IsRunning())
-				bool escaped = game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen()->EscapeKeyPressed();
-
+			if (game->IsRunning()) {
+				bool escaped =
+					game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen()->EscapeKeyPressed();
+			}
 		}
 
-	}
-	else if(key == 9)
-	{								// ========= Tab key
+	} else if (key == 9) { // ========= Tab key
 
 		EclHighlightNextEditableButton();
 
-	}
-	else if(key == 96)
-	{ // backtick (`)
+	} else if (key == 96) { // backtick (`)
 
 		char screenpath[256];
 		UplinkSnprintf(screenpath, sizeof(screenpath), "%sscreenshot.bmp", app->userpath);
 
 		GciSaveScreenshot(screenpath);
 
-	}
-	else
-	{
+	} else {
 
-		char *name = EclGetHighlightedButton();
-		if(EclIsButtonEditable(name))
-			textbutton_keypress(EclGetButton(name), key);
-
+		Button* button = EclGetHighlightedButton();
+		if (EclIsButtonEditable(button->name)) {
+			textbutton_keypress(button, key);
+		}
 	}
 
-	//GciPostRedisplay();
-
+	// GciPostRedisplay();
 }
 
-void forceopenip(char* ip)
+void forceopenip(const char* ip)
 {
-	if (!game->IsRunning())
-	{
+	if (!game->IsRunning()) {
 		return;
 	}
 
-	if (game->GetWorld()->GetPlayer()->IsConnected())
-	{
+	if (game->GetWorld()->GetPlayer()->IsConnected()) {
 		game->GetWorld()->GetPlayer()->GetConnection()->Disconnect();
 		game->GetWorld()->GetPlayer()->GetConnection()->Reset();
 	}
@@ -520,23 +486,26 @@ void forceopenip(char* ip)
 void specialkeyboard(int key, int x, int y)
 {
 
-	if(app->Closed()) return;
+	if (app->Closed()) {
+		return;
+	}
 
-	switch(key)
-	{
+	switch (key) {
 
-	case GCI_KEY_F1:							// Cheat menu
+	case GCI_KEY_F1: // Cheat menu
 
 #ifdef CHEATMODES_ENABLED
 		game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_CHEATS);
 #else
-#ifndef DEMOGAME
-#ifndef WAREZRELEASE								// Prevent cheats from working in the warez release
-//            if ( game->IsRunning () && strcmp ( game->GetWorld ()->GetPlayer ()->handle, "TooManySecrets" ) == 0 )
-//                game->GetInterface ()->GetLocalInterface ()->RunScreen ( SCREEN_CHEATS );
+	#ifndef DEMOGAME
+		#ifndef WAREZRELEASE // Prevent cheats from working in the warez release
+					 //            if ( game->IsRunning () && strcmp ( game->GetWorld ()->GetPlayer
+					 //            ()->handle,
+		//            "TooManySecrets" ) == 0 )
+		//                game->GetInterface ()->GetLocalInterface ()->RunScreen ( SCREEN_CHEATS );
+		#endif
+	#endif
 #endif
-#endif
-#endif  
 		break;
 	case GCI_KEY_F2:
 		forceopenip(IP_UPLINKINTERNALSERVICES);
@@ -553,145 +522,125 @@ void specialkeyboard(int key, int x, int y)
 
 		break;
 
-
 #ifndef DEMOGAME
 
-	case GCI_KEY_F12:							// Exit
-		if(game->IsRunning()) app->SaveGame(game->GetWorld()->GetPlayer()->handle);
+	case GCI_KEY_F12: // Exit
+		if (game->IsRunning()) {
+			app->SaveGame(game->GetWorld()->GetPlayer()->handle);
+		}
 		app->Close();
 		break;
 
 #endif
-
 	}
 
-	//GciPostRedisplay ();
-
+	// GciPostRedisplay ();
 }
 
 void idle()
 {
 
-	if(app->Closed()) return;
+	if (app->Closed()) {
+		return;
+	}
 
 	int timesincelastupdate = (int)(EclGetAccurateTime() - lastidleupdate);
 
 #ifdef WIN32
-	if(timesincelastupdate < 16)
+	if (timesincelastupdate < 16) {
 		Sleep(16 - timesincelastupdate); // Play nice with other apps. May cause issues on some systems.
+	}
 #endif
 
-	//int EclAnimationsRunning();
+	// int EclAnimationsRunning();
 
 	////For speed testing
-	//static int counter = 0;
-	//int inter1, inter2, inter3, inter4;
+	// static int counter = 0;
+	// int inter1, inter2, inter3, inter4;
 
-	//inter1 = (int) ( EclGetAccurateTime () * 100 );
+	// inter1 = (int) ( EclGetAccurateTime () * 100 );
 	EclUpdateAllAnimations();
-	//inter2 = (int) ( EclGetAccurateTime () * 100 );
+	// inter2 = (int) ( EclGetAccurateTime () * 100 );
 	SgUpdate();
-	//inter3 = (int) ( EclGetAccurateTime () * 100 );
+	// inter3 = (int) ( EclGetAccurateTime () * 100 );
 	app->Update();
-	//inter4 = (int) ( EclGetAccurateTime () * 100 );
+	// inter4 = (int) ( EclGetAccurateTime () * 100 );
 
-	//counter++;
-	//if ( counter % 5 == 0 ) {
+	// counter++;
+	// if ( counter % 5 == 0 ) {
 	//	FILE *debugfile = fopen("c:/uplink_time.txt", "a");
 	//	if ( debugfile ) {
-	//		fprintf(debugfile, "Total update: %d, %d, %d, %d\n", inter4 - inter1, inter2 - inter1, inter3 - inter2, inter4 - inter3);
-	//		fclose(debugfile);
+	//		fprintf(debugfile, "Total update: %d, %d, %d, %d\n", inter4 - inter1, inter2 - inter1, inter3 -
+	// inter2, inter4 - inter3); 		fclose(debugfile);
 	//	}
-	//}
+	// }
 
 	lastidleupdate = (int)EclGetAccurateTime();
 
-	//if (EclAnimationsRunning()) 
+	// if (EclAnimationsRunning())
 	//	GciPostRedisplay ();
-
 }
 
 void mouse(int button, int state, int x, int y)
 {
 
-	if(app->Closed()) return;
-
-	if(button == GCI_LEFT_BUTTON && state == GCI_DOWN)
-	{
-
-		char *name = EclGetButtonAtCoord(x, y);
-
-		if(name)
-		{
-			Button *button = EclGetButton(name);
-			if(button) button->MouseDown();
-		}
-
+	if (app->Closed()) {
+		return;
 	}
-	else if(button == GCI_LEFT_BUTTON && state == GCI_UP)
-	{
+
+	if (button == GCI_LEFT_BUTTON && state == GCI_DOWN) {
+		Button* button = EclGetButtonAtCoord(x, y);
+		if (button) {
+			button->MouseDown();
+		}
+	} else if (button == GCI_LEFT_BUTTON && state == GCI_UP) {
 
 		EclUnClickButton();
 		ScrollBox::UnGrabScrollBar();
-		//GciPostRedisplay ();
 
-		char *name = EclGetButtonAtCoord(x, y);
-
-		if(name)
-		{
-			Button *button = EclGetButton(name);
-			if(button) button->MouseUp();
-		}
-		else
-		{
+		Button* button = EclGetButtonAtCoord(x, y);
+		if (button) {
+			button->MouseUp();
+		} else {
 			// Clicked on nothing - remove the software menu
-			if(game->IsRunning() &&
-				game->GetInterface()->GetLocalInterface()->GetHUD()->si.IsVisibleSoftwareMenu())
-			{
+			if (game->IsRunning()
+				&& game->GetInterface()->GetLocalInterface()->GetHUD()->si.IsVisibleSoftwareMenu()) {
 				game->GetInterface()->GetLocalInterface()->GetHUD()->si.ToggleSoftwareMenu();
 			}
 		}
-	}
-	else if(button == GCI_RIGHT_BUTTON && state == GCI_UP)
-	{
+	} else if (button == GCI_RIGHT_BUTTON && state == GCI_UP) {
 		// Put down any programs that are linked to the cursur
-		if(game->IsRunning())
-		{
+		if (game->IsRunning()) {
 			game->GetInterface()->GetTaskManager()->SetTargetProgram(-1);
 		}
-	}
-	else if(button == GCI_MIDDLE_BUTTON && state == GCI_UP)
-	{
-		char *name = EclGetButtonAtCoord(x, y);
-
-		if(name)
-		{
-			Button *button = EclGetButton(name);
-			if(button) button->MiddleClick();
+	} else if (button == GCI_MIDDLE_BUTTON && state == GCI_UP) {
+		Button* button = EclGetButtonAtCoord(x, y);
+		if (button) {
+			button->MiddleClick();
 		}
-	}
-	else if(button == GCI_WHEELDOWN || button == GCI_WHEELUP)
-	{
-		if(game->IsRunning())
-		{
-			WorldMapInterface *wmi = &(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
+	} else if (button == GCI_WHEELDOWN || button == GCI_WHEELUP) {
+		if (game->IsRunning()) {
+			WorldMapInterface* wmi = &(game->GetInterface()->GetLocalInterface()->GetHUD()->wmi);
 			// if we're currently in the world map view
-			if(wmi && wmi->IsVisibleWorldMapInterface() == WORLDMAP_LARGE)
-			{
+			if (wmi && wmi->IsVisibleWorldMapInterface() == WORLDMAP_LARGE) {
 				wmi->UpdateScrollwheel(button == GCI_WHEELUP);
 			}
-			
-			auto id = game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen()->GetComputerScreen()->GetOBJECTID();
-			if (id == OID_LINKSSCREEN)
-			{
-				auto linksScreen = (LinksScreenInterface*)game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen();
+
+			auto id = game->GetInterface()
+						  ->GetRemoteInterface()
+						  ->GetInterfaceScreen()
+						  ->GetComputerScreen()
+						  ->GetOBJECTID();
+			if (id == OID_LINKSSCREEN) {
+				auto linksScreen =
+					(LinksScreenInterface*)game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen();
 				linksScreen->ScrollWheelUpdate(button == GCI_WHEELUP);
 			}
 		}
 	}
 }
 
-local void mousedraw(Button *button, bool highlighted, bool clicked)
+static void mousedraw(Button* button, bool highlighted, bool clicked)
 {
 
 	UplinkAssert(button);
@@ -712,116 +661,100 @@ local void mousedraw(Button *button, bool highlighted, bool clicked)
 	glEnd();
 
 	glLineWidth(1.0);
-
 }
 
 void passivemouse(int x, int y)
 {
-	if(app->Closed()) return;
+	if (app->Closed()) {
+		return;
+	}
 
 	mouseX = x;
 	mouseY = y;
 
 	bool showSWMouse = app->GetOptions()->IsOptionEqualTo("graphics_softwaremouse", 1);
 
-	if(showSWMouse)
-	{
+	if (showSWMouse) {
 
 		// Draw the mouse
 
-		if(!EclGetButton("mouse"))
-		{
+		if (!EclGetButton("mouse")) {
 			EclRegisterButton(0, 0, 8, 8, "", "mouse");
 			EclRegisterButtonCallbacks("mouse", mousedraw, NULL, NULL, NULL);
 		}
 
 		EclButtonBringToFront("mouse");
-		Button *mouse = EclGetButton("mouse");
+		Button* mouse = EclGetButton("mouse");
 		UplinkAssert(mouse);
 		EclDirtyRectangle(mouse->x, mouse->y, mouse->width, mouse->height);
 		EclGetButton("mouse")->x = x + 1;
 		EclGetButton("mouse")->y = y + 1;
 		EclDirtyRectangle(mouse->x, mouse->y, mouse->width, mouse->height);
-
 	}
 
 	// Look for any buttons under the mouse
 
-	char *name = EclGetButtonAtCoord(x, y);
+	Button* button = EclGetButtonAtCoord(x, y);
 
-	if(name)
-	{
-		Button *button = EclGetButton(name);
-		if(button) button->MouseMove();
-	}
-	else
-	{
+	if (button) {
+		button->MouseMove();
+	} else {
 		EclUnHighlightButton();
 		tooltip_update(" ");
-		//GciPostRedisplay ();
+		// GciPostRedisplay ();
 	}
-
 }
 
 void mousemove(int x, int y)
 {
 
-	if(app->Closed()) return;
+	if (app->Closed()) {
+		return;
+	}
 
 	mouseX = x;
 	mouseY = y;
 
-	//Removed by Francois
-	//return;
+	// Removed by Francois
+	// return;
 
 	// Update scroll bars
 
-	if(ScrollBox::IsGrabInProgress()) ScrollBox::UpdateGrabScroll();
-
+	if (ScrollBox::IsGrabInProgress()) {
+		ScrollBox::UpdateGrabScroll();
+	}
 
 	bool showSWMouse = app->GetOptions()->IsOptionEqualTo("graphics_softwaremouse", 1);
 
-	if(showSWMouse)
-	{
+	if (showSWMouse) {
 
 		// Draw the mouse
 
-		if(!EclGetButton("mouse"))
-		{
+		if (!EclGetButton("mouse")) {
 			EclRegisterButton(0, 0, 8, 8, "", "mouse");
 			EclRegisterButtonCallbacks("mouse", mousedraw, NULL, NULL, NULL);
 		}
 
 		EclButtonBringToFront("mouse");
-		Button *mouse = EclGetButton("mouse");
+		Button* mouse = EclGetButton("mouse");
 		UplinkAssert(mouse);
 		EclDirtyRectangle(mouse->x, mouse->y, mouse->width, mouse->height);
 		EclGetButton("mouse")->x = x + 1;
 		EclGetButton("mouse")->y = y + 1;
 		EclDirtyRectangle(mouse->x, mouse->y, mouse->width, mouse->height);
-
 	}
-
 }
 
-int get_mouseX()
-{
+int get_mouseX() { return mouseX; }
 
-	return mouseX;
-
-}
-
-int get_mouseY()
-{
-
-	return mouseY;
-
-}
+int get_mouseY() { return mouseY; }
 
 void resize(int width, int height)
 {
 
-	if(height == 0) height = 1;
+	if (height == 0) {
+		height = 1;
+	}
 
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -833,7 +766,6 @@ void resize(int width, int height)
 	glTranslatef(0.0, -5.0, -150.0);
 
 	glMatrixMode(GL_MODELVIEW);
-
 }
 
 void setcallbacks()

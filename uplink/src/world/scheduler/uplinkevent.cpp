@@ -6,100 +6,80 @@
 
 #include "world/scheduler/uplinkevent.h"
 
+UplinkEvent::UplinkEvent() { }
 
+UplinkEvent::~UplinkEvent() { }
 
-
-UplinkEvent::UplinkEvent ()
-{
-}
-
-UplinkEvent::~UplinkEvent ()
-{
-}
-	
-void UplinkEvent::SetRunDate ( Date *newrundate )
+void UplinkEvent::SetRunDate(Date* newrundate)
 {
 
-	UplinkAssert (newrundate);
-	rundate.SetDate ( newrundate );
-
-}
-	
-void UplinkEvent::Run ()
-{
-
-	UplinkAbort ( "This MUST be overridden" );
-
+	UplinkAssert(newrundate);
+	rundate.SetDate(newrundate);
 }
 
-void UplinkEvent::RunWarning ()
-{
-}
+void UplinkEvent::Run() { UplinkAbort("This MUST be overridden"); }
 
-char *UplinkEvent::GetShortString ()
+void UplinkEvent::RunWarning() { }
+
+char* UplinkEvent::GetShortString()
 {
 
 	size_t shortstringsize = 32;
-	char *shortstring = new char [shortstringsize];
-	UplinkStrncpy ( shortstring, "Uplink Event", shortstringsize );
+	char* shortstring = new char[shortstringsize];
+	UplinkStrncpy(shortstring, "Uplink Event", shortstringsize);
 	return shortstring;
-		
 }
 
-char *UplinkEvent::GetLongString ()
+char* UplinkEvent::GetLongString()
 {
 
 	size_t longstringsize = 32;
-	char *longstring = new char [longstringsize];
-	UplinkStrncpy ( longstring, "Uplink Event", longstringsize );
+	char* longstring = new char[longstringsize];
+	UplinkStrncpy(longstring, "Uplink Event", longstringsize);
 	return longstring;
-
 }
 
-bool UplinkEvent::Load  ( FILE *file )
+bool UplinkEvent::Load(FILE* file)
 {
 
-	LoadID ( file );
-	
-	if ( !rundate.Load ( file ) ) return false;
+	LoadID(file);
 
-	LoadID_END ( file );
+	if (!rundate.Load(file)) {
+		return false;
+	}
+
+	LoadID_END(file);
 
 	return true;
-		
 }
 
-void UplinkEvent::Save  ( FILE *file )
+void UplinkEvent::Save(FILE* file)
 {
 
-	SaveID ( file );
+	SaveID(file);
 
-	rundate.Save ( file );
+	rundate.Save(file);
 
-	SaveID_END ( file );
-
+	SaveID_END(file);
 }
 
-void UplinkEvent::Print ()
+void UplinkEvent::Print()
 {
 
-	printf ( "UplinkEvent:\n" );
-	rundate.Print ();
-
+	printf("UplinkEvent:\n");
+	rundate.Print();
 }
-	
-char *UplinkEvent::GetID ()
+
+std::string UplinkEvent::GetID()
 {
 
-	UplinkAbort ( "This MUST be overridden" );
+	UplinkAbort("This MUST be overridden");
 	return NULL;
-
 }
 
-int UplinkEvent::GetOBJECTID ()
+int UplinkEvent::GetOBJECTID()
 {
 
-	UplinkAbort ( "This MUST be overridden" );
+	UplinkAbort("This MUST be overridden");
 	return -1;
-
 }

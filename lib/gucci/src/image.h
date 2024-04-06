@@ -12,59 +12,59 @@
 */
 
 #ifdef WIN32
-#include <Windows.h>
+	#include <Windows.h>
 #endif
 
-#include <GL/gl.h>
-#include "geom_types.h"
+#include <string>
 
-class Image  
-{
+#include "geom_types.h"
+#include <GL/gl.h>
+
+class Image {
 
 protected:
-
 	int width, height;
 	char alpha;
-        unsigned char *rgb_pixels;
+	unsigned char* rgb_pixels;
 
-	void SetAlphaBorderRec ( int x, int y, unsigned char a, unsigned char r, unsigned char g, unsigned char b );
+	void SetAlphaBorderRec(int x, int y, unsigned char a, unsigned char r, unsigned char g, unsigned char b);
 
 public:
-	
-	unsigned char *pixels;	
+	unsigned char* pixels;
 
 	Image();
-	Image( const Image& img );
+	Image(const Image& img);
 
 	virtual ~Image();
 
-	void LoadRAW ( char *filename, int sizex, int sizey );
-	void LoadTIF ( char *filename );
+	void LoadRAW(char* filename, int sizex, int sizey);
+	void LoadTIF(const char* filename);
+	void LoadTIF(std::string filename);
 	// loads images using SOIL (falls back to LoadTIF when called with a .tif)
 	void Load(const char* filename);
-	
-    unsigned char *GetRGBPixels();
-	
-	void  SetAlpha ( float newalpha );
-	void  SetAlphaBorder ( float newalpha, float r, float g, float b );
-	float GetAlpha ();
 
-	int Width ();
-	int Height ();
+	unsigned char* GetRGBPixels();
 
-	void FlipAroundH ();
-	void Scale ( int newwidth, int newheight );
-	void ScaleToOpenGL ();							// Resizes to valid OGL sizes (powers of 2)
+	void SetAlpha(float newalpha);
+	void SetAlphaBorder(float newalpha, float r, float g, float b);
+	float GetAlpha();
 
-	void Draw ( int x, int y );
-	void DrawBlend ( int x, int y );
+	int Width();
+	int Height();
+
+	void FlipAroundH();
+	void Scale(int newwidth, int newheight);
+	void ScaleToOpenGL(); // Resizes to valid OGL sizes (powers of 2)
+
+	void Draw(int x, int y);
+	void DrawBlend(int x, int y);
 	void DrawGL(URect screenRect, URect uvRect = URect::Identity);
 
-	void CreateErrorBitmap ();						// Makes the image into an error cross
+	void CreateErrorBitmap(); // Makes the image into an error cross
 
-	char GetPixelR ( int x, int y );
-	char GetPixelG ( int x, int y );
-	char GetPixelB ( int x, int y );
+	char GetPixelR(int x, int y);
+	char GetPixelG(int x, int y);
+	char GetPixelB(int x, int y);
 
 private:
 	GLuint textureId = -1;

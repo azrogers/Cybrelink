@@ -8,40 +8,30 @@
 
   */
 
-
 #ifndef _included_connectionlostinterface_h
 #define _included_connectionlostinterface_h
 
+#include "eclipse.h"
 #include "mainmenu/mainmenuscreen.h"
 
-
-class ConnectionLostInterface : public MainMenuScreen
-{
+class ConnectionLostInterface : public MainMenuScreen {
 
 protected:
-
 	time_t starttime;
 
 protected:
-
-	static void ReturnToMainMenuClick ( Button *button );
+	static void ReturnToMainMenuClick(Button* button);
 
 public:
+	ConnectionLostInterface();
+	~ConnectionLostInterface();
 
-	ConnectionLostInterface ();
-	~ConnectionLostInterface ();
+	void Create();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
-
-	int  ScreenID ();			
-
+	int ScreenID();
 };
 
-
-
-
 #endif
-

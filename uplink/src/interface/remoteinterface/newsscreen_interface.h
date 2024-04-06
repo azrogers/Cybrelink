@@ -17,42 +17,35 @@ class GenericScreen;
 
 // ============================================================================
 
-
-class NewsScreenInterface : public RemoteInterfaceScreen
-{
+class NewsScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
 	static int baseoffset;
 	static int currentselect;
 	static int previousnummessages;
 
 protected:
+	static void DrawNewsButton(Button* button, bool highlighted, bool clicked);
+	static void ClickNewsButton(Button* button);
+	static void MousedownNewsButton(Button* button);
+	static void HighlightNewsButton(Button* button);
 
-	static void DrawNewsButton      ( Button *button, bool highlighted, bool clicked );
-	static void ClickNewsButton     ( Button *button );
-	static void MousedownNewsButton ( Button *button );
-	static void HighlightNewsButton ( Button *button );
-	
-	static void DrawDetails     ( Button *button, bool highlighted, bool clicked );
+	static void DrawDetails(Button* button, bool highlighted, bool clicked);
 
-	static void ExitClick		( Button *button );
-    static void ScrollChange    ( char *scrollname, int newValue );
+	static void ExitClick(Button* button);
+	static void ScrollChange(const char* scrollname, int newValue);
 
 public:
+	bool EscapeKeyPressed();
 
-    bool EscapeKeyPressed ();
+	void Create(ComputerScreen* cs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ( ComputerScreen *cs );
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();				// Should override this with correct data type
-
+	GenericScreen* GetComputerScreen(); // Should override this with correct data type
 };
 
 #endif
-

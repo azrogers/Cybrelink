@@ -12,56 +12,24 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Task::Task()
-{
-	callback = NULL;
-}
+Task::Task() { callback = NULL; }
 
-Task::~Task()
-{
+Task::~Task() { }
 
-}
+void Task::SetCallback(void (*newcallback)()) { callback = newcallback; }
 
-void Task::SetCallback ( void (*newcallback) () )
-{
+void Task::Initialise() { }
 
-	callback = newcallback;
+void Task::Tick() { Tick(1); }
 
-}
+void Task::Tick(int n) { }
 
-void Task::Initialise () 
-{
-}
+void Task::CreateInterface() { }
 
-void Task::Tick ()
-{
-	Tick ( 1 );
-}
+void Task::RemoveInterface() { }
 
-void Task::Tick ( int n ) 
-{
-}
+void Task::ShowInterface() { }
 
-void Task::CreateInterface ()
-{
-}
+bool Task::IsInterfaceVisible() { return false; }
 
-void Task::RemoveInterface ()
-{
-}
-
-void Task::ShowInterface ()
-{
-}
-
-bool Task::IsInterfaceVisible ()
-{
-	return false;
-}
-
-int Task::GetPID ()
-{
-
-	return SvbLookupPID ( this );
-
-}
+int Task::GetPID() { return SvbLookupPID(this); }

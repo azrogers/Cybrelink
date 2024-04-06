@@ -3,7 +3,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <GL/gl.h>
@@ -13,8 +13,8 @@
 #include <stdio.h>
 
 #include "eclipse.h"
-#include "soundgarden.h"
 #include "redshirt.h"
+#include "soundgarden.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -25,16 +25,13 @@
 #include "options/options.h"
 
 #include "interface/interface.h"
-#include "interface/scrollbox.h"
 #include "interface/localinterface/localinterface.h"
 #include "interface/localinterface/memory_interface.h"
+#include "interface/scrollbox.h"
 #include "interface/taskmanager/taskmanager.h"
 
-#include "world/world.h"
 #include "world/player.h"
-
-
-
+#include "world/world.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -45,151 +42,146 @@ int MemoryInterface::baseoffset = 0;
 int MemoryInterface::currentprogramindex = -1;
 int MemoryInterface::specialHighlight = -1;
 
-
-void MemoryInterface::TitleClick ( Button *button )
+void MemoryInterface::TitleClick(Button* button)
 {
 
-	game->GetInterface ()->GetLocalInterface ()->RunScreen ( SCREEN_NONE );
-
+	game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
 }
 
-void MemoryInterface::MemoryBlockDraw ( Button *button, bool highlighted, bool clicked )
+void MemoryInterface::MemoryBlockDraw(Button* button, bool highlighted, bool clicked)
 {
 
-	UplinkAssert ( button );
+	UplinkAssert(button);
 
 	int index;
-	sscanf ( button->name, "memory_block %d", &index );
+	sscanf(button->name.c_str(), "memory_block %d", &index);
 	index += baseoffset;
 
-	if ( index < game->GetWorld ()->GetPlayer ()->gateway.databank.GetSize () ) {
+	if (index < game->GetWorld()->GetPlayer()->gateway.databank.GetSize()) {
 
-		Data *data = game->GetWorld ()->GetPlayer ()->gateway.databank.GetData (index);
+		Data* data = game->GetWorld()->GetPlayer()->gateway.databank.GetData(index);
 
 		// Write the memory address
 		// (With a black background)
 
-		//clear_draw ( button->x, button->y, 30, button->height );
+		// clear_draw ( button->x, button->y, 30, button->height );
 
-		char caption [64];
-		UplinkSnprintf ( caption, sizeof ( caption ), "%03d", index );
-		glColor4f ( 1.0f, 1.0f, 1.0f, 1.0f );
-		GciDrawText ( button->x, button->y + button->height - 1, caption );	
+		char caption[64];
+		UplinkSnprintf(caption, sizeof(caption), "%03d", index);
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		GciDrawText(button->x, button->y + button->height - 1, caption);
 
 		// Draw a box, colour coded on the data type
 		// Set the colour
 
-		if ( data ) {
-				
-			if ( data->TYPE == DATATYPE_DATA )
-				glColor4f ( 0.2f, 0.8f, 0.2f, ALPHA );
+		if (data) {
 
-			else if ( data->TYPE == DATATYPE_PROGRAM )
-				glColor4f ( 0.8f, 0.2f, 0.2f, ALPHA );
-				
-			else
-				glColor4f ( 0.4f, 0.4f, 0.4f, ALPHA );
+			if (data->TYPE == DATATYPE_DATA) {
+				glColor4f(0.2f, 0.8f, 0.2f, ALPHA);
+			}
 
-		}
-		else {
+			else if (data->TYPE == DATATYPE_PROGRAM) {
+				glColor4f(0.8f, 0.2f, 0.2f, ALPHA);
+			}
 
-			glColor4f ( 0.3f, 0.3f, 0.5f, ALPHA );
+			else {
+				glColor4f(0.4f, 0.4f, 0.4f, ALPHA);
+			}
 
+		} else {
+
+			glColor4f(0.3f, 0.3f, 0.5f, ALPHA);
 		}
 
 		// Draw the background colour of the box
-		glBegin ( GL_QUADS );
-			glVertex2i ( button->x + 30, button->y );
-			glVertex2i ( button->x + 30, button->y + button->height );
+		glBegin(GL_QUADS);
+		glVertex2i(button->x + 30, button->y);
+		glVertex2i(button->x + 30, button->y + button->height);
 
-			if ( highlighted || ( index == specialHighlight ) )
-				glColor4f ( 0.6f, 0.6f, 0.8f, ALPHA );
+		if (highlighted || (index == specialHighlight)) {
+			glColor4f(0.6f, 0.6f, 0.8f, ALPHA);
+		}
 
-			else
-				glColor4f ( 0.3f, 0.3f, 0.8f, ALPHA );
+		else {
+			glColor4f(0.3f, 0.3f, 0.8f, ALPHA);
+		}
 
-			glVertex2i ( button->x + button->width, button->y + button->height );
-			glVertex2i ( button->x + button->width, button->y );			
-		glEnd ();
-
+		glVertex2i(button->x + button->width, button->y + button->height);
+		glVertex2i(button->x + button->width, button->y);
+		glEnd();
 
 		// Draw a box if this program is highlighted
 
-		glColor4f ( 1.0f, 1.0f, 1.0f, ALPHA );
+		glColor4f(1.0f, 1.0f, 1.0f, ALPHA);
 
-		if ( currentprogramindex != -1 && 
-			 game->GetWorld ()->GetPlayer ()->gateway.databank.GetDataIndex (index) == currentprogramindex ) {
+		if (currentprogramindex != -1
+			&& game->GetWorld()->GetPlayer()->gateway.databank.GetDataIndex(index) == currentprogramindex) {
 
-			glBegin ( GL_LINES );
+			glBegin(GL_LINES);
 
-				glVertex2i ( button->x + 30, button->y );
-				glVertex2i ( button->x + 30, button->y + button->height );
-				glVertex2i ( button->x + button->width - 1, button->y );			
-				glVertex2i ( button->x + button->width - 1, button->y + button->height );
-							
-				if ( game->GetWorld ()->GetPlayer ()->gateway.databank.GetDataIndex (index-1) != currentprogramindex ) {
-					glVertex2i ( button->x + 30, button->y );
-					glVertex2i ( button->x + button->width - 1, button->y );
-				}
+			glVertex2i(button->x + 30, button->y);
+			glVertex2i(button->x + 30, button->y + button->height);
+			glVertex2i(button->x + button->width - 1, button->y);
+			glVertex2i(button->x + button->width - 1, button->y + button->height);
 
-				if ( game->GetWorld ()->GetPlayer ()->gateway.databank.GetDataIndex (index+1) != currentprogramindex ) {
-					glVertex2i ( button->x + 30, button->y + button->height - 1 );
-					glVertex2i ( button->x + button->width - 1, button->y + button->height - 1 );
-				}
+			if (game->GetWorld()->GetPlayer()->gateway.databank.GetDataIndex(index - 1)
+				!= currentprogramindex) {
+				glVertex2i(button->x + 30, button->y);
+				glVertex2i(button->x + button->width - 1, button->y);
+			}
 
-			glEnd ();
+			if (game->GetWorld()->GetPlayer()->gateway.databank.GetDataIndex(index + 1)
+				!= currentprogramindex) {
+				glVertex2i(button->x + 30, button->y + button->height - 1);
+				glVertex2i(button->x + button->width - 1, button->y + button->height - 1);
+			}
 
+			glEnd();
 		}
 
 		// Write the data title and version if there is one
 
-		if ( data && 
-			 game->GetWorld ()->GetPlayer ()->gateway.databank.GetDataIndex (index)	!= 
-			 game->GetWorld ()->GetPlayer ()->gateway.databank.GetDataIndex (index-1) ) {
-								
-				GciDrawText ( button->x + 30, button->y + 8, data->title );
+		if (data
+			&& game->GetWorld()->GetPlayer()->gateway.databank.GetDataIndex(index)
+				!= game->GetWorld()->GetPlayer()->gateway.databank.GetDataIndex(index - 1)) {
 
-				if ( data->TYPE == DATATYPE_PROGRAM ) {
-					char version [5];
-					UplinkSnprintf ( version, sizeof ( version ), "v%1.1f", data->version );
-					GciDrawText ( button->x + button->width - 23, button->y + 8, version );
-				}
+			GciDrawText(button->x + 30, button->y + 8, data->title);
 
+			if (data->TYPE == DATATYPE_PROGRAM) {
+				char version[5];
+				UplinkSnprintf(version, sizeof(version), "v%1.1f", data->version);
+				GciDrawText(button->x + button->width - 23, button->y + 8, version);
+			}
 		}
 
-	}
-	else {				// Index outside memory banks
+	} else { // Index outside memory banks
 
-		//clear_draw ( button->x, button->y, button->width, button->height );
+		// clear_draw ( button->x, button->y, button->width, button->height );
 
-		if ( index == game->GetWorld ()->GetPlayer ()->gateway.databank.GetSize () * 5 ) {
-			glColor4f ( 1.0f, 1.0f, 1.0f, 1.0f );
-			GciDrawText ( button->x, button->y + 8, "Mouse-Button now fucked" );
+		if (index == game->GetWorld()->GetPlayer()->gateway.databank.GetSize() * 5) {
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+			GciDrawText(button->x, button->y + 8, "Mouse-Button now fucked");
 		}
-
 	}
-
-
 }
 
-void MemoryInterface::MemoryBlockHighlight ( Button *button )
+void MemoryInterface::MemoryBlockHighlight(Button* button)
 {
 
 	// Dirty all blocks that shared the old currentprogramindex;
 
-	int screenw = app->GetOptions ()->GetOptionValue ("graphics_screenwidth");
-	int screenh = app->GetOptions ()->GetOptionValue ("graphics_screenheight");
-	int paneltop = (int) ( 100.0 * ( (screenw * PANELSIZE) / 188.0 ) + 30 );
+	int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
+	int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
+	int paneltop = (int)(100.0 * ((screenw * PANELSIZE) / 188.0) + 30);
 	int numrows = ((screenh - 50) - (paneltop + 50)) / 10;
 
-	if ( currentprogramindex != -1 ) {
-		for ( int i = baseoffset; i < baseoffset + numrows; ++i ) {
-			if ( game->GetWorld ()->GetPlayer ()->gateway.databank.GetDataIndex (i) == currentprogramindex ) {
-				
-				char name [32];
-				UplinkSnprintf ( name, sizeof ( name ), "memory_block %d", i - baseoffset );
-				EclDirtyButton ( name );
+	if (currentprogramindex != -1) {
+		for (int i = baseoffset; i < baseoffset + numrows; ++i) {
+			if (game->GetWorld()->GetPlayer()->gateway.databank.GetDataIndex(i) == currentprogramindex) {
 
+				char name[32];
+				UplinkSnprintf(name, sizeof(name), "memory_block %d", i - baseoffset);
+				EclDirtyButton(name);
 			}
 		}
 	}
@@ -197,206 +189,196 @@ void MemoryInterface::MemoryBlockHighlight ( Button *button )
 	// Work out the new current program index
 
 	int index;
-	sscanf ( button->name, "memory_block %d", &index );
+	sscanf(button->name.c_str(), "memory_block %d", &index);
 	index += baseoffset;
 
-	if ( index < game->GetWorld ()->GetPlayer ()->gateway.databank.GetSize () ) {
+	if (index < game->GetWorld()->GetPlayer()->gateway.databank.GetSize()) {
 
-		currentprogramindex = game->GetWorld ()->GetPlayer ()->gateway.databank.GetDataIndex (index);
+		currentprogramindex = game->GetWorld()->GetPlayer()->gateway.databank.GetDataIndex(index);
 
-	}
-	else {
-		
+	} else {
+
 		currentprogramindex = -1;
-
 	}
 
-	EclHighlightButton ( button->name );
+	EclHighlightButton(button->name);
 
 	// Dirty all other blocks that share this currentprogramindex
 
-	if ( currentprogramindex != -1 ) {
-		for ( int i = baseoffset; i < baseoffset + numrows; ++i ) {
-			if ( game->GetWorld ()->GetPlayer ()->gateway.databank.GetDataIndex (i) == currentprogramindex ) {
-				
-				char name [32];
-				UplinkSnprintf ( name, sizeof ( name ), "memory_block %d", i - baseoffset );
-				EclDirtyButton ( name );
+	if (currentprogramindex != -1) {
+		for (int i = baseoffset; i < baseoffset + numrows; ++i) {
+			if (game->GetWorld()->GetPlayer()->gateway.databank.GetDataIndex(i) == currentprogramindex) {
 
+				char name[32];
+				UplinkSnprintf(name, sizeof(name), "memory_block %d", i - baseoffset);
+				EclDirtyButton(name);
 			}
 		}
 	}
-
 }
 
-void MemoryInterface::MemoryBlockClick ( Button *button )
+void MemoryInterface::MemoryBlockClick(Button* button)
 {
 
-	DataBank *db = &(game->GetWorld ()->GetPlayer ()->gateway.databank);
+	DataBank* db = &(game->GetWorld()->GetPlayer()->gateway.databank);
 
 	int index;
-	sscanf ( button->name, "memory_block %d", &index );
+	sscanf(button->name.c_str(), "memory_block %d", &index);
 	index += baseoffset;
 
-	game->GetInterface ()->GetTaskManager ()->SetProgramTarget ( db, button->name, index );
-
+	game->GetInterface()->GetTaskManager()->SetProgramTarget(db, button->name, index);
 }
 
-void MemoryInterface::ScrollChange ( char *scrollname, int newValue )
+void MemoryInterface::ScrollChange(const char* scrollname, int newValue)
 {
 
-    baseoffset = newValue;
+	baseoffset = newValue;
 
-	int screenw = app->GetOptions ()->GetOptionValue ("graphics_screenwidth");
-	int screenh = app->GetOptions ()->GetOptionValue ("graphics_screenheight");
-	int paneltop = (int) ( 100.0 * ( (screenw * PANELSIZE) / 188.0 ) + 30 );
+	int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
+	int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
+	int paneltop = (int)(100.0 * ((screenw * PANELSIZE) / 188.0) + 30);
 	int numrows = ((screenh - 50) - (paneltop + 50)) / 10;
 
-	for ( int i = 0; i < numrows; ++i ) {
-	
-		char name [64];
-		UplinkSnprintf ( name, sizeof ( name ), "memory_block %d", i );
-		EclDirtyButton ( name );
+	for (int i = 0; i < numrows; ++i) {
 
+		char name[64];
+		UplinkSnprintf(name, sizeof(name), "memory_block %d", i);
+		EclDirtyButton(name);
 	}
-
 }
 
-void MemoryInterface::Create ()
+void MemoryInterface::Create()
 {
 
-	if ( !IsVisible () ) {
+	if (!IsVisible()) {
 
-		int screenw = app->GetOptions ()->GetOptionValue ("graphics_screenwidth");
-		int screenh = app->GetOptions ()->GetOptionValue ("graphics_screenheight");
-		int paneltop = (int) ( 100.0 * ( (screenw * PANELSIZE) / 188.0 ) + 30 );
-		int panelwidth = (int) ( screenw * PANELSIZE );
+		int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
+		int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
+		int paneltop = (int)(100.0 * ((screenw * PANELSIZE) / 188.0) + 30);
+		int panelwidth = (int)(screenw * PANELSIZE);
 
 		int numrows = ((screenh - 50) - (paneltop + 50)) / 10;
 
-		LocalInterfaceScreen::CreateHeight ( 50 + ( numrows * 10 ) + 3 );
+		LocalInterfaceScreen::CreateHeight(50 + (numrows * 10) + 3);
 
-		//EclRegisterButton ( screenw - panelwidth - 3, paneltop, panelwidth, 15, "MEMORY BANKS", "Remove the memory screen", "memory_title" );
-		EclRegisterButton ( screenw - panelwidth, paneltop + 3, panelwidth - 7, 15, "MEMORY BANKS", "Remove the memory screen", "memory_title" );
-		EclRegisterButtonCallback ( "memory_title", TitleClick );
+		// EclRegisterButton ( screenw - panelwidth - 3, paneltop, panelwidth, 15, "MEMORY BANKS", "Remove the
+		// memory screen", "memory_title" );
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + 3,
+						  panelwidth - 7,
+						  15,
+						  "MEMORY BANKS",
+						  "Remove the memory screen",
+						  "memory_title");
+		EclRegisterButtonCallback("memory_title", TitleClick);
 
-		//EclRegisterButton ( screenw - panelwidth - 3, paneltop + 20, panelwidth, 15, "", "memory_capacity" );
-		//EclRegisterButtonCallbacks ( "memory_capacity", textbutton_draw, NULL, NULL, NULL );
-		EclRegisterButton ( screenw - panelwidth, (paneltop + 3) + 20, panelwidth - 7, 15, "", "memory_capacity" );
-		EclRegisterButtonCallbacks ( "memory_capacity", text_draw, NULL, NULL, NULL );
+		// EclRegisterButton ( screenw - panelwidth - 3, paneltop + 20, panelwidth, 15, "", "memory_capacity"
+		// ); EclRegisterButtonCallbacks ( "memory_capacity", textbutton_draw, NULL, NULL, NULL );
+		EclRegisterButton(
+			screenw - panelwidth, (paneltop + 3) + 20, panelwidth - 7, 15, "", "memory_capacity");
+		EclRegisterButtonCallbacks("memory_capacity", text_draw, NULL, NULL, NULL);
 
-		for ( int i = 0; i < numrows; ++i ) {
+		for (int i = 0; i < numrows; ++i) {
 
-			char name [64];
-			UplinkSnprintf ( name, sizeof ( name ), "memory_block %d", i );
-			//EclRegisterButton ( screenw - panelwidth - 3 + 5, paneltop + 50 + i * 10, panelwidth - 25, 10, "", name );
-			EclRegisterButton ( screenw - panelwidth + 5, paneltop + 50 + i * 10, (panelwidth - 7) - 25, 10, "", name );
-			EclRegisterButtonCallbacks ( name, MemoryBlockDraw, MemoryBlockClick, button_click, MemoryBlockHighlight );
-
+			char name[64];
+			UplinkSnprintf(name, sizeof(name), "memory_block %d", i);
+			// EclRegisterButton ( screenw - panelwidth - 3 + 5, paneltop + 50 + i * 10, panelwidth - 25, 10,
+			// "", name );
+			EclRegisterButton(
+				screenw - panelwidth + 5, paneltop + 50 + i * 10, (panelwidth - 7) - 25, 10, "", name);
+			EclRegisterButtonCallbacks(
+				name, MemoryBlockDraw, MemoryBlockClick, button_click, MemoryBlockHighlight);
 		}
 
-        int totalmemory = game->GetWorld ()->GetPlayer ()->gateway.databank.GetSize ();
-        //ScrollBox::CreateScrollBox ( "memory_scroll", screenw - 20, paneltop + 50, 15, numrows * 10, totalmemory, numrows, baseoffset, ScrollChange );
-        ScrollBox::CreateScrollBox ( "memory_scroll", screenw - 7 - 15, paneltop + 50, 15, numrows * 10, totalmemory, numrows, baseoffset, ScrollChange );
-
+		int totalmemory = game->GetWorld()->GetPlayer()->gateway.databank.GetSize();
+		// ScrollBox::CreateScrollBox ( "memory_scroll", screenw - 20, paneltop + 50, 15, numrows * 10,
+		// totalmemory, numrows, baseoffset, ScrollChange );
+		ScrollBox::CreateScrollBox("memory_scroll",
+								   screenw - 7 - 15,
+								   paneltop + 50,
+								   15,
+								   numrows * 10,
+								   totalmemory,
+								   numrows,
+								   baseoffset,
+								   ScrollChange);
 	}
-
 }
 
-void MemoryInterface::Remove ()
+void MemoryInterface::Remove()
 {
 
-	if ( IsVisible () ) {
+	if (IsVisible()) {
 
-		LocalInterfaceScreen::Remove ();
+		LocalInterfaceScreen::Remove();
 
-		EclRemoveButton ( "memory_title" );
-		EclRemoveButton ( "memory_capacity" );
-        ScrollBox::RemoveScrollBox( "memory_scroll" );
+		EclRemoveButton("memory_title");
+		EclRemoveButton("memory_capacity");
+		ScrollBox::RemoveScrollBox("memory_scroll");
 
-		int screenw = app->GetOptions ()->GetOptionValue ("graphics_screenwidth");
-		int screenh = app->GetOptions ()->GetOptionValue ("graphics_screenheight");
-		int paneltop = (int) ( 100.0 * ( (screenw * PANELSIZE) / 188.0 ) + 30 );
+		int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
+		int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
+		int paneltop = (int)(100.0 * ((screenw * PANELSIZE) / 188.0) + 30);
 		int numrows = ((screenh - 50) - (paneltop + 50)) / 10;
 
-		for ( int i = 0; i < numrows; ++i ) {
+		for (int i = 0; i < numrows; ++i) {
 
-			char name [64];
-			UplinkSnprintf ( name, sizeof ( name ), "memory_block %d", i );
+			char name[64];
+			UplinkSnprintf(name, sizeof(name), "memory_block %d", i);
 
-			EclRemoveButton ( name );
-
+			EclRemoveButton(name);
 		}
-
 	}
-
 }
 
-void MemoryInterface::ForceUpdateAll ()
+void MemoryInterface::ForceUpdateAll()
 {
 
-    DataBank *db = &(game->GetWorld ()->GetPlayer ()->gateway.databank);
-    previousnumfiles = db->NumDataFiles() + 1;
-
+	DataBank* db = &(game->GetWorld()->GetPlayer()->gateway.databank);
+	previousnumfiles = db->NumDataFiles() + 1;
 }
 
-void MemoryInterface::SpecialHighlight ( int memoryIndex )
+void MemoryInterface::SpecialHighlight(int memoryIndex) { specialHighlight = memoryIndex; }
+
+void MemoryInterface::Update()
 {
 
-    specialHighlight = memoryIndex;
+	if (IsVisible()) {
 
-}
+		char memorycapacity[64];
+		UplinkSnprintf(memorycapacity,
+					   sizeof(memorycapacity),
+					   "Memory Capacity : %d GigaQuads",
+					   game->GetWorld()->GetPlayer()->gateway.databank.GetSize());
 
-void MemoryInterface::Update ()
-{
+		EclGetButton("memory_capacity")->SetCaption(memorycapacity);
 
-	if ( IsVisible () ) {
+		DataBank* db = &(game->GetWorld()->GetPlayer()->gateway.databank);
 
-		char memorycapacity [64];
-		UplinkSnprintf ( memorycapacity, sizeof ( memorycapacity ), "Memory Capacity : %d GigaQuads", game->GetWorld ()->GetPlayer ()->gateway.databank.GetSize () );
-
-		EclGetButton ( "memory_capacity" )->SetCaption ( memorycapacity );
-
-		DataBank *db = &(game->GetWorld ()->GetPlayer ()->gateway.databank);
-
-		if ( previousnumfiles != db->NumDataFiles () ) {
+		if (previousnumfiles != db->NumDataFiles()) {
 
 			// Something has changed
 			// Invalidate all the buttons
 
-			int screenw = app->GetOptions ()->GetOptionValue ("graphics_screenwidth");
-			int screenh = app->GetOptions ()->GetOptionValue ("graphics_screenheight");
-			int paneltop = (int) ( 100.0 * ( (screenw * PANELSIZE) / 188.0 ) + 30 );
+			int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
+			int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
+			int paneltop = (int)(100.0 * ((screenw * PANELSIZE) / 188.0) + 30);
 			int numrows = ((screenh - 50) - (paneltop + 50)) / 10;
 
-            ScrollBox::GetScrollBox( "memory_scroll" )->SetNumItems( db->GetSize() );
+			ScrollBox::GetScrollBox("memory_scroll")->SetNumItems(db->GetSize());
 
-			for ( int i = 0; i < numrows; ++i ) {
-			
-				char name [64];
-				UplinkSnprintf ( name, sizeof ( name ), "memory_block %d", i );
-				EclDirtyButton ( name );
+			for (int i = 0; i < numrows; ++i) {
 
+				char name[64];
+				UplinkSnprintf(name, sizeof(name), "memory_block %d", i);
+				EclDirtyButton(name);
 			}
 
-			previousnumfiles = db->NumDataFiles ();
-
+			previousnumfiles = db->NumDataFiles();
 		}
-
 	}
-
 }
 
-bool MemoryInterface::IsVisible ()
-{
+bool MemoryInterface::IsVisible() { return (EclGetButton("memory_title") != NULL); }
 
-	return ( EclGetButton ( "memory_title" ) != NULL );
-
-}
-
-int MemoryInterface::ScreenID ()
-{
-	
-	return SCREEN_MEMORY;
-
-}
+int MemoryInterface::ScreenID() { return SCREEN_MEMORY; }

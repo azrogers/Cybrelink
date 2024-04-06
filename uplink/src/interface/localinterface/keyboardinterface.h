@@ -6,37 +6,29 @@
 
 	*/
 
-
 #ifndef _included_keyboard_h
 #define _included_keyboard_h
 
-
 #include "interface/localinterface/localinterfacescreen.h"
 
-
-class KeyboardInterface : public LocalInterfaceScreen  
-{
+class KeyboardInterface : public LocalInterfaceScreen {
 
 protected:
-
-	static char *targetbuttonname;
+	static char* targetbuttonname;
 
 protected:
+	static void RemoveKeyboardInterface(Button* button);
+	static void Keypress(Button* button);
 
-	static void RemoveKeyboardInterface ( Button *button );
-	static void Keypress ( Button *button );
-	
 public:
-
 	KeyboardInterface();
 	virtual ~KeyboardInterface();
 
-	void SetTargetButton ( char *bname );
+	void SetTargetButton(char* bname);
 
-	void Create ( int x, int y );
-	void Remove ();
-	bool IsVisible ();
-
+	void Create(int x, int y);
+	void Remove();
+	bool IsVisible();
 };
 
 #endif

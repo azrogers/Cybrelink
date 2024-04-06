@@ -8,7 +8,6 @@
 
   */
 
-
 #ifndef _included_rankingsinterface_h
 #define _included_rankingsinterface_h
 
@@ -16,35 +15,27 @@
 
 class GenericScreen;
 
-
-
-class RankingScreenInterface : public RemoteInterfaceScreen
-{
+class RankingScreenInterface : public RemoteInterfaceScreen {
 
 protected:
+	static void ExitClick(Button* button);
 
-	static void ExitClick ( Button *button );
+	static void ActiveAgentDraw(Button* button, bool highlighted, bool clicked);
+	static void NonActiveAgentDraw(Button* button, bool highlighted, bool clicked);
 
-	static void ActiveAgentDraw ( Button *button, bool highlighted, bool clicked );
-	static void NonActiveAgentDraw ( Button *button, bool highlighted, bool clicked );
-
-	static void PlayerDraw ( Button *button, bool highlighted, bool clicked );
+	static void PlayerDraw(Button* button, bool highlighted, bool clicked);
 
 public:
+	bool ReturnKeyPressed();
+	bool EscapeKeyPressed();
 
-	bool ReturnKeyPressed ();
-    bool EscapeKeyPressed ();
+	void Create(ComputerScreen* cs);
+	void Remove();
+	bool IsVisible();
 
-	void Create ( ComputerScreen *cs );
-	void Remove ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
-
 #endif
-

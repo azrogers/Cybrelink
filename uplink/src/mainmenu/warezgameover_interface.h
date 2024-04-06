@@ -3,45 +3,34 @@
 
   Warez Game Over screen
 
-    We've detected you are A FUCKING PIRATING MUTHERFUCKER
-    SO FUCK OFF 
+	We've detected you are A FUCKING PIRATING MUTHERFUCKER
+	SO FUCK OFF
 
   */
-
 
 #ifndef _included_warezgameoverinterface_h
 #define _included_warezgameoverinterface_h
 
 #include "mainmenu/mainmenuscreen.h"
 
-
-class WarezGameOverInterface : public MainMenuScreen
-{
+class WarezGameOverInterface : public MainMenuScreen {
 
 protected:
-
 	time_t starttime;
 
 protected:
-
-	static void ReturnToMainMenuClick ( Button *button );
+	static void ReturnToMainMenuClick(Button* button);
 
 public:
+	WarezGameOverInterface();
+	~WarezGameOverInterface();
 
-	WarezGameOverInterface ();
-	~WarezGameOverInterface ();
+	void Create();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
-
-	int  ScreenID ();			
-
+	int ScreenID();
 };
 
-
-
-
 #endif
-

@@ -5,28 +5,22 @@
 #ifndef _included_statusinterface_h
 #define _included_statusinterface_h
 
-
 #include "interface/localinterface/localinterfacescreen.h"
 
-
-class StatusInterface : public LocalInterfaceScreen  
-{
+class StatusInterface : public LocalInterfaceScreen {
 
 protected:
+	static void MiniTitleDraw(Button* button, bool highlighted, bool clicked);
 
-	static void MiniTitleDraw ( Button *button, bool highlighted, bool clicked );
-
-	static void TitleClick ( Button *button );
+	static void TitleClick(Button* button);
 
 public:
+	void Create();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
-
-	int ScreenID ();
-
+	int ScreenID();
 };
 
-#endif 
+#endif

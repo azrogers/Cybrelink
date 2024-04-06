@@ -3,31 +3,23 @@
 
 #include "world/generator/numbergenerator.h"
 
-
-
-
-
-void NumberGenerator::Initialise()
-{
-
-}
-
+void NumberGenerator::Initialise() { }
 
 int NumberGenerator::RandomNumber(int range)
 {
 
 	int result = (int)(((float)rand() / (float)RAND_MAX) * range);
-	if (result < 0) result = 0;
-	if (result >= range) result = range - 1;
+	if (result < 0) {
+		result = 0;
+	}
+	if (result >= range) {
+		result = range - 1;
+	}
 
 	return result;
-
 }
 
-float NumberGenerator::RandomUniformNumber()
-{
-	return (float)rand() / (float)RAND_MAX;
-}
+float NumberGenerator::RandomUniformNumber() { return (float)rand() / (float)RAND_MAX; }
 
 float NumberGenerator::RandomNormalNumber(float mean, float range)
 {
@@ -36,13 +28,18 @@ float NumberGenerator::RandomNormalNumber(float mean, float range)
 
 	float s = 0;
 
-	for (int i = 0; i < 12; ++i)
+	for (int i = 0; i < 12; ++i) {
 		s += ((float)rand() / (float)RAND_MAX);
+	}
 
 	s = (s - 6.0f) * (range / 3.0f) + mean;
 
-	if (s < mean - range) s = mean - range;
-	if (s > mean + range) s = mean + range;
+	if (s < mean - range) {
+		s = mean - range;
+	}
+	if (s > mean + range) {
+		s = mean + range;
+	}
 
 	return s;
 
@@ -79,7 +76,6 @@ float NumberGenerator::RandomNormalNumber(float mean, float range)
 		// Test for random normal generator ========================================
 
 	*/
-
 }
 
 int NumberGenerator::ApplyVariance(int num, int variance)
@@ -89,5 +85,4 @@ int NumberGenerator::ApplyVariance(int num, int variance)
 	num = (int)(num * (variancefactor / 100.0f));
 
 	return num;
-
 }

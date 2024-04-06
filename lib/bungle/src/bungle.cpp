@@ -5,34 +5,30 @@
 
 #include "bungle.h"
 
-//#include "debug.h"
+// #include "debug.h"
 
-struct LocalFileHeader
-{
+struct LocalFileHeader {
 
-	char	signature[4];
-	short	version;
-	short	bitflag;
-	short	compressionmethod;
-	short	lastmodfiletime;
-	short	lastmodfiledate;
-	int		crc32;
-	int		compressedsize;
-	int		uncompressedsize;
-	short	filenamelength;
-	short	extrafieldlength;
+	char signature[4];
+	short version;
+	short bitflag;
+	short compressionmethod;
+	short lastmodfiletime;
+	short lastmodfiledate;
+	int crc32;
+	int compressedsize;
+	int uncompressedsize;
+	short filenamelength;
+	short extrafieldlength;
 
 	char* filename;
 	char* extrafield;
 	char* data;
 
 	char* id;
-
 };
 
-
-static BTree <LocalFileHeader*> files;
-
+static BTree<LocalFileHeader*> files;
 
 void BglSlashify(char* string)
 {
@@ -45,35 +41,38 @@ void BglSlashify(char* string)
 
 		*(next) = '/';
 		next = strchr(next, '\\');
-
 	}
 
 	// Also lowercases the string
 
-	for (char* p = string; *p != '\x0'; ++p)
-		if (*p >= 'A' && *p <= 'Z')
+	for (char* p = string; *p != '\x0'; ++p) {
+		if (*p >= 'A' && *p <= 'Z') {
 			*p += 'a' - 'A';
-
+		}
+	}
 }
 
 bool BglOpenZipFile(char* zipfile, char* apppath, char* id)
 {
 
 	FILE* file = fopen(zipfile, "rb");
-	if (!file) return false;
+	if (!file) {
+		return false;
+	}
 
 	bool result = BglOpenZipFile(file, apppath, id);
 
 	fclose(file);
 
 	return result;
-
 }
 
 bool BglOpenZipFile(FILE* file, char* apppath, char* id)
 {
 
-	if (!file) return false;
+	if (!file) {
+		return false;
+	}
 
 	while (!feof(file)) {
 
@@ -81,7 +80,7 @@ bool BglOpenZipFile(FILE* file, char* apppath, char* id)
 
 		fread(fh->signature, 4, 1, file);
 
-		if (fh->signature[0] != 'P' || fh->signature[1] != 'K') {				// No longer reading valid data
+		if (fh->signature[0] != 'P' || fh->signature[1] != 'K') { // No longer reading valid data
 			delete fh;
 			break;
 		}
@@ -101,36 +100,34 @@ bool BglOpenZipFile(FILE* file, char* apppath, char* id)
 			fh->filename = new char[fh->filenamelength + 1];
 			fread(fh->filename, fh->filenamelength, 1, file);
 			*(fh->filename + fh->filenamelength) = 0;
-		}
-		else
+		} else {
 			fh->filename = NULL;
+		}
 
 		if (fh->extrafieldlength > 0) {
 			fh->extrafield = new char[fh->extrafieldlength + 1];
 			fread(fh->extrafield, fh->extrafieldlength, 1, file);
 			*(fh->extrafield + fh->extrafieldlength) = 0;
-		}
-		else
+		} else {
 			fh->extrafield = NULL;
+		}
 
 		if (fh->uncompressedsize > 0) {
 			fh->data = new char[fh->uncompressedsize + 1];
 			fread(fh->data, fh->uncompressedsize, 1, file);
 			*(fh->data + fh->uncompressedsize) = 0;
-		}
-		else
+		} else {
 			fh->data = NULL;
+		}
 
 		if (id) {
 			fh->id = new char[strlen(id) + 1];
 			strcpy(fh->id, id);
-		}
-		else
+		} else {
 			fh->id = NULL;
+		}
 
-		if (fh->compressionmethod == 0 &&
-			fh->compressedsize == fh->uncompressedsize &&
-			fh->filename) {
+		if (fh->compressionmethod == 0 && fh->compressedsize == fh->uncompressedsize && fh->filename) {
 
 			char fullfilename[256];
 			sprintf(fullfilename, "%s%s", apppath, fh->filename);
@@ -139,24 +136,25 @@ bool BglOpenZipFile(FILE* file, char* apppath, char* id)
 
 			files.PutData(fullfilename, fh);
 
-		}
-		else {
-			if (fh->filename)
+		} else {
+			if (fh->filename) {
 				delete[] fh->filename;
-			if (fh->extrafield)
+			}
+			if (fh->extrafield) {
 				delete[] fh->extrafield;
-			if (fh->data)
+			}
+			if (fh->data) {
 				delete[] fh->data;
-			if (fh->id)
+			}
+			if (fh->id) {
 				delete[] fh->id;
+			}
 
 			delete fh;
 		}
-
 	}
 
 	return true;
-
 }
 
 bool BglFileLoaded(char* filename)
@@ -171,18 +169,17 @@ bool BglFileLoaded(char* filename)
 	delete[] filenamecopy;
 
 	return (lfh != NULL);
-
 }
 
-void BglCloseZipFile_Recursive(BTree <LocalFileHeader*>* files,
-	LList <char*>* removableids,
-	char* id)
+void BglCloseZipFile_Recursive(BTree<LocalFileHeader*>* files, LList<char*>* removableids, char* id)
 {
 
 	assert(removableids);
 	assert(id);
 
-	if (!files) return;										// Base case - end of the binary tree
+	if (!files) {
+		return; // Base case - end of the binary tree
+	}
 
 	LocalFileHeader* lfh = files->data;
 
@@ -190,25 +187,23 @@ void BglCloseZipFile_Recursive(BTree <LocalFileHeader*>* files,
 
 		// This one is a match and should be flagged for removal
 		removableids->PutData(files->id);
-
 	}
 
 	// Recurse
 
 	BglCloseZipFile_Recursive(files->Left(), removableids, id);
 	BglCloseZipFile_Recursive(files->Right(), removableids, id);
-
 }
 
 void BglCloseZipFile(char* id)
 {
 
 	//
-	// Create a DArray of filenames to be removed 
+	// Create a DArray of filenames to be removed
 	// from our Binary Tree
 	//
 
-	LList <char*> removableids;
+	LList<char*> removableids;
 
 	//
 	// Fill the DArray with a recursive search algorithm
@@ -217,7 +212,7 @@ void BglCloseZipFile(char* id)
 	BglCloseZipFile_Recursive(&files, &removableids, id);
 
 	//
-	// Run through that DArray, looking up the file, 
+	// Run through that DArray, looking up the file,
 	// deleting the data and removing it from the full btree
 	//
 
@@ -231,15 +226,21 @@ void BglCloseZipFile(char* id)
 
 		files.RemoveData(filename);
 
-		if (lfi->filename)	delete[] lfi->filename;
-		if (lfi->extrafield)	delete[] lfi->extrafield;
-		if (lfi->data)		delete[] lfi->data;
-		if (lfi->id)			delete[] lfi->id;
+		if (lfi->filename) {
+			delete[] lfi->filename;
+		}
+		if (lfi->extrafield) {
+			delete[] lfi->extrafield;
+		}
+		if (lfi->data) {
+			delete[] lfi->data;
+		}
+		if (lfi->id) {
+			delete[] lfi->id;
+		}
 
 		delete lfi;
-
 	}
-
 }
 
 bool BglExtractFile(char* filename, char* target)
@@ -257,10 +258,15 @@ bool BglExtractFile(char* filename, char* target)
 
 		FILE* output;
 
-		if (target)	output = fopen(target, "wb");
-		else			output = fopen(filename, "wb");
+		if (target) {
+			output = fopen(target, "wb");
+		} else {
+			output = fopen(filename, "wb");
+		}
 
-		if (!output) return false;
+		if (!output) {
+			return false;
+		}
 
 		fwrite(lfh->data, lfh->uncompressedsize, 1, output);
 
@@ -277,9 +283,7 @@ bool BglExtractFile(char* filename, char* target)
 	}
 
 	return false;
-
 }
-
 
 void BglExtractAllFiles(char* zipfile)
 {
@@ -307,30 +311,27 @@ void BglExtractAllFiles(char* zipfile)
 			fh.filename = new char[fh.filenamelength];
 			fread(fh.filename, fh.filenamelength, 1, file);
 			*(fh.filename + fh.filenamelength) = 0;
-		}
-		else
+		} else {
 			fh.filename = NULL;
+		}
 
 		if (fh.extrafieldlength > 0) {
 			fh.extrafield = new char[fh.extrafieldlength + 1];
 			fread(fh.extrafield, fh.extrafieldlength, 1, file);
 			*(fh.extrafield + fh.extrafieldlength) = 0;
-		}
-		else
+		} else {
 			fh.extrafield = NULL;
+		}
 
 		if (fh.uncompressedsize > 0) {
 			fh.data = new char[fh.uncompressedsize];
 			fread(fh.data, fh.uncompressedsize, 1, file);
 			*(fh.data + fh.uncompressedsize) = 0;
-		}
-		else
+		} else {
 			fh.data = NULL;
+		}
 
-
-		if (fh.compressionmethod == 0 &&
-			fh.compressedsize == fh.uncompressedsize &&
-			fh.filename) {
+		if (fh.compressionmethod == 0 && fh.compressedsize == fh.uncompressedsize && fh.filename) {
 
 			FILE* output = fopen(fh.filename, "wb");
 			assert(output);
@@ -338,24 +339,20 @@ void BglExtractAllFiles(char* zipfile)
 			fwrite(fh.data, fh.uncompressedsize, 1, output);
 
 			fclose(output);
-
 		}
-
 	}
 
 	fclose(file);
-
 }
 
-
-DArray <char*>* BglListFiles(char* path, char* directory, char* filter)
+DArray<char*>* BglListFiles(char* path, char* directory, char* filter)
 {
 
 	char dirCopy[256];
 	sprintf(dirCopy, "%s%s", path, directory);
 	BglSlashify(dirCopy);
 
-	DArray <char*>* result = files.ConvertIndexToDArray();
+	DArray<char*>* result = files.ConvertIndexToDArray();
 
 	for (int i = 0; i < result->Size(); ++i) {
 		if (result->ValidIndex(i)) {
@@ -367,40 +364,49 @@ DArray <char*>* BglListFiles(char* path, char* directory, char* filter)
 
 			bool removeMe = false;
 
-			if (strcmp(thisDir, dirCopy) != 0)         removeMe = true;
-			if (strstr(fullPath, filter) == NULL)      removeMe = true;
+			if (strcmp(thisDir, dirCopy) != 0) {
+				removeMe = true;
+			}
+			if (strstr(fullPath, filter) == NULL) {
+				removeMe = true;
+			}
 
-			if (removeMe)
+			if (removeMe) {
 				result->RemoveData(i);
-
+			}
 		}
 	}
 
 	return result;
-
 }
-
 
 void BglCloseAllFiles(BTree<LocalFileHeader*>* files)
 {
-	if (!files) return;
+	if (!files) {
+		return;
+	}
 
 	BglCloseAllFiles(files->Left());
 	BglCloseAllFiles(files->Right());
 
 	LocalFileHeader* lfi = files->data;
 	if (lfi) {
-		if (lfi->filename)	delete[] lfi->filename;
-		if (lfi->extrafield)	delete[] lfi->extrafield;
-		if (lfi->data)		delete[] lfi->data;
-		if (lfi->id)			delete[] lfi->id;
+		if (lfi->filename) {
+			delete[] lfi->filename;
+		}
+		if (lfi->extrafield) {
+			delete[] lfi->extrafield;
+		}
+		if (lfi->data) {
+			delete[] lfi->data;
+		}
+		if (lfi->id) {
+			delete[] lfi->id;
+		}
 		delete lfi;
 	}
 
 	files->Empty();
 }
 
-void BglCloseAllFiles()
-{
-	BglCloseAllFiles(&files);
-}
+void BglCloseAllFiles() { BglCloseAllFiles(&files); }

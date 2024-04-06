@@ -7,47 +7,36 @@
 
   */
 
-
 #ifndef _included_runplotsceneevent_h
 #define _included_runplotsceneevent_h
 
-
 #include "world/scheduler/uplinkevent.h"
 
-
-
-class RunPlotSceneEvent : public UplinkEvent
-{
+class RunPlotSceneEvent : public UplinkEvent {
 
 public:
-
-	int act;                                                    // If act = -1, this is a DemoPlotSceneEvent
+	int act; // If act = -1, this is a DemoPlotSceneEvent
 	int scene;
 
 public:
+	RunPlotSceneEvent();
+	~RunPlotSceneEvent();
 
-	RunPlotSceneEvent ();
-	~RunPlotSceneEvent ();
+	void SetActAndScene(int newact, int newscene);
 
-	void SetActAndScene ( int newact, int newscene );
+	void Run();
 
-	void Run ();
+	char* GetShortString();
+	char* GetLongString();
 
-	char *GetShortString ();
-	char *GetLongString ();
-
-	
 	// Common functions
 
-	bool Load  ( FILE *file );
-	void Save  ( FILE *file );
-	void Print ();
-	
-	char *GetID ();		
-	int   GetOBJECTID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
 
-
 #endif
-

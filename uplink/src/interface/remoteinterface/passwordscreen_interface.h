@@ -3,7 +3,6 @@
 #ifndef _included_passwordscreeninterface_h
 #define _included_passwordscreeninterface_h
 
-
 // ============================================================================
 
 #include "interface/remoteinterface/remoteinterfacescreen.h"
@@ -13,38 +12,32 @@ class PasswordScreen;
 
 // ============================================================================
 
-
-class PasswordScreenInterface : public RemoteInterfaceScreen
-{
+class PasswordScreenInterface : public RemoteInterfaceScreen {
 
 protected:
+	static void CodeButtonDraw(Button* button, bool highlighted, bool clicked);
 
-	static void CodeButtonDraw ( Button *button, bool highlighted, bool clicked );
-
-	static void CursorFlash ();
-	static void PasswordClick ( Button *button );
+	static void CursorFlash();
+	static void PasswordClick(Button* button);
 	static void PasswordMiddleClick(Button* button);
 
-	static void AccessCodeClick ( Button *button );
+	static void AccessCodeClick(Button* button);
 
-	static void BypassClick ( Button *button );
+	static void BypassClick(Button* button);
 
 public:
+	void NextPage();
 
-	void NextPage ();
+	bool ReturnKeyPressed();
 
-	bool ReturnKeyPressed ();
+	void Create(ComputerScreen* cs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ( ComputerScreen *cs );
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	PasswordScreen *GetComputerScreen ();
-
+	PasswordScreen* GetComputerScreen();
 };
-
 
 #endif

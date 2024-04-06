@@ -1,6 +1,6 @@
 
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <GL/gl.h>
@@ -10,9 +10,9 @@
 #include <string.h>
 
 #include "eclipse.h"
-#include "soundgarden.h"
 #include "gucci.h"
 #include "redshirt.h"
+#include "soundgarden.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -22,29 +22,27 @@
 #include "game/game.h"
 
 #include "interface/interface.h"
-#include "interface/remoteinterface/remoteinterface.h"
 #include "interface/localinterface/keyboardinterface.h"
 #include "interface/remoteinterface/passwordscreen_interface.h"
+#include "interface/remoteinterface/remoteinterface.h"
 #include "interface/taskmanager/taskmanager.h"
 
-#include "world/world.h"
-#include "world/player.h"
 #include "world/computer/computer.h"
-#include "world/computer/logbank.h"
 #include "world/computer/computerscreen/passwordscreen.h"
+#include "world/computer/logbank.h"
+#include "world/player.h"
+#include "world/world.h"
 
-
-
-
-void PasswordScreenInterface::CursorFlash ()
+void PasswordScreenInterface::CursorFlash()
 {
 
-	if ( strcmp ( EclGetButton ( "passwordscreen_password" )->caption, "_" ) == 0 )
-		EclRegisterCaptionChange ( "passwordscreen_password", " ", 1000, CursorFlash );
+	if (strcmp(EclGetButton("passwordscreen_password")->caption.c_str(), "_") == 0) {
+		EclRegisterCaptionChange("passwordscreen_password", " ", 1000, CursorFlash);
+	}
 
-	else if ( strcmp ( EclGetButton ( "passwordscreen_password" )->caption, " " ) == 0 )
-		EclRegisterCaptionChange ( "passwordscreen_password", "_", 1000, CursorFlash );
-
+	else if (strcmp(EclGetButton("passwordscreen_password")->caption.c_str(), " ") == 0) {
+		EclRegisterCaptionChange("passwordscreen_password", "_", 1000, CursorFlash);
+	}
 }
 
 void PasswordScreenInterface::PasswordMiddleClick(Button* button)
@@ -54,229 +52,212 @@ void PasswordScreenInterface::PasswordMiddleClick(Button* button)
 	PasswordClick(button);
 }
 
-void PasswordScreenInterface::PasswordClick ( Button *button )
+void PasswordScreenInterface::PasswordClick(Button* button)
 {
 
-	UplinkAssert (button);
+	UplinkAssert(button);
 
-	RemoteInterfaceScreen *ris = game->GetInterface ()->GetRemoteInterface ()->GetInterfaceScreen ();
-	UplinkAssert (ris);
-	PasswordScreenInterface *ps = (PasswordScreenInterface *) ris;
+	RemoteInterfaceScreen* ris = game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen();
+	UplinkAssert(ris);
+	PasswordScreenInterface* ps = (PasswordScreenInterface*)ris;
 
-	game->GetInterface ()->GetTaskManager ()->SetProgramTarget ( ps->GetComputerScreen (), button->name, -1 );
-
+	game->GetInterface()->GetTaskManager()->SetProgramTarget(ps->GetComputerScreen(), button->name, -1);
 }
 
-void PasswordScreenInterface::AccessCodeClick ( Button *button )
+void PasswordScreenInterface::AccessCodeClick(Button* button)
 {
 
-	UplinkAssert (button);
+	UplinkAssert(button);
 
-	char *fullcode = new char [strlen(button->caption) + 1];
-	UplinkSafeStrcpy ( fullcode, button->caption );
+	char* fullcode = new char[button->caption.length() + 1];
+	UplinkSafeStrcpy(fullcode, button->caption.c_str());
 
 	char *code, *code2;
 
-	code = strchr ( fullcode, '\'' );
-	if ( code ) {
+	code = strchr(fullcode, '\'');
+	if (code) {
 		code += 1;
-		code2 = strchr ( code, '\'' );
-		if ( code2 ) {
+		code2 = strchr(code, '\'');
+		if (code2) {
 			*code2 = '\0';
-			EclRegisterCaptionChange ( "passwordscreen_password", code );
+			EclRegisterCaptionChange("passwordscreen_password", code);
 		}
 	}
 
-	delete [] fullcode;
-
+	delete[] fullcode;
 }
 
-void PasswordScreenInterface::BypassClick ( Button *button )
+void PasswordScreenInterface::BypassClick(Button* button)
 {
 
+	//	game->GetWorld ()->GetPlayer ()->GetConnection ()->BeginTrace ();
 
-//	game->GetWorld ()->GetPlayer ()->GetConnection ()->BeginTrace ();
-	
-	RemoteInterfaceScreen *ris = game->GetInterface ()->GetRemoteInterface ()->GetInterfaceScreen ();
-	PasswordScreenInterface *ps = (PasswordScreenInterface *) ris;
-	if ( game->GetWorld ()->GetPlayer ()->IsConnected () )
-		ps->NextPage ();
-
+	RemoteInterfaceScreen* ris = game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen();
+	PasswordScreenInterface* ps = (PasswordScreenInterface*)ris;
+	if (game->GetWorld()->GetPlayer()->IsConnected()) {
+		ps->NextPage();
+	}
 }
 
-void PasswordScreenInterface::CodeButtonDraw ( Button *button, bool highlighted, bool clicked )
+void PasswordScreenInterface::CodeButtonDraw(Button* button, bool highlighted, bool clicked)
 {
 
-	UplinkAssert (button);
+	UplinkAssert(button);
 
 	// Draw a background colour
 
-	SetColour ( "PasswordBoxBackground" );
-	
-	glBegin ( GL_QUADS );
+	SetColour("PasswordBoxBackground");
 
-		glVertex2i ( button->x, button->y );
-		glVertex2i ( button->x + button->width - 1, button->y );
-		glVertex2i ( button->x + button->width - 1, button->y + button->height );
-		glVertex2i ( button->x, button->y + button->height );
+	glBegin(GL_QUADS);
 
-	glEnd ();
+	glVertex2i(button->x, button->y);
+	glVertex2i(button->x + button->width - 1, button->y);
+	glVertex2i(button->x + button->width - 1, button->y + button->height);
+	glVertex2i(button->x, button->y + button->height);
+
+	glEnd();
 
 	// Print the text
 
-    SetColour ( "DefaultText" );
-	
-	char *caption = new char [strlen(button->caption) + 1];
-	for ( size_t i = 0; i < strlen(button->caption); ++i )
-		caption [i] = '*';
+	SetColour("DefaultText");
 
-	caption [strlen(button->caption)] = '\x0';
-	GciDrawText ( button->x + 10, button->y + 10, caption, BITMAP_15 );
+	char* caption = new char[button->caption.length() + 1];
+	for (size_t i = 0; i < button->caption.length(); ++i) {
+		caption[i] = '*';
+	}
 
-	delete [] caption;
+	caption[button->caption.length()] = '\x0';
+	GciDrawText(button->x + 10, button->y + 10, caption, BITMAP_15);
+
+	delete[] caption;
 
 	// Draw a box around the text if highlighted
 
-	if ( highlighted || clicked ) {
+	if (highlighted || clicked) {
 
-		glBegin ( GL_LINE_LOOP );
+		glBegin(GL_LINE_LOOP);
 
-			glVertex2i ( button->x, button->y );
-			glVertex2i ( button->x + button->width, button->y );
-			glVertex2i ( button->x + button->width, button->y + button->height );
-			glVertex2i ( button->x, button->y + button->height );
+		glVertex2i(button->x, button->y);
+		glVertex2i(button->x + button->width, button->y);
+		glVertex2i(button->x + button->width, button->y + button->height);
+		glVertex2i(button->x, button->y + button->height);
 
-		glEnd ();
-
+		glEnd();
 	}
-
 }
 
-void PasswordScreenInterface::NextPage ()
+void PasswordScreenInterface::NextPage()
 {
 
 	// Give the user max security clearance (only 1 access code for password screen)
-	
-	game->GetInterface ()->GetRemoteInterface ()->SetSecurity ( "Admin", 1 );
+
+	game->GetInterface()->GetRemoteInterface()->SetSecurity("Admin", 1);
 
 	// Add this into the computer's logs
 
-	AccessLog *log = new AccessLog ();
-	log->SetProperties ( &(game->GetWorld ()->date), 
-						 game->GetWorld ()->GetPlayer ()->GetConnection ()->GetGhost (), "PLAYER" );
-	log->SetData1 ( "Password authentication accepted" );
-	GetComputerScreen ()->GetComputer ()->logbank.AddLog ( log );
+	AccessLog* log = new AccessLog();
+	log->SetProperties(
+		&(game->GetWorld()->date), game->GetWorld()->GetPlayer()->GetConnection()->GetGhost(), "PLAYER");
+	log->SetData1("Password authentication accepted");
+	GetComputerScreen()->GetComputer()->logbank.AddLog(log);
 
-	if ( GetComputerScreen ()->nextpage != -1 )
-		game->GetInterface ()->GetRemoteInterface ()->RunScreen ( GetComputerScreen ()->nextpage, GetComputerScreen ()->GetComputer () );
-
+	if (GetComputerScreen()->nextpage != -1) {
+		game->GetInterface()->GetRemoteInterface()->RunScreen(GetComputerScreen()->nextpage,
+															  GetComputerScreen()->GetComputer());
+	}
 }
 
-bool PasswordScreenInterface::ReturnKeyPressed ()
+bool PasswordScreenInterface::ReturnKeyPressed() { return false; }
+
+void PasswordScreenInterface::Create(ComputerScreen* newcs)
 {
 
-	return false;
-
-}
-
-void PasswordScreenInterface::Create ( ComputerScreen *newcs )
-{
-
-	UplinkAssert ( newcs );
+	UplinkAssert(newcs);
 	cs = newcs;
 
-	if ( !IsVisible () ) {
+	if (!IsVisible()) {
 
-		EclRegisterButton ( 150, 120, 350, 25, GetComputerScreen ()->maintitle, "", "passwordscreen_maintitle" );
-		EclRegisterButtonCallbacks ( "passwordscreen_maintitle", DrawMainTitle, NULL, NULL, NULL );
-		EclRegisterButton ( 150, 140, 350, 20, GetComputerScreen ()->subtitle, "", "passwordscreen_subtitle" );
-		EclRegisterButtonCallbacks ( "passwordscreen_subtitle", DrawSubTitle, NULL, NULL, NULL );
-		
-		EclRegisterButton ( 168, 185, 220, 110, "", "", "passwordscreen_message" );
-		button_assignbitmap ( "passwordscreen_message", "passwordscreen.tif" );
+		EclRegisterButton(150, 120, 350, 25, GetComputerScreen()->maintitle, "", "passwordscreen_maintitle");
+		EclRegisterButtonCallbacks("passwordscreen_maintitle", DrawMainTitle, NULL, NULL, NULL);
+		EclRegisterButton(150, 140, 350, 20, GetComputerScreen()->subtitle, "", "passwordscreen_subtitle");
+		EclRegisterButtonCallbacks("passwordscreen_subtitle", DrawSubTitle, NULL, NULL, NULL);
 
-		EclRegisterButton ( 206, 251, 145, 14, "", "Target this password box", "passwordscreen_password" );
-		EclRegisterButtonCallbacks ( "passwordscreen_password", CodeButtonDraw, PasswordClick, button_click, button_highlight );
+		EclRegisterButton(168, 185, 220, 110, "", "", "passwordscreen_message");
+		button_assignbitmap("passwordscreen_message", "passwordscreen.tif");
+
+		EclRegisterButton(206, 251, 145, 14, "", "Target this password box", "passwordscreen_password");
+		EclRegisterButtonCallbacks(
+			"passwordscreen_password", CodeButtonDraw, PasswordClick, button_click, button_highlight);
 		EclRegisterMiddleClickCallback("passwordscreen_password", PasswordMiddleClick);
-		
-		EclMakeButtonEditable ( "passwordscreen_password" );
+
+		EclMakeButtonEditable("passwordscreen_password");
 
 		// Create the box that will show the currently known codes for this screen
-		UplinkAssert ( cs->GetComputer () );
-		BTree <char *> *btree = game->GetWorld ()->GetPlayer ()->codes.LookupTree ( cs->GetComputer ()->ip );
+		UplinkAssert(cs->GetComputer());
+		const BTree<char*>* btree = game->GetWorld()->GetPlayer()->codes.LookupTree(cs->GetComputer()->ip);
 
-		if ( btree ) {
+		if (btree) {
 
-			EclRegisterButton ( 200, 310, 250, 15, "Known Access Codes", "", "passwordscreen_codestitle" );
-			EclRegisterButtonCallbacks ( "passwordscreen_codestitle", textbutton_draw, NULL, NULL, NULL );
+			EclRegisterButton(200, 310, 250, 15, "Known Access Codes", "", "passwordscreen_codestitle");
+			EclRegisterButtonCallbacks("passwordscreen_codestitle", textbutton_draw, NULL, NULL, NULL);
 
-			EclRegisterButton ( 200, 330, 250, 15, btree->data, "Use this code", "passwordscreen_codes" );
-			EclRegisterButtonCallbacks ( "passwordscreen_codes", textbutton_draw, AccessCodeClick, button_click, button_highlight );
-
+			EclRegisterButton(200, 330, 250, 15, btree->data, "Use this code", "passwordscreen_codes");
+			EclRegisterButtonCallbacks(
+				"passwordscreen_codes", textbutton_draw, AccessCodeClick, button_click, button_highlight);
 		}
 
 #ifdef CHEATMODES_ENABLED
 		// Create a symbol for quick entry into this screen
-		EclRegisterButton ( 3, 20, 30, 15, "#", "Click here to bypass this screen (DEBUG MODE ONLY)", "passwordscreen_bypass" );
-		EclRegisterButtonCallbacks ( "passwordscreen_bypass", textbutton_draw, BypassClick, button_click, button_highlight );
-#endif						
-		
-	}
-
-}
-
-void PasswordScreenInterface::Remove ()
-{
-
-	if ( IsVisible () ) {
-
-		EclRemoveButton ( "passwordscreen_maintitle" );
-		EclRemoveButton ( "passwordscreen_subtitle" );
-		EclRemoveButton ( "passwordscreen_message" );
-		EclRemoveButton ( "passwordscreen_password" );
-		EclRemoveButton ( "passwordscreen_codestitle" );
-		EclRemoveButton ( "passwordscreen_codes" );
-	
-#ifdef CHEATMODES_ENABLED
-		EclRemoveButton ( "passwordscreen_bypass" );
+		EclRegisterButton(3,
+						  20,
+						  30,
+						  15,
+						  "#",
+						  "Click here to bypass this screen (DEBUG MODE ONLY)",
+						  "passwordscreen_bypass");
+		EclRegisterButtonCallbacks(
+			"passwordscreen_bypass", textbutton_draw, BypassClick, button_click, button_highlight);
 #endif
-
 	}
-
 }
 
-void PasswordScreenInterface::Update ()
+void PasswordScreenInterface::Remove()
 {
 
-	if ( game->GetWorld ()->GetPlayer ()->IsConnected () && 
-	     strcmp ( EclGetButton ( "passwordscreen_password" )->caption, GetComputerScreen ()->password ) == 0 ) {
+	if (IsVisible()) {
 
-		SgPlaySound ( RsArchiveFileOpen ( "sounds/login.wav" ), "sounds/login.wav" );
-		NextPage ();
+		EclRemoveButton("passwordscreen_maintitle");
+		EclRemoveButton("passwordscreen_subtitle");
+		EclRemoveButton("passwordscreen_message");
+		EclRemoveButton("passwordscreen_password");
+		EclRemoveButton("passwordscreen_codestitle");
+		EclRemoveButton("passwordscreen_codes");
 
+#ifdef CHEATMODES_ENABLED
+		EclRemoveButton("passwordscreen_bypass");
+#endif
 	}
-
 }
 
-bool PasswordScreenInterface::IsVisible ()
+void PasswordScreenInterface::Update()
 {
 
-	return ( EclGetButton ( "passwordscreen_message" ) != NULL );
+	if (game->GetWorld()->GetPlayer()->IsConnected()
+		&& strcmp(EclGetButton("passwordscreen_password")->caption.c_str(), GetComputerScreen()->password)
+			== 0) {
 
+		SgPlaySound(RsArchiveFileOpen("sounds/login.wav"), "sounds/login.wav");
+		NextPage();
+	}
 }
 
-int PasswordScreenInterface::ScreenID ()
+bool PasswordScreenInterface::IsVisible() { return (EclGetButton("passwordscreen_message") != NULL); }
+
+int PasswordScreenInterface::ScreenID() { return SCREEN_PASSWORDSCREEN; }
+
+PasswordScreen* PasswordScreenInterface::GetComputerScreen()
 {
 
-	return SCREEN_PASSWORDSCREEN;
-
+	UplinkAssert(cs);
+	return (PasswordScreen*)cs;
 }
-
-PasswordScreen *PasswordScreenInterface::GetComputerScreen ()
-{
-
-	UplinkAssert (cs);
-	return (PasswordScreen *) cs;
-
-}
-

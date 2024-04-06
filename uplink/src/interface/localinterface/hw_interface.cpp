@@ -1,6 +1,6 @@
 
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <strstream>
@@ -10,8 +10,8 @@
 #include <GL/glu.h>
 
 #include "eclipse.h"
-#include "soundgarden.h"
 #include "redshirt.h"
+#include "soundgarden.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -23,59 +23,59 @@
 #include "options/options.h"
 
 #include "interface/interface.h"
-#include "interface/localinterface/localinterface.h"
-#include "interface/localinterface/hw_interface.h"
 #include "interface/localinterface/hud_interface.h"
+#include "interface/localinterface/hw_interface.h"
+#include "interface/localinterface/localinterface.h"
 #include "interface/remoteinterface/remoteinterface.h"
 
-#include "world/world.h"
 #include "world/player.h"
+#include "world/world.h"
 
-
-
-
-void HWInterface::TitleClick(Button *button)
+void HWInterface::TitleClick(Button* button)
 {
 
 	game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
-
 }
 
-void HWInterface::ShowGatewayClick(Button *button)
+void HWInterface::ShowGatewayClick(Button* button)
 {
 
 	game->GetInterface()->GetLocalInterface()->GetHUD()->gw.Create();
-
 }
 
-void HWInterface::MiniTitleDraw(Button *button, bool highlighted, bool clicked)
+void HWInterface::MiniTitleDraw(Button* button, bool highlighted, bool clicked)
 {
 
 	SetColour("TitleText");
 	GciDrawText(button->x + 10, button->y + 10, button->caption, HELVETICA_18);
-
 }
 
 void HWInterface::CreateHWInterface()
 {
 
-	if(!IsVisibleHWInterface())
-	{
+	if (!IsVisibleHWInterface()) {
 
 		int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
 		int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
-		//int paneltop = SX(100) + 30;
+		// int paneltop = SX(100) + 30;
 		int paneltop = (int)(100.0 * ((screenw * PANELSIZE) / 188.0) + 30);
 		int panelwidth = (int)(screenw * PANELSIZE);
 
-		EclRegisterButton(screenw - panelwidth, paneltop + 3, panelwidth - 7, 15, "GATEWAY", "Remove the gateway screen", "hw_title");
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + 3,
+						  panelwidth - 7,
+						  15,
+						  "GATEWAY",
+						  "Remove the gateway screen",
+						  "hw_title");
 		EclRegisterButtonCallback("hw_title", TitleClick);
 
-		Gateway *gateway = &(game->GetWorld()->GetPlayer()->gateway);
+		Gateway* gateway = &(game->GetWorld()->GetPlayer()->gateway);
 
 		// Hardware installed
 
-		EclRegisterButton(screenw - panelwidth + 40, paneltop + 40, 80, 20, "Hardware", "", "hw_hardwaretitle");
+		EclRegisterButton(
+			screenw - panelwidth + 40, paneltop + 40, 80, 20, "Hardware", "", "hw_hardwaretitle");
 		EclRegisterButtonCallbacks("hw_hardwaretitle", MiniTitleDraw, NULL, NULL, NULL);
 
 		EclRegisterButton(screenw - panelwidth, paneltop + 70, panelwidth - 10, 15, "", "", "hw_cpu");
@@ -92,82 +92,120 @@ void HWInterface::CreateHWInterface()
 		int maxCpus = gateway->curgatewaydef->maxcpus;
 
 		char cpustats[64];
-		UplinkSnprintf(cpustats, sizeof(cpustats), "Total CPU speed: %d Ghz (%d / %d)", gateway->GetCPUSpeed(), curCpus, maxCpus);
+		UplinkSnprintf(cpustats,
+					   sizeof(cpustats),
+					   "Total CPU speed: %d Ghz (%d / %d)",
+					   gateway->GetCPUSpeed(),
+					   curCpus,
+					   maxCpus);
 		EclRegisterCaptionChange("hw_cpu", cpustats);
 
 		// Bandwidth
 
-
 		char bandwidthstats[64];
-		UplinkSnprintf(bandwidthstats, sizeof(bandwidthstats), "Bandwidth: %d Gq/s (max %d Gq/s)", gateway->GetBandwidth(), gateway->curgatewaydef->bandwidth);
+		UplinkSnprintf(bandwidthstats,
+					   sizeof(bandwidthstats),
+					   "Bandwidth: %d Gq/s (max %d Gq/s)",
+					   gateway->GetBandwidth(),
+					   gateway->curgatewaydef->bandwidth);
 		EclRegisterCaptionChange("hw_modem", bandwidthstats);
 
 		// Memory
 
 		char memory[128];
-		UplinkSnprintf(memory, sizeof(memory), "Memory Capacity: %d Gq (max %d Gq)", gateway->memorysize, gateway->curgatewaydef->maxmemory * 8);
+		UplinkSnprintf(memory,
+					   sizeof(memory),
+					   "Memory Capacity: %d Gq (max %d Gq)",
+					   gateway->memorysize,
+					   gateway->curgatewaydef->maxmemory * 8);
 		EclRegisterCaptionChange("hw_memory", memory);
 
 		// Hardware devices
 
 		std::ostrstream hardware;
 		hardware << "DEVICES (max " << gateway->curgatewaydef->maxsecurity << ")\n";
-		LList <char *> *security = gateway->GetSecurity();
-		if(security->Size() == 0)
+		LList<char*>* security = gateway->GetSecurity();
+		if (security->Size() == 0) {
 			hardware << "None";
+		}
 
-		else
-			for(int i = 0; i < security->Size(); ++i)
-				if(security->ValidIndex(i))
+		else {
+			for (int i = 0; i < security->Size(); ++i) {
+				if (security->ValidIndex(i)) {
 					hardware << security->GetData(i) << "\n";
+				}
+			}
+		}
 		hardware << '\x0';
 
-		EclRegisterButton(screenw - panelwidth, paneltop + 130, panelwidth - 10, SY(150), "", "", "hw_hardware");
+		EclRegisterButton(
+			screenw - panelwidth, paneltop + 130, panelwidth - 10, SY(150), "", "", "hw_hardware");
 		EclRegisterButtonCallbacks("hw_hardware", text_draw, NULL, NULL, NULL);
 		EclRegisterCaptionChange("hw_hardware", hardware.str(), 1000);
 
 		hardware.rdbuf()->freeze(0);
-		//delete [] hardware.str ();
+		// delete [] hardware.str ();
 		delete security;
 
 		// HUD Upgrades installed
 
-		EclRegisterButton(screenw - panelwidth + 20, paneltop + SY(150) + 50, 80, 20, "HUD Upgrades", "", "hw_hudupgradestitle");
+		EclRegisterButton(screenw - panelwidth + 20,
+						  paneltop + SY(150) + 50,
+						  80,
+						  20,
+						  "HUD Upgrades",
+						  "",
+						  "hw_hudupgradestitle");
 		EclRegisterButtonCallbacks("hw_hudupgradestitle", MiniTitleDraw, NULL, NULL, NULL);
 
-		EclRegisterButton(screenw - panelwidth, paneltop + SY(150) + 70, panelwidth - 10, 60, "", "", "hw_hudupgrades");
+		EclRegisterButton(
+			screenw - panelwidth, paneltop + SY(150) + 70, panelwidth - 10, 60, "", "", "hw_hudupgrades");
 		EclRegisterButtonCallbacks("hw_hudupgrades", text_draw, NULL, NULL, NULL);
 
 		std::ostrstream hudupgrades;
 
-		if(!(gateway->HasAnyHUDUpgrade()))								hudupgrades << "None\n";
-		if(gateway->HasHUDUpgrade(HUDUPGRADE_MAPSHOWSTRACE))			hudupgrades << "Show trace on map\n";
-		if(gateway->HasHUDUpgrade(HUDUPGRADE_CONNECTIONANALYSIS))		hudupgrades << "Connection analysis\n";
-		if(gateway->HasHUDUpgrade(HUDUPGRADE_IRCCLIENT))              hudupgrades << "IRC Client\n";
-		if(gateway->HasHUDUpgrade(HUDUPGRADE_LANVIEW))                hudupgrades << "LAN View\n";
+		if (!(gateway->HasAnyHUDUpgrade())) {
+			hudupgrades << "None\n";
+		}
+		if (gateway->HasHUDUpgrade(HUDUPGRADE_MAPSHOWSTRACE)) {
+			hudupgrades << "Show trace on map\n";
+		}
+		if (gateway->HasHUDUpgrade(HUDUPGRADE_CONNECTIONANALYSIS)) {
+			hudupgrades << "Connection analysis\n";
+		}
+		if (gateway->HasHUDUpgrade(HUDUPGRADE_IRCCLIENT)) {
+			hudupgrades << "IRC Client\n";
+		}
+		if (gateway->HasHUDUpgrade(HUDUPGRADE_LANVIEW)) {
+			hudupgrades << "LAN View\n";
+		}
 
 		hudupgrades << '\x0';
 
 		EclRegisterCaptionChange("hw_hudupgrades", hudupgrades.str());
 
 		hudupgrades.rdbuf()->freeze(0);
-		//delete [] hudupgrades.str ();
+		// delete [] hudupgrades.str ();
 
 		// View gateway
 
-		//EclRegisterButton ( screenw - panelwidth, paneltop + SY(282), panelwidth - 7, 15, "View Gateway", "Show the layout of your gateway", "hw_showgateway" );
-		EclRegisterButton(screenw - panelwidth, paneltop + (SY(300) - 15 - 3), panelwidth - 7, 15, "View Gateway", "Show the layout of your gateway", "hw_showgateway");
+		// EclRegisterButton ( screenw - panelwidth, paneltop + SY(282), panelwidth - 7, 15, "View Gateway",
+		// "Show the layout of your gateway", "hw_showgateway" );
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + (SY(300) - 15 - 3),
+						  panelwidth - 7,
+						  15,
+						  "View Gateway",
+						  "Show the layout of your gateway",
+						  "hw_showgateway");
 		EclRegisterButtonCallback("hw_showgateway", ShowGatewayClick);
-
 	}
-
 }
 
 void HWInterface::RemoveHWInterface()
 {
 
-	if(IsVisibleHWInterface())
-	{
+	if (IsVisibleHWInterface()) {
 
 		EclRemoveButton("hw_title");
 
@@ -182,48 +220,27 @@ void HWInterface::RemoveHWInterface()
 		EclRemoveButton("hw_hudupgrades");
 
 		EclRemoveButton("hw_showgateway");
-
 	}
-
 }
 
-bool HWInterface::IsVisibleHWInterface()
-{
-
-	return (EclGetButton("hw_title") != 0);
-
-}
+bool HWInterface::IsVisibleHWInterface() { return (EclGetButton("hw_title") != 0); }
 
 void HWInterface::Create()
 {
 
 	LocalInterfaceScreen::Create();
 	CreateHWInterface();
-
 }
 
-void HWInterface::Update()
-{}
+void HWInterface::Update() { }
 
 void HWInterface::Remove()
 {
 
 	LocalInterfaceScreen::Remove();
 	RemoveHWInterface();
-
 }
 
-bool HWInterface::IsVisible()
-{
+bool HWInterface::IsVisible() { return IsVisibleHWInterface(); }
 
-	return IsVisibleHWInterface();
-
-}
-
-int HWInterface::ScreenID()
-{
-
-	return SCREEN_HW;
-
-}
-
+int HWInterface::ScreenID() { return SCREEN_HW; }

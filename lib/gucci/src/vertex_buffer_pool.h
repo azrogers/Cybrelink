@@ -1,34 +1,36 @@
 #pragma once
 
 #if USE_FREETYPEGL
-#include <freetype-gl/freetype-gl.h>
-#include <freetype-gl/vertex-buffer.h>
-#include <vector>
-#include <set>
-#include <map>
-#include <string>
-#include <xxhash.h>
-#include <chrono>
+	#include <chrono>
+	#include <freetype-gl/freetype-gl.h>
+	#include <freetype-gl/vertex-buffer.h>
+	#include <map>
+	#include <set>
+	#include <string>
+	#include <vector>
+	#include <xxhash.h>
 
-#include "geom_types.h"
+	#include "geom_types.h"
 
 typedef unsigned int VertexBufferId;
 
 // old buffers will be cleaned up after 5 minutes of not being touched
 constexpr unsigned int BUFFER_MAX_AGE = 5 * 60;
 
-class VertexBufferContent
-{
+class VertexBufferContent {
 public:
 	std::string Text;
 	UPoint EndPos;
 	std::chrono::steady_clock::time_point LastUsed;
 
-	VertexBufferContent() : Text(""), EndPos(0, 0) { }
+	VertexBufferContent() :
+		Text(""),
+		EndPos(0, 0)
+	{
+	}
 };
 
-class VertexBufferTextRenderingOptions
-{
+class VertexBufferTextRenderingOptions {
 public:
 	texture_font_t* Font;
 	UColor Color = UColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -36,8 +38,7 @@ public:
 };
 
 // class for buffering freetype-gl vertex buffer objects for reuse
-class VertexBufferPool
-{
+class VertexBufferPool {
 public:
 	VertexBufferPool();
 	~VertexBufferPool();
@@ -57,7 +58,8 @@ public:
 	/// <param name="id">The buffer to use.</param>
 	/// <param name="newText">The buffer's new text.</param>
 	/// <param name="options">Rendering options</param>
-	void UpdateBufferText(VertexBufferId id, const char* newText, const VertexBufferTextRenderingOptions& options);
+	void
+	UpdateBufferText(VertexBufferId id, const char* newText, const VertexBufferTextRenderingOptions& options);
 
 	void RenderBuffer(VertexBufferId id, UPoint position, const VertexBufferTextRenderingOptions& options);
 
@@ -65,14 +67,14 @@ public:
 	/// Cleans up old unused buffers. Should be called regularly.
 	/// </summary>
 	void GarbageCollectTick();
+
 private:
 	unsigned int CompileShader(const char* shaderSource, unsigned int type);
 
-	void AddTextToBuffer(
-		VertexBufferId bufferId,
-		const char* text,
-		const VertexBufferTextRenderingOptions& options,
-		const VertexBufferContent* existingContent = nullptr);
+	void AddTextToBuffer(VertexBufferId bufferId,
+						 const char* text,
+						 const VertexBufferTextRenderingOptions& options,
+						 const VertexBufferContent* existingContent = nullptr);
 
 	std::map<XXH64_hash_t, VertexBufferId> contentHashToBufferId;
 	std::map<VertexBufferId, XXH64_hash_t> bufferIdToContentHash;

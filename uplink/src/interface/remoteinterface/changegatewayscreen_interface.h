@@ -8,7 +8,6 @@
 
   */
 
-
 #ifndef _included_changegatewayscreeninterface_h
 #define _included_changegatewayscreeninterface_h
 
@@ -16,56 +15,47 @@
 
 class GenericScreen;
 
-
-
-class ChangeGatewayScreenInterface : public RemoteInterfaceScreen
-{
+class ChangeGatewayScreenInterface : public RemoteInterfaceScreen {
 
 protected:
+	static void GatewayButtonDraw(Button* button, bool highlighted, bool clicked);
+	static void InfoTextDraw(Button* button, bool highlighted, bool clicked);
 
-	static void GatewayButtonDraw ( Button *button, bool highlighted, bool clicked );
-	static void InfoTextDraw ( Button *button, bool highlighted, bool clicked );
+	static void GatewayButtonClick(Button* button);
+	static void CloseClick(Button* button);
+	static void BuyClick(Button* button);
+	static void BuyConfirmClick(Button* button);
+	static void BuyCancelClick(Button* button);
 
-	static void GatewayButtonClick ( Button *button );
-	static void CloseClick ( Button *button );
-	static void BuyClick ( Button *button );
-	static void BuyConfirmClick ( Button *button );
-	static void BuyCancelClick ( Button *button );
+	static void GatewayPictureDraw(Button* button, bool highlighted, bool clicked);
 
-    static void GatewayPictureDraw ( Button *button, bool highlighted, bool clicked );
-
-    static void ScrollChange ( char *scrollname, int newIndex );
+	static void ScrollChange(const char* scrollname, int newIndex);
 
 protected:
-
 	static int baseOffset;
-    int currentselect;
+	int currentselect;
 
 public:
+	ChangeGatewayScreenInterface();
+	~ChangeGatewayScreenInterface();
 
-	ChangeGatewayScreenInterface ();
-	~ChangeGatewayScreenInterface ();
+	void ShowGateway(int index);
+	int GetGatewayPrice(int index); // Takes into account Part exchange value of your gateway
 
-	void ShowGateway ( int index );
-	int GetGatewayPrice ( int index );							// Takes into account Part exchange value of your gateway
+	void Create();
+	void Create(ComputerScreen* cs);
+	void CreateAreYouSure();
 
-	void Create ();
-	void Create ( ComputerScreen *cs );
-	void CreateAreYouSure ();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	bool ReturnKeyPressed();
+	bool EscapeKeyPressed();
 
-	bool ReturnKeyPressed ();
-    bool EscapeKeyPressed ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
-
 #endif
-

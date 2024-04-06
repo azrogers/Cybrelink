@@ -9,129 +9,103 @@
 
 #include "game/game.h"
 
-#include "world/world.h"
 #include "world/agent.h"
 #include "world/company/mission.h"
 #include "world/scheduler/attemptmissionevent.h"
+#include "world/world.h"
 
+AttemptMissionEvent::AttemptMissionEvent() { memset(agentname, 0, sizeof(agentname)); }
 
+AttemptMissionEvent::~AttemptMissionEvent() { }
 
-
-AttemptMissionEvent::AttemptMissionEvent ()
+void AttemptMissionEvent::Run()
 {
 
-	memset ( agentname, 0, sizeof ( agentname ) );
+	Agent* agent = (Agent*)game->GetWorld()->GetPerson(agentname);
+	UplinkAssert(agent);
 
+	agent->AttemptMission();
 }
 
-AttemptMissionEvent::~AttemptMissionEvent ()
-{
-}
-
-void AttemptMissionEvent::Run ()
+void AttemptMissionEvent::SetAgentName(char* newagentname)
 {
 
-	Agent *agent = (Agent *) game->GetWorld ()->GetPerson ( agentname );
-	UplinkAssert (agent);
-
-	agent->AttemptMission ();
-
+	UplinkAssert(strlen(newagentname) < SIZE_PERSON_NAME);
+	UplinkStrncpy(agentname, newagentname, sizeof(agentname));
 }
 
-void AttemptMissionEvent::SetAgentName ( char *newagentname )
-{
-
-	UplinkAssert ( strlen (newagentname) < SIZE_PERSON_NAME );
-	UplinkStrncpy ( agentname, newagentname, sizeof ( agentname ) );
-
-}
-
-char *AttemptMissionEvent::GetShortString ()
+char* AttemptMissionEvent::GetShortString()
 {
 
 	size_t shortstringsize = strlen(agentname) + 32;
-	char *shortstring = new char [shortstringsize];
-	UplinkSnprintf ( shortstring, shortstringsize, "Attempt Mission for %s", agentname );
+	char* shortstring = new char[shortstringsize];
+	UplinkSnprintf(shortstring, shortstringsize, "Attempt Mission for %s", agentname);
 	return shortstring;
-
 }
 
-char *AttemptMissionEvent::GetLongString ()
+char* AttemptMissionEvent::GetLongString()
 {
 
-	Agent *agent = (Agent *) game->GetWorld ()->GetPerson ( agentname );
-	UplinkAssert (agent);
+	Agent* agent = (Agent*)game->GetWorld()->GetPerson(agentname);
+	UplinkAssert(agent);
 
-	Mission *m = agent->missions.GetData (0);
-	UplinkAssert (m);
+	Mission* m = agent->missions.GetData(0);
+	UplinkAssert(m);
 
 	std::ostrstream longstring;
 	longstring << "Attempt Mission Event:\n"
 			   << "Agent : " << agentname << "\n"
-			   << "Agents next mission : " << m->description
-			   << '\x0';
+			   << "Agents next mission : " << m->description << '\x0';
 
-	return longstring.str ();
-
+	return longstring.str();
 }
 
-
-bool AttemptMissionEvent::Load ( FILE *file )
+bool AttemptMissionEvent::Load(FILE* file)
 {
 
-	LoadID ( file );
+	LoadID(file);
 
-	if ( !UplinkEvent::Load ( file ) ) return false;
-
-	if ( strcmp( game->GetLoadedSavefileVer(), "SAV59" ) >= 0 ) {
-		if ( !LoadDynamicStringStatic ( agentname, sizeof(agentname), file ) ) return false;
+	if (!UplinkEvent::Load(file)) {
+		return false;
 	}
-	else {
-		if ( !FileReadData ( agentname, sizeof(agentname), 1, file ) ) {
-			agentname [ sizeof(agentname) - 1 ] = '\0';
+
+	if (strcmp(game->GetLoadedSavefileVer(), "SAV59") >= 0) {
+		if (!LoadDynamicStringStatic(agentname, sizeof(agentname), file)) {
 			return false;
 		}
-		agentname [ sizeof(agentname) - 1 ] = '\0';
+	} else {
+		if (!FileReadData(agentname, sizeof(agentname), 1, file)) {
+			agentname[sizeof(agentname) - 1] = '\0';
+			return false;
+		}
+		agentname[sizeof(agentname) - 1] = '\0';
 	}
 
-	LoadID_END ( file );
+	LoadID_END(file);
 
 	return true;
-
 }
 
-void AttemptMissionEvent::Save ( FILE *file )
+void AttemptMissionEvent::Save(FILE* file)
 {
 
-	SaveID ( file );
+	SaveID(file);
 
-	UplinkEvent::Save ( file );
+	UplinkEvent::Save(file);
 
-	SaveDynamicString ( agentname, sizeof(agentname), file );
+	SaveDynamicString(agentname, sizeof(agentname), file);
 
-	SaveID_END ( file );
-
+	SaveID_END(file);
 }
 
-void AttemptMissionEvent::Print ()
+void AttemptMissionEvent::Print()
 {
 
-	printf ( "AttemptMissionEvent : agentname=%s\n", agentname );
+	printf("AttemptMissionEvent : agentname=%s\n", agentname);
 
-	UplinkEvent::Print ();
-
+	UplinkEvent::Print();
 }
 
-char *AttemptMissionEvent::GetID ()
-{
+std::string AttemptMissionEvent::GetID() { return "EVT_AME"; }
 
-	return "EVT_AME";
-
-}
-
-int AttemptMissionEvent::GetOBJECTID ()
-{
-
-	return OID_ATTEMPTMISSIONEVENT;
-
-}
+int AttemptMissionEvent::GetOBJECTID() { return OID_ATTEMPTMISSIONEVENT; }

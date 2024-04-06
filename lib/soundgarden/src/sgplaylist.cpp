@@ -3,78 +3,59 @@
 
 #include "sgplaylist.h"
 
+SgPlaylist::SgPlaylist() { sprintf(name, "New playlist"); }
 
-SgPlaylist::SgPlaylist ()
+SgPlaylist::~SgPlaylist()
 {
 
-    sprintf ( name, "New playlist" );
-            
+	for (int i = 0; i < songs.Size(); ++i) {
+		if (songs.GetData(i)) {
+			if (strlen(songs.GetData(i)) != 0) {
+				if (strcmp(songs.GetData(i), "") != 0) {
+					delete[] songs.GetData(i);
+				}
+			}
+		}
+	}
 }
 
-SgPlaylist::~SgPlaylist ()
+void SgPlaylist::SetName(const char* newname) { strcpy(name, newname); }
+
+void SgPlaylist::AddSong(const char* name)
 {
 
-	for ( int i = 0; i < songs.Size (); ++i ) 
-		if ( songs.GetData (i) )
-			if ( strlen(songs.GetData (i)) != 0 )
-				if ( strcmp(songs.GetData (i), "") != 0 )
-					delete [] songs.GetData (i);
-
+	char* namecopy = new char[strlen(name) + 1];
+	sprintf(namecopy, name);
+	songs.PutData(namecopy);
 }
 
+int SgPlaylist::NumSongs() { return songs.Size(); }
 
-void SgPlaylist::SetName ( char *newname )
+const char* SgPlaylist::GetRandomSong()
 {
 
-    strcpy ( name, newname );
-
+	int songindex = (int)(((float)rand() / (float)RAND_MAX) * NumSongs());
+	return songs.GetData(songindex);
 }
 
-void SgPlaylist::AddSong ( char *name )
+const char* SgPlaylist::GetRandomSong(const char* oldsong)
 {
 
-    char *namecopy = new char [strlen(name)+1];
-    sprintf ( namecopy, name );
-    songs.PutData(namecopy);
+	if (!oldsong) {
 
-}
+		return GetRandomSong();
 
-int SgPlaylist::NumSongs ()
-{
-    
-    return songs.Size ();
+	} else if (NumSongs() == 1) {
 
-}
+		return songs.GetData(0);
 
-char *SgPlaylist::GetRandomSong ()
-{
+	} else {
 
-  	int songindex = (int)( ( (float) rand () / (float) RAND_MAX ) * NumSongs () );
-    return songs.GetData(songindex);
+		const char* candidate = GetRandomSong();
+		while (strcmp(candidate, oldsong) == 0) {
+			candidate = GetRandomSong();
+		}
 
-}
-
-char *SgPlaylist::GetRandomSong ( char *oldsong )
-{
-
-    if ( !oldsong ) {
-
-        return GetRandomSong ();
-
-    }
-    else if ( NumSongs () == 1 ) {
-
-        return songs.GetData (0);
-
-    }
-    else {
-
-        char *candidate = GetRandomSong ();
-        while ( strcmp ( candidate, oldsong ) == 0 )
-            candidate = GetRandomSong ();
-
-        return candidate;
-
-    }
-
+		return candidate;
+	}
 }

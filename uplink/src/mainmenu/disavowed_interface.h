@@ -8,40 +8,30 @@
 
   */
 
-
 #ifndef _included_disavowedinterface_h
 #define _included_disavowedinterface_h
 
+#include "eclipse.h"
 #include "mainmenu/mainmenuscreen.h"
 
-
-class DisavowedInterface : public MainMenuScreen
-{
+class DisavowedInterface : public MainMenuScreen {
 
 protected:
-
 	time_t starttime;
 
 protected:
-
-	static void ReturnToMainMenuClick ( Button *button );
+	static void ReturnToMainMenuClick(Button* button);
 
 public:
+	DisavowedInterface();
+	~DisavowedInterface();
 
-	DisavowedInterface ();
-	~DisavowedInterface ();
+	void Create();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
-
-	int  ScreenID ();			
-
+	int ScreenID();
 };
 
-
-
-
 #endif
-

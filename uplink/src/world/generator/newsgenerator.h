@@ -10,7 +10,6 @@
 
   */
 
-
 #ifndef _included_newsgenerator_h
 #define _included_newsgenerator_h
 
@@ -22,28 +21,21 @@ class Person;
 
 // ============================================================================
 
-
-class NewsGenerator
-{
+class NewsGenerator {
 
 public:
-
-	static void Initialise ();
+	static void Initialise();
 
 	// Events related to Company computers
 
-	static void ComputerHacked		( Computer *comp, AccessLog *al );					// Hacked by unknown person
-	static void ComputerDestroyed	( Computer *comp, bool filesdeleted );
-	static void AllFilesStolen		( Computer *comp, char *filetype, int totalfilesize );
-	static void AllFilesDeleted		( Computer *comp, char *filetype );
+	static void ComputerHacked(Computer* comp, AccessLog* al); // Hacked by unknown person
+	static void ComputerDestroyed(Computer* comp, bool filesdeleted);
+	static void AllFilesStolen(Computer* comp, char* filetype, int totalfilesize);
+	static void AllFilesDeleted(Computer* comp, const char* filetype);
 
 	// Events related to people
 
-	static void Arrested ( Person *person, Computer *comp, char *reason );
-
+	static void Arrested(Person* person, Computer* comp, char* reason);
 };
 
-
-
 #endif
-

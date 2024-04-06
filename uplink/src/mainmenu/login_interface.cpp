@@ -9,14 +9,14 @@
 #include <GL/glu.h> /* glu extention library */
 
 #include "eclipse.h"
-#include "soundgarden.h"
 #include "redshirt.h"
+#include "soundgarden.h"
 
 #include "app/app.h"
-#include "app/opengl_interface.h"
 #include "app/globals.h"
-#include "app/opengl.h"
 #include "app/miscutils.h"
+#include "app/opengl.h"
+#include "app/opengl_interface.h"
 
 #include "game/game.h"
 #include "game/scriptlibrary.h"
@@ -30,499 +30,503 @@
 
 #include "options/options.h"
 
-#include "mainmenu/mainmenu.h"
 #include "mainmenu/login_interface.h"
-
-
-
+#include "mainmenu/mainmenu.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-LoginInterface::LoginInterface()
+LoginInterface::LoginInterface() { }
+
+LoginInterface::~LoginInterface() { }
+
+void LoginInterface::CreateExistingGames()
 {
 
-}
+	DArray<char*>* existing = App::ListExistingGames();
 
-LoginInterface::~LoginInterface()
-{
+	for (int i = 0; i < existing->Size(); ++i) {
+		if (existing->ValidIndex(i)) {
+			char* curAgent = existing->GetData(i);
 
-}
+			char name[32];
+			UplinkSnprintf(name, sizeof(name), "username %d", i);
+			EclRegisterButton(SX(35), SY(300) + i * 18, SX(170), 15, curAgent, "Log in as this Agent", name);
+			EclRegisterButtonCallbacks(name, textbutton_draw, UserNameClick, button_click, button_highlight);
 
-void LoginInterface::CreateExistingGames ()
-{
-
-	DArray <char *> *existing = App::ListExistingGames ();
-	
-	for ( int i = 0; i < existing->Size (); ++i ) {
-		if ( existing->ValidIndex (i) ) {
-			char *curAgent = existing->GetData ( i );
-
-			char name [32];
-			UplinkSnprintf ( name, sizeof ( name ), "username %d", i );
-			EclRegisterButton ( SX(35), SY(300) + i * 18, SX(170), 15, curAgent, "Log in as this Agent", name );
-			EclRegisterButtonCallbacks ( name, textbutton_draw, UserNameClick, button_click, button_highlight );
-
-			delete [] curAgent;
+			delete[] curAgent;
 		}
 	}
-			
-	delete existing;
 
+	delete existing;
 }
 
-void LoginInterface::RemoveExistingGames ()
+void LoginInterface::RemoveExistingGames()
 {
 
 	// Remove all username buttons
 	int usernameindex = 0;
-	char name [32];
-	UplinkSnprintf ( name, sizeof ( name ), "username %d", usernameindex );
-	while ( EclGetButton ( name ) ) {
-		EclRemoveButton ( name );
+	char name[32];
+	UplinkSnprintf(name, sizeof(name), "username %d", usernameindex);
+	while (EclGetButton(name)) {
+		EclRemoveButton(name);
 		++usernameindex;
-		UplinkSnprintf ( name, sizeof ( name ), "username %d", usernameindex );			
-	} 
-
+		UplinkSnprintf(name, sizeof(name), "username %d", usernameindex);
+	}
 }
 
-void LoginInterface::NewGameClick ( Button *button )
+void LoginInterface::NewGameClick(Button* button)
 {
 
-	tooltip_update ( " " );
+	tooltip_update(" ");
 
 #ifndef TESTGAME
 
 	// Do the start sequence
 
-	app->GetOptions ()->SetOptionValue ( "game_firsttime", 1 ) ;
-	
-	app->GetMainMenu ()->RunScreen ( MAINMENU_FIRSTLOAD );
-	GciTimerFunc ( 2000, ScriptLibrary::RunScript, 30 );
+	app->GetOptions()->SetOptionValue("game_firsttime", 1);
+
+	app->GetMainMenu()->RunScreen(MAINMENU_FIRSTLOAD);
+	GciTimerFunc(2000, ScriptLibrary::RunScript, 30);
 
 #else
 
 	// Skip it
 
-	app->GetMainMenu ()->RunScreen ( MAINMENU_LOADING );
+	app->GetMainMenu()->RunScreen(MAINMENU_LOADING);
 
-	GciTimerFunc ( 1, ScriptLibrary::RunScript, 90 );
+	GciTimerFunc(1, ScriptLibrary::RunScript, 90);
 
 #endif
 
-    if ( app->GetOptions ()->IsOptionEqualTo ( "sound_musicenabled", 1 ) ) {			
-        //SgPlaylist_Play ("ambient");
-        SgPlaylist_Play ("main");
+	if (app->GetOptions()->IsOptionEqualTo("sound_musicenabled", 1)) {
+		// SgPlaylist_Play ("ambient");
+		SgPlaylist_Play("main");
 	}
-
 }
 
-void LoginInterface::RetireAgentMsgboxClick ( Button *button )
+void LoginInterface::RetireAgentMsgboxClick(Button* button)
 {
 
-	remove_msgbox ();
+	remove_msgbox();
 
-	UplinkAssert ( EclGetButton ( "userid_name" ) );
-	char *agentfile = EclGetButton ( "userid_name" )->caption;
+	UplinkAssert(EclGetButton("userid_name"));
+	const char* agentfile = EclGetButton("userid_name")->caption.c_str();
 
-	if ( strlen ( agentfile ) > 0 ) {
-		app->RetireGame ( agentfile );
-		RemoveExistingGames ();
-		CreateExistingGames ();
+	if (strlen(agentfile) > 0) {
+		app->RetireGame(agentfile);
+		RemoveExistingGames();
+		CreateExistingGames();
 	}
-
 }
 
-void LoginInterface::RetireAgentClick ( Button *button )
+void LoginInterface::RetireAgentClick(Button* button)
 {
 
-	UplinkAssert ( EclGetButton ( "userid_name" ) );
-	char agentfile [256];
-	strncpy ( agentfile, EclGetButton ( "userid_name" )->caption, sizeof ( agentfile ) );
-	agentfile [ sizeof ( agentfile ) - 1 ] = '\0';
+	UplinkAssert(EclGetButton("userid_name"));
+	char agentfile[256];
+	strncpy(agentfile, EclGetButton("userid_name")->caption.c_str(), sizeof(agentfile));
+	agentfile[sizeof(agentfile) - 1] = '\0';
 
 	bool found = false;
-	if ( strlen ( agentfile ) > 0 ) {
-		DArray <char *> *existing = App::ListExistingGames ();
+	if (strlen(agentfile) > 0) {
+		DArray<char*>* existing = App::ListExistingGames();
 
-		int lenexisting = existing->Size ();
-		for ( int i = 0; i < lenexisting; i++ )
-			if ( existing->ValidIndex ( i ) ) {
-				char *curAgent = existing->GetData ( i );
-				if ( strcmp ( curAgent, agentfile ) == 0 )
+		int lenexisting = existing->Size();
+		for (int i = 0; i < lenexisting; i++) {
+			if (existing->ValidIndex(i)) {
+				char* curAgent = existing->GetData(i);
+				if (strcmp(curAgent, agentfile) == 0) {
 					found = true;
+				}
 
-				delete [] curAgent;
+				delete[] curAgent;
 			}
+		}
 
 		delete existing;
 	}
 
-	char caption [384];
-	if ( found ) {
-		UplinkSnprintf ( caption, sizeof ( caption ), "Are you sure you want to remove '%s' from the roster?", agentfile );
-		create_yesnomsgbox ( "Retire", caption, RetireAgentMsgboxClick );
+	char caption[384];
+	if (found) {
+		UplinkSnprintf(
+			caption, sizeof(caption), "Are you sure you want to remove '%s' from the roster?", agentfile);
+		create_yesnomsgbox("Retire", caption, RetireAgentMsgboxClick);
+	} else {
+		UplinkSnprintf(caption, sizeof(caption), "Impossible to remove '%s' from the roster.", agentfile);
+		create_msgbox("Retire", caption);
 	}
-	else {
-		UplinkSnprintf ( caption, sizeof ( caption ), "Impossible to remove '%s' from the roster.", agentfile );
-		create_msgbox ( "Retire", caption );
-	}
-
 }
 
-void LoginInterface::ProceedClick ( Button *button )
+void LoginInterface::ProceedClick(Button* button)
 {
 
-	UplinkAssert ( EclGetButton ( "userid_name" ) );	
-	char username [256];
-	UplinkStrncpy ( username, EclGetButton ( "userid_name" )->caption, sizeof ( username ) );
+	UplinkAssert(EclGetButton("userid_name"));
+	char username[256];
+	UplinkStrncpy(username, EclGetButton("userid_name")->caption.c_str(), sizeof(username));
 
-	app->GetMainMenu ()->RunScreen ( MAINMENU_LOADING );
+	app->GetMainMenu()->RunScreen(MAINMENU_LOADING);
 
-	app->SetNextLoadGame ( username );
+	app->SetNextLoadGame(username);
 
-	GciTimerFunc ( 1, ScriptLibrary::RunScript, 91 );
+	GciTimerFunc(1, ScriptLibrary::RunScript, 91);
 
-    if ( app->GetOptions ()->IsOptionEqualTo ( "sound_musicenabled", 1 ) ) {		
-        //SgPlaylist_Play ("ambient");
-        SgPlaylist_Play ("main");
+	if (app->GetOptions()->IsOptionEqualTo("sound_musicenabled", 1)) {
+		// SgPlaylist_Play ("ambient");
+		SgPlaylist_Play("main");
 	}
-
 }
 
-void LoginInterface::OptionsClick ( Button *button )
+void LoginInterface::OptionsClick(Button* button)
 {
 
-	app->GetMainMenu ()->RunScreen ( MAINMENU_OPTIONS );
-//    SgPlaylist_NextSong();
-
+	app->GetMainMenu()->RunScreen(MAINMENU_OPTIONS);
+	//    SgPlaylist_NextSong();
 }
 
-void LoginInterface::ExitGameClick ( Button *button )
+void LoginInterface::ExitGameClick(Button* button)
 {
 
 #ifdef DEMOGAME
 
-    app->GetMainMenu ()->RunScreen ( MAINMENU_CLOSING );
+	app->GetMainMenu()->RunScreen(MAINMENU_CLOSING);
 
 #else
 
-	app->Close ();
+	app->Close();
 
 #endif
-
 }
 
-void LoginInterface::LargeTextBoxDraw ( Button *button, bool highlighted, bool clicked )
+void LoginInterface::LargeTextBoxDraw(Button* button, bool highlighted, bool clicked)
 {
 
-	SetColour ( "TitleText" );
+	SetColour("TitleText");
 	int ypos = (button->y + button->height / 2) + 5;
 
-	GciDrawText ( button->x, ypos, button->caption, HELVETICA_18 );
-
+	GciDrawText(button->x, ypos, button->caption, HELVETICA_18);
 }
 
-void LoginInterface::UserIDButtonDraw ( Button *button, bool highlighted, bool clicked )
+void LoginInterface::UserIDButtonDraw(Button* button, bool highlighted, bool clicked)
 {
 
-	UplinkAssert ( button );
+	UplinkAssert(button);
 
-	int screenheight = app->GetOptions ()->GetOptionValue ( "graphics_screenheight" );
-	glScissor ( button->x, screenheight - (button->y + button->height), button->width, button->height );	
-	glEnable ( GL_SCISSOR_TEST );
+	int screenheight = app->GetOptions()->GetOptionValue("graphics_screenheight");
+	glScissor(button->x, screenheight - (button->y + button->height), button->width, button->height);
+	glEnable(GL_SCISSOR_TEST);
 
 	// Draw a background colour
 
-	SetColour ( "PasswordBoxBackground" );
-	
-	glBegin ( GL_QUADS );
+	SetColour("PasswordBoxBackground");
 
-		glVertex2i ( button->x, button->y );
-		glVertex2i ( button->x + button->width - 1, button->y );
-		glVertex2i ( button->x + button->width - 1, button->y + button->height );
-		glVertex2i ( button->x, button->y + button->height );
+	glBegin(GL_QUADS);
 
-	glEnd ();
+	glVertex2i(button->x, button->y);
+	glVertex2i(button->x + button->width - 1, button->y);
+	glVertex2i(button->x + button->width - 1, button->y + button->height);
+	glVertex2i(button->x, button->y + button->height);
+
+	glEnd();
 
 	// Draw the text
 
-	SetColour ( "DefaultText" );
+	SetColour("DefaultText");
 
-	text_draw ( button, highlighted, clicked );
+	text_draw(button, highlighted, clicked);
 
 	// Draw a border
 
-	if ( highlighted || clicked ) border_draw ( button );
+	if (highlighted || clicked) {
+		border_draw(button);
+	}
 
-	glDisable ( GL_SCISSOR_TEST );
-
+	glDisable(GL_SCISSOR_TEST);
 }
 
-void LoginInterface::CodeButtonDraw ( Button *button, bool highlighted, bool clicked )
+void LoginInterface::CodeButtonDraw(Button* button, bool highlighted, bool clicked)
 {
 
-	UplinkAssert (button);
+	UplinkAssert(button);
 
-	int screenheight = app->GetOptions ()->GetOptionValue ( "graphics_screenheight" );
-	glScissor ( button->x, screenheight - (button->y + button->height), button->width, button->height );	
-	glEnable ( GL_SCISSOR_TEST );
+	int screenheight = app->GetOptions()->GetOptionValue("graphics_screenheight");
+	glScissor(button->x, screenheight - (button->y + button->height), button->width, button->height);
+	glEnable(GL_SCISSOR_TEST);
 
 	// Draw a background colour
 
-	SetColour ( "PasswordBoxBackground" );
-	
-	glBegin ( GL_QUADS );
+	SetColour("PasswordBoxBackground");
 
-		glVertex2i ( button->x, button->y );
-		glVertex2i ( button->x + button->width - 1, button->y );
-		glVertex2i ( button->x + button->width - 1, button->y + button->height );
-		glVertex2i ( button->x, button->y + button->height );
+	glBegin(GL_QUADS);
 
-	glEnd ();
+	glVertex2i(button->x, button->y);
+	glVertex2i(button->x + button->width - 1, button->y);
+	glVertex2i(button->x + button->width - 1, button->y + button->height);
+	glVertex2i(button->x, button->y + button->height);
+
+	glEnd();
 
 	// Print the text
 
-	SetColour ( "DefaultText" );
+	SetColour("DefaultText");
 
-	char *caption = new char [strlen(button->caption) + 1];
-	for ( size_t i = 0; i < strlen(button->caption); ++i )
-		caption [i] = '*';
+	char* caption = new char[button->caption.length() + 1];
+	for (size_t i = 0; i < button->caption.length(); ++i) {
+		caption[i] = '*';
+	}
 
-	caption [strlen(button->caption)] = '\x0';
-	GciDrawText ( button->x + 10, button->y + 10, caption, BITMAP_15 );
+	caption[button->caption.length()] = '\x0';
+	GciDrawText(button->x + 10, button->y + 10, caption, BITMAP_15);
 
-	delete [] caption;
+	delete[] caption;
 
 	// Draw a box around the text if highlighted
 
-	if ( highlighted || clicked )
-		border_draw ( button );
+	if (highlighted || clicked) {
+		border_draw(button);
+	}
 
-	glDisable ( GL_SCISSOR_TEST );
-
+	glDisable(GL_SCISSOR_TEST);
 }
 
-void LoginInterface::UserNameClick ( Button *button )
+void LoginInterface::UserNameClick(Button* button)
 {
 
-	EclRegisterCaptionChange ( "userid_name", button->caption );
-	EclRegisterCaptionChange ( "userid_code", "PASSWORD" );
-
+	EclRegisterCaptionChange("userid_name", button->caption);
+	EclRegisterCaptionChange("userid_code", "PASSWORD");
 }
 
-void LoginInterface::CommsClick ( Button *button )
+void LoginInterface::CommsClick(Button* button)
 {
 
-	UplinkAssert ( app->GetNetwork ()->STATUS == NETWORK_CLIENT );
+	UplinkAssert(app->GetNetwork()->STATUS == NETWORK_CLIENT);
 
-    EclReset ( app->GetOptions ()->GetOptionValue ("graphics_screenwidth"),
-			   app->GetOptions ()->GetOptionValue ("graphics_screenheight") );
+	EclReset(app->GetOptions()->GetOptionValue("graphics_screenwidth"),
+			 app->GetOptions()->GetOptionValue("graphics_screenheight"));
 
-	app->GetNetwork ()->GetClient ()->SetClientType ( CLIENT_COMMS );
-	
+	app->GetNetwork()->GetClient()->SetClientType(CLIENT_COMMS);
 }
 
-void LoginInterface::StatusClick	( Button *button )
+void LoginInterface::StatusClick(Button* button)
 {
 
-	UplinkAssert ( app->GetNetwork ()->STATUS == NETWORK_CLIENT );
+	UplinkAssert(app->GetNetwork()->STATUS == NETWORK_CLIENT);
 
-    EclReset ( app->GetOptions ()->GetOptionValue ("graphics_screenwidth"),
-			   app->GetOptions ()->GetOptionValue ("graphics_screenheight") );
+	EclReset(app->GetOptions()->GetOptionValue("graphics_screenwidth"),
+			 app->GetOptions()->GetOptionValue("graphics_screenheight"));
 
-	app->GetNetwork ()->GetClient ()->SetClientType ( CLIENT_STATUS );
-
+	app->GetNetwork()->GetClient()->SetClientType(CLIENT_STATUS);
 }
 
-bool LoginInterface::ReturnKeyPressed ()
+bool LoginInterface::ReturnKeyPressed()
 {
 
-	ProceedClick ( NULL );
+	ProceedClick(NULL);
 	return true;
-
 }
 
-void LoginInterface::Create ()
-{	
+void LoginInterface::Create()
+{
 
-	if ( !IsVisible () ) {
-		
+	if (!IsVisible()) {
+
 		// Play some music
 
-		if ( app->GetOptions ()->IsOptionEqualTo ( "sound_musicenabled", 1 ) ) {
-			
-            //SgPlaylist_Play ("action");
-            SgPlaylist_Play ("main");
+		if (app->GetOptions()->IsOptionEqualTo("sound_musicenabled", 1)) {
 
+			// SgPlaylist_Play ("action");
+			SgPlaylist_Play("main");
 		}
 
-		MainMenuScreen::Create ();
+		MainMenuScreen::Create();
 
-		int screenw = app->GetOptions ()->GetOptionValue ("graphics_screenwidth");
-		int screenh = app->GetOptions ()->GetOptionValue ("graphics_screenheight");
+		int screenw = app->GetOptions()->GetOptionValue("graphics_screenwidth");
+		int screenh = app->GetOptions()->GetOptionValue("graphics_screenheight");
 
-		if ( app->GetNetwork ()->STATUS == NETWORK_CLIENT ) {
+		if (app->GetNetwork()->STATUS == NETWORK_CLIENT) {
 
-			EclRegisterButton ( 20, 20, 110, 20, "COMMS", "Run as a dumb client, showing the communications status", "client_comms" );
-			EclRegisterButtonCallback ( "client_comms", CommsClick );
-			EclRegisterButton ( 20, 50, 110, 20, "STATUS", "Run as a dumb client, showing your characters status", "client_status" );
-			EclRegisterButtonCallback ( "client_status", StatusClick );
-
+			EclRegisterButton(20,
+							  20,
+							  110,
+							  20,
+							  "COMMS",
+							  "Run as a dumb client, showing the communications status",
+							  "client_comms");
+			EclRegisterButtonCallback("client_comms", CommsClick);
+			EclRegisterButton(20,
+							  50,
+							  110,
+							  20,
+							  "STATUS",
+							  "Run as a dumb client, showing your characters status",
+							  "client_status");
+			EclRegisterButtonCallback("client_status", StatusClick);
 		}
 
 		// New game
 
-        int buttonsX = SX(600);
-        int buttonsY = SY(270);
+		int buttonsX = SX(600);
+		int buttonsY = SY(270);
 
-		EclRegisterButton ( buttonsX, buttonsY, 32, 32, "", "Create a new user's account", "newgame" );		
-		button_assignbitmaps ( "newgame", "mainmenu/newgame.tif", "mainmenu/newgame_h.tif", "mainmenu/newgame_c.tif" );	
-		EclRegisterButton ( buttonsX - 95, buttonsY + 5, 100, 20, "New User", "Create a new user's account", "newgame_text" );
-		EclRegisterButtonCallbacks ( "newgame_text", LargeTextBoxDraw, NewGameClick, button_click, button_highlight );
+		EclRegisterButton(buttonsX, buttonsY, 32, 32, "", "Create a new user's account", "newgame");
+		button_assignbitmaps(
+			"newgame", "mainmenu/newgame.tif", "mainmenu/newgame_h.tif", "mainmenu/newgame_c.tif");
+		EclRegisterButton(
+			buttonsX - 95, buttonsY + 5, 100, 20, "New User", "Create a new user's account", "newgame_text");
+		EclRegisterButtonCallbacks(
+			"newgame_text", LargeTextBoxDraw, NewGameClick, button_click, button_highlight);
 
-		// Retire agent 
+		// Retire agent
 
-		EclRegisterButton ( buttonsX, buttonsY + 40, 32, 32, "", "Remove agents from the roster", "retireagent" );		
-		button_assignbitmaps ( "retireagent", "mainmenu/loadgame.tif", "mainmenu/loadgame_h.tif", "mainmenu/loadgame_c.tif" );
-		EclRegisterButton ( buttonsX - 68, buttonsY + 45, 50, 20, "Retire", "Remove an agent from the roster", "retireagent_text" );
-		EclRegisterButtonCallbacks ( "retireagent_text", LargeTextBoxDraw, RetireAgentClick, button_click, button_highlight );
+		EclRegisterButton(
+			buttonsX, buttonsY + 40, 32, 32, "", "Remove agents from the roster", "retireagent");
+		button_assignbitmaps(
+			"retireagent", "mainmenu/loadgame.tif", "mainmenu/loadgame_h.tif", "mainmenu/loadgame_c.tif");
+		EclRegisterButton(buttonsX - 68,
+						  buttonsY + 45,
+						  50,
+						  20,
+						  "Retire",
+						  "Remove an agent from the roster",
+						  "retireagent_text");
+		EclRegisterButtonCallbacks(
+			"retireagent_text", LargeTextBoxDraw, RetireAgentClick, button_click, button_highlight);
 
 		// TODO : Look at this alpha stuff - it don't work no more
-		if ( app->GetNetwork ()->STATUS == NETWORK_CLIENT ) {
-			EclRegisterButtonCallbacks ( "newgame", imagebutton_draw, NULL, NULL, NULL );
-			EclGetButton ( "newgame" )->image_standard->SetAlpha ( ALPHA_DISABLED );
-			EclRegisterButtonCallbacks ( "retireagent", imagebutton_draw, NULL, NULL, NULL );
-			EclGetButton ( "retireagent" )->image_standard->SetAlpha ( ALPHA_DISABLED );
+		if (app->GetNetwork()->STATUS == NETWORK_CLIENT) {
+			EclRegisterButtonCallbacks("newgame", imagebutton_draw, NULL, NULL, NULL);
+			EclGetButton("newgame")->image_standard->SetAlpha(ALPHA_DISABLED);
+			EclRegisterButtonCallbacks("retireagent", imagebutton_draw, NULL, NULL, NULL);
+			EclGetButton("retireagent")->image_standard->SetAlpha(ALPHA_DISABLED);
+		} else {
+			EclRegisterButtonCallbacks(
+				"newgame", imagebutton_draw, NewGameClick, button_click, button_highlight);
+			EclRegisterButtonCallbacks(
+				"retireagent", imagebutton_draw, RetireAgentClick, button_click, button_highlight);
 		}
-		else {
-			EclRegisterButtonCallbacks ( "newgame", imagebutton_draw, NewGameClick, button_click, button_highlight );			
-			EclRegisterButtonCallbacks ( "retireagent", imagebutton_draw, RetireAgentClick, button_click, button_highlight );
-		}
-		
+
 		// Options
 
-		EclRegisterButton ( buttonsX, buttonsY + 80, 32, 32, "", "Advanced options", "options" );		
-		button_assignbitmaps ( "options", "mainmenu/options.tif", "mainmenu/options_h.tif", "mainmenu/options_c.tif" );
-		EclRegisterButtonCallbacks ( "options", imagebutton_draw, OptionsClick, button_click, button_highlight ) ;
+		EclRegisterButton(buttonsX, buttonsY + 80, 32, 32, "", "Advanced options", "options");
+		button_assignbitmaps(
+			"options", "mainmenu/options.tif", "mainmenu/options_h.tif", "mainmenu/options_c.tif");
+		EclRegisterButtonCallbacks("options", imagebutton_draw, OptionsClick, button_click, button_highlight);
 
-		EclRegisterButton ( buttonsX - 81, buttonsY + 85, 80, 20, "Options", "Advanced options", "options_text" );
-		EclRegisterButtonCallbacks ( "options_text", LargeTextBoxDraw, OptionsClick, button_click, button_highlight );
+		EclRegisterButton(
+			buttonsX - 81, buttonsY + 85, 80, 20, "Options", "Advanced options", "options_text");
+		EclRegisterButtonCallbacks(
+			"options_text", LargeTextBoxDraw, OptionsClick, button_click, button_highlight);
 
 		// Exit
 
-		EclRegisterButton ( buttonsX, buttonsY + 120, 32, 32, "", "Exit Uplink", "exitgame" );		
-		button_assignbitmaps ( "exitgame", "mainmenu/exitgame.tif", "mainmenu/exitgame_h.tif", "mainmenu/exitgame_c.tif" );
-		EclRegisterButtonCallbacks ( "exitgame", imagebutton_draw, ExitGameClick, button_click, button_highlight );
+		EclRegisterButton(buttonsX, buttonsY + 120, 32, 32, "", "Exit Uplink", "exitgame");
+		button_assignbitmaps(
+			"exitgame", "mainmenu/exitgame.tif", "mainmenu/exitgame_h.tif", "mainmenu/exitgame_c.tif");
+		EclRegisterButtonCallbacks(
+			"exitgame", imagebutton_draw, ExitGameClick, button_click, button_highlight);
 
-		EclRegisterButton ( buttonsX - 45, buttonsY + 125, 50, 20, "Exit", "Exit Uplink", "exitgame_text" );
-		EclRegisterButtonCallbacks ( "exitgame_text", LargeTextBoxDraw, ExitGameClick, button_click, button_highlight );
+		EclRegisterButton(buttonsX - 45, buttonsY + 125, 50, 20, "Exit", "Exit Uplink", "exitgame_text");
+		EclRegisterButtonCallbacks(
+			"exitgame_text", LargeTextBoxDraw, ExitGameClick, button_click, button_highlight);
 
 		// UserID box
 
-        int useridX = SX(320) - 110;
-        int useridY = SY(265);
+		int useridX = SX(320) - 110;
+		int useridY = SY(265);
 
-		EclRegisterButton ( useridX, useridY, 220, 120, "", "", "userid_image" );
-		button_assignbitmap ( "userid_image", "userid.tif" );		
+		EclRegisterButton(useridX, useridY, 220, 120, "", "", "userid_image");
+		button_assignbitmap("userid_image", "userid.tif");
 
-		EclRegisterButton ( useridX + 59, useridY + 55, 147, 15, "", "Enter your userID here", "userid_name" );
-		EclRegisterButtonCallbacks ( "userid_name", UserIDButtonDraw, NULL, button_click, button_highlight );
+		EclRegisterButton(useridX + 59, useridY + 55, 147, 15, "", "Enter your userID here", "userid_name");
+		EclRegisterButtonCallbacks("userid_name", UserIDButtonDraw, NULL, button_click, button_highlight);
 
-		EclRegisterButton ( useridX + 59, useridY + 81, 147, 15, "", "Enter your access code here", "userid_code" );
-		EclRegisterButtonCallbacks ( "userid_code", CodeButtonDraw, NULL, button_click, button_highlight );
-		
-		EclRegisterButton ( useridX, useridY + 125, 120, 15, "", "", "userid_message" );
-		EclRegisterButtonCallbacks ( "userid_message", textbutton_draw, NULL, NULL, NULL );
+		EclRegisterButton(
+			useridX + 59, useridY + 81, 147, 15, "", "Enter your access code here", "userid_code");
+		EclRegisterButtonCallbacks("userid_code", CodeButtonDraw, NULL, button_click, button_highlight);
 
-		EclRegisterButton ( useridX + 140, useridY + 125, 80, 15, "Proceed", "Click here when done", "userid_proceed" );
-		button_assignbitmaps ( "userid_proceed", "proceed.tif", "proceed_h.tif", "proceed_c.tif" );
-		EclRegisterButtonCallback ( "userid_proceed", ProceedClick );
-		
+		EclRegisterButton(useridX, useridY + 125, 120, 15, "", "", "userid_message");
+		EclRegisterButtonCallbacks("userid_message", textbutton_draw, NULL, NULL, NULL);
+
+		EclRegisterButton(
+			useridX + 140, useridY + 125, 80, 15, "Proceed", "Click here when done", "userid_proceed");
+		button_assignbitmaps("userid_proceed", "proceed.tif", "proceed_h.tif", "proceed_c.tif");
+		EclRegisterButtonCallback("userid_proceed", ProceedClick);
+
 		// Text help box
 
-		EclRegisterButton ( useridX, SY(200), 240, SY(50), "", "", "texthelp" );
-		EclRegisterButtonCallbacks ( "texthelp", textbutton_draw, NULL, NULL, NULL );
-		EclRegisterCaptionChange ( "texthelp", "If you are registered as an Uplink Agent,\n"
-											   "enter your username and password below.\n"
-											   "Otherwise, click on the New User button." );
+		EclRegisterButton(useridX, SY(200), 240, SY(50), "", "", "texthelp");
+		EclRegisterButtonCallbacks("texthelp", textbutton_draw, NULL, NULL, NULL);
+		EclRegisterCaptionChange("texthelp",
+								 "If you are registered as an Uplink Agent,\n"
+								 "enter your username and password below.\n"
+								 "Otherwise, click on the New User button.");
 
 		// List of all existing games
 
-		EclRegisterButton ( SX(35), SY(270), SX(170), SY(20), "Valid User Names", "", "usernames_title" );
-		EclRegisterButtonCallbacks ( "usernames_title", LargeTextBoxDraw, NULL, NULL, NULL );
+		EclRegisterButton(SX(35), SY(270), SX(170), SY(20), "Valid User Names", "", "usernames_title");
+		EclRegisterButtonCallbacks("usernames_title", LargeTextBoxDraw, NULL, NULL, NULL);
 
-		CreateExistingGames ();
+		CreateExistingGames();
 
-		EclMakeButtonEditable ( "userid_name" );
-		EclMakeButtonEditable ( "userid_code" );
-		
+		EclMakeButtonEditable("userid_name");
+		EclMakeButtonEditable("userid_code");
+
 		// Version
-       
-		EclRegisterButton ( screenw - 8 * sizeof ( VERSION_NUMBER ), screenh - 15, 8 * sizeof ( VERSION_NUMBER ), 15, VERSION_NUMBER, "", "login_int_version" );
-		EclRegisterButtonCallbacks ( "login_int_version", textbutton_draw, NULL, NULL, NULL );
 
+		EclRegisterButton(screenw - 8 * sizeof(VERSION_NUMBER),
+						  screenh - 15,
+						  8 * sizeof(VERSION_NUMBER),
+						  15,
+						  VERSION_NUMBER,
+						  "",
+						  "login_int_version");
+		EclRegisterButtonCallbacks("login_int_version", textbutton_draw, NULL, NULL, NULL);
 	}
-
 }
 
-void LoginInterface::Remove ()
+void LoginInterface::Remove()
 {
 
-	if ( IsVisible () ) {
+	if (IsVisible()) {
 
-		MainMenuScreen::Remove ();
+		MainMenuScreen::Remove();
 
-		if ( app->GetNetwork ()->STATUS == NETWORK_CLIENT ) {
-			EclRemoveButton ( "client_comms" );
-			EclRemoveButton ( "client_status" );
+		if (app->GetNetwork()->STATUS == NETWORK_CLIENT) {
+			EclRemoveButton("client_comms");
+			EclRemoveButton("client_status");
 		}
-		
-		EclRemoveButton ( "newgame" );
-		EclRemoveButton ( "newgame_text" );
 
-		EclRemoveButton ( "retireagent" );
-		EclRemoveButton ( "retireagent_text" );
-		
-		EclRemoveButton ( "options" );
-		EclRemoveButton ( "options_text" );
+		EclRemoveButton("newgame");
+		EclRemoveButton("newgame_text");
 
-		EclRemoveButton ( "exitgame" );
-		EclRemoveButton ( "exitgame_text" );
+		EclRemoveButton("retireagent");
+		EclRemoveButton("retireagent_text");
 
-		EclRemoveButton ( "userid_image" );
-		EclRemoveButton ( "userid_name" );
-		EclRemoveButton ( "userid_code" );
-		EclRemoveButton ( "userid_message" );
-		EclRemoveButton ( "userid_proceed" );
+		EclRemoveButton("options");
+		EclRemoveButton("options_text");
 
-		EclRemoveButton ( "login_int_version" ); 
+		EclRemoveButton("exitgame");
+		EclRemoveButton("exitgame_text");
 
-		EclRemoveButton ( "texthelp" );
+		EclRemoveButton("userid_image");
+		EclRemoveButton("userid_name");
+		EclRemoveButton("userid_code");
+		EclRemoveButton("userid_message");
+		EclRemoveButton("userid_proceed");
 
-		EclRemoveButton ( "usernames_title" );
+		EclRemoveButton("login_int_version");
 
-		RemoveExistingGames ();
+		EclRemoveButton("texthelp");
 
+		EclRemoveButton("usernames_title");
+
+		RemoveExistingGames();
 	}
-
 }
 
-void LoginInterface::Update ()
-{
-}
+void LoginInterface::Update() { }
 
-bool LoginInterface::IsVisible ()
-{
+bool LoginInterface::IsVisible() { return (EclGetButton("newgame") != NULL); }
 
-	return ( EclGetButton ( "newgame" ) != NULL );
-
-}
-
-int LoginInterface::ScreenID ()
-{
-
-	return MAINMENU_LOGIN;
-
-}
+int LoginInterface::ScreenID() { return MAINMENU_LOGIN; }

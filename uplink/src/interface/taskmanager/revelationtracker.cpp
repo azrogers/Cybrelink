@@ -1,6 +1,6 @@
 
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <strstream>
@@ -8,7 +8,6 @@
 #include <GL/gl.h>
 
 #include <GL/glu.h>
-
 
 #include "eclipse.h"
 #include "vanbakel.h"
@@ -19,262 +18,240 @@
 
 #include "game/game.h"
 
-#include "world/world.h"
+#include "world/computer/computer.h"
 #include "world/player.h"
 #include "world/vlocation.h"
-#include "world/computer/computer.h"
+#include "world/world.h"
 
 #include "interface/interface.h"
 #include "interface/remoteinterface/remoteinterface.h"
-#include "interface/taskmanager/taskmanager.h"
 #include "interface/taskmanager/revelationtracker.h"
+#include "interface/taskmanager/taskmanager.h"
 
-
-
-RevelationTracker::RevelationTracker ()
+RevelationTracker::RevelationTracker()
 {
 
-    timesync = 0;
-    height = 0;
-
+	timesync = 0;
+	height = 0;
 }
 
-RevelationTracker::~RevelationTracker ()
-{
-}
+RevelationTracker::~RevelationTracker() { }
 
-void RevelationTracker::Initialise ()
-{
-}
+void RevelationTracker::Initialise() { }
 
-void RevelationTracker::Tick ( int n )
+void RevelationTracker::Tick(int n)
 {
 
-	if ( IsInterfaceVisible () ) {
+	if (IsInterfaceVisible()) {
 
-		if ( time(NULL) > timesync + 3 ) {
+		if (time(NULL) > timesync + 3) {
 
-			int pid = SvbLookupPID ( this );
-			char boxname [128];
-			UplinkSnprintf ( boxname, sizeof ( boxname ), "revelationtracker_box %d", pid );
-			Button *button = EclGetButton ( boxname );
+			int pid = SvbLookupPID(this);
+			char boxname[128];
+			UplinkSnprintf(boxname, sizeof(boxname), "revelationtracker_box %d", pid);
+			Button* button = EclGetButton(boxname);
 			UplinkAssert(button);
 
 			//
 			// How many computers are infected?
 
-			int numinfected = game->GetWorld ()->plotgenerator.infected.Size ();
+			int numinfected = game->GetWorld()->plotgenerator.infected.Size();
 
-			if ( numinfected != height ) {
+			if (numinfected != height) {
 
 				// Resize the box
 
-				EclRegisterResize ( boxname, button->width, 15 + numinfected * 15, 1000 );
+				EclRegisterResize(boxname, button->width, 15 + numinfected * 15, 1000);
 				height = numinfected;
-
 			}
 
 			//
 			// Rebuild the caption
 
-			if ( numinfected == 0 ) {
+			if (numinfected == 0) {
 
-				button->SetCaption ( "No infected systems" );
+				button->SetCaption("No infected systems");
 
-			}
-			else {
+			} else {
 
 				std::ostrstream newcaption;
 
-				newcaption << "Infected systems" << "\n";
+				newcaption << "Infected systems"
+						   << "\n";
 
-				for ( int i = 0; i < game->GetWorld ()->plotgenerator.infected.Size (); ++i ) {
+				for (int i = 0; i < game->GetWorld()->plotgenerator.infected.Size(); ++i) {
 
-					char *ip = game->GetWorld ()->plotgenerator.infected.GetData (i);
-					UplinkAssert (ip);
+					char* ip = game->GetWorld()->plotgenerator.infected.GetData(i);
+					UplinkAssert(ip);
 
-					VLocation *vl = game->GetWorld ()->GetVLocation (ip);
-					UplinkAssert (vl);
+					VLocation* vl = game->GetWorld()->GetVLocation(ip);
+					UplinkAssert(vl);
 
-					Computer *comp = vl->GetComputer ();
-					UplinkAssert (comp);
+					Computer* comp = vl->GetComputer();
+					UplinkAssert(comp);
 
-					if ( comp->isinfected_revelation > 0.0 ) {
+					if (comp->isinfected_revelation > 0.0) {
 
 						newcaption << comp->ip;
 						newcaption << " at ";
-						newcaption << comp->infectiondate.GetHour () << ":" << comp->infectiondate.GetMinute ();
+						newcaption << comp->infectiondate.GetHour() << ":" << comp->infectiondate.GetMinute();
 						newcaption << "\n";
-
 					}
-
 				}
 
 				newcaption << '\x0';
 
-				button->SetCaption ( newcaption.str () );
+				button->SetCaption(newcaption.str());
 
-				newcaption.rdbuf()->freeze( 0 );
-				//delete [] newcaption.str ();
-
+				newcaption.rdbuf()->freeze(0);
+				// delete [] newcaption.str ();
 			}
-
 		}
-
 	}
-
 }
 
-
-void RevelationTracker::TitleClick ( Button *button )
+void RevelationTracker::TitleClick(Button* button)
 {
 
-    UplinkAssert (button);
+	UplinkAssert(button);
 
-    char unused [128];
-    int pid;
-    sscanf ( button->name, "%s %d", unused, &pid );
+	char unused[128];
+	int pid;
+	sscanf(button->name.c_str(), "%s %d", unused, &pid);
 
-    game->GetInterface ()->GetTaskManager ()->SetTargetProgram ( pid );
-
+	game->GetInterface()->GetTaskManager()->SetTargetProgram(pid);
 }
 
-void RevelationTracker::CloseClick ( Button *button )
+void RevelationTracker::CloseClick(Button* button)
 {
 
 	int pid;
-	char bname [128];
-	sscanf ( button->name, "%s %d", bname, &pid );
+	char bname[128];
+	sscanf(button->name.c_str(), "%s %d", bname, &pid);
 
-	SvbRemoveTask ( pid );
-
+	SvbRemoveTask(pid);
 }
 
-void RevelationTracker::MainBoxDraw ( Button *button, bool highlighted, bool clicked )
+void RevelationTracker::MainBoxDraw(Button* button, bool highlighted, bool clicked)
 {
 
-	glBegin ( GL_QUADS );
-		glColor3ub ( 8, 20, 0 );		glVertex2i ( button->x, button->y + button->height );
-		glColor3ub ( 8, 20, 124 );		glVertex2i ( button->x, button->y );
-		glColor3ub ( 8, 20, 0 );		glVertex2i ( button->x + button->width, button->y );
-		glColor3ub ( 8, 20, 124 );		glVertex2i ( button->x + button->width, button->y + button->height );
-	glEnd ();
+	glBegin(GL_QUADS);
+	glColor3ub(8, 20, 0);
+	glVertex2i(button->x, button->y + button->height);
+	glColor3ub(8, 20, 124);
+	glVertex2i(button->x, button->y);
+	glColor3ub(8, 20, 0);
+	glVertex2i(button->x + button->width, button->y);
+	glColor3ub(8, 20, 124);
+	glVertex2i(button->x + button->width, button->y + button->height);
+	glEnd();
 
-	glColor3ub ( 81, 138, 215 );
-	border_draw ( button );
+	glColor3ub(81, 138, 215);
+	border_draw(button);
 
-    text_draw ( button, highlighted, clicked );
-
+	text_draw(button, highlighted, clicked);
 }
 
-void RevelationTracker::CreateInterface ()
+void RevelationTracker::CreateInterface()
 {
 
-	if ( !IsInterfaceVisible () ) {
+	if (!IsInterfaceVisible()) {
 
-		int pid = SvbLookupPID ( this );
+		int pid = SvbLookupPID(this);
 
-        char titlename [128];
-        char boxname [128];
-        char closename [128];
+		char titlename[128];
+		char boxname[128];
+		char closename[128];
 
-        UplinkSnprintf ( titlename, sizeof ( titlename ), "revelationtracker_title %d", pid );
-        UplinkSnprintf ( boxname, sizeof ( boxname ), "revelationtracker_box %d", pid );
-        UplinkSnprintf ( closename, sizeof ( closename ), "revaltiontracker_close %d", pid );
+		UplinkSnprintf(titlename, sizeof(titlename), "revelationtracker_title %d", pid);
+		UplinkSnprintf(boxname, sizeof(boxname), "revelationtracker_box %d", pid);
+		UplinkSnprintf(closename, sizeof(closename), "revaltiontracker_close %d", pid);
 
-        EclRegisterButton ( 0, 50, 130, 15, "Revelation Tracker", "Shows all currently infected computers", titlename );
-        EclRegisterButton ( 130, 51, 13, 13, "X", "Close the Revelation Tracker", closename );
-        EclRegisterButton ( 0, 65, 143, 30, "Listening...", " ", boxname );
+		EclRegisterButton(
+			0, 50, 130, 15, "Revelation Tracker", "Shows all currently infected computers", titlename);
+		EclRegisterButton(130, 51, 13, 13, "X", "Close the Revelation Tracker", closename);
+		EclRegisterButton(0, 65, 143, 30, "Listening...", " ", boxname);
 
-        button_assignbitmaps ( closename, "close.tif", "close_h.tif", "close_c.tif" );
+		button_assignbitmaps(closename, "close.tif", "close_h.tif", "close_c.tif");
 
-        EclRegisterButtonCallback ( titlename, TitleClick );
-        EclRegisterButtonCallback ( closename, CloseClick );
-        EclRegisterButtonCallbacks ( boxname, MainBoxDraw, NULL, NULL, NULL );
+		EclRegisterButtonCallback(titlename, TitleClick);
+		EclRegisterButtonCallback(closename, CloseClick);
+		EclRegisterButtonCallbacks(boxname, MainBoxDraw, NULL, NULL, NULL);
 
 		timesync = time(NULL);
-        height = 0;
-
+		height = 0;
 	}
-
 }
 
-void RevelationTracker::RemoveInterface ()
+void RevelationTracker::RemoveInterface()
 {
 
-	if ( IsInterfaceVisible () ) {
+	if (IsInterfaceVisible()) {
 
-		int pid = SvbLookupPID ( this );
+		int pid = SvbLookupPID(this);
 
-        char titlename [128];
-        char boxname [128];
-        char closename [128];
+		char titlename[128];
+		char boxname[128];
+		char closename[128];
 
-        UplinkSnprintf ( titlename, sizeof ( titlename ), "revelationtracker_title %d", pid );
-        UplinkSnprintf ( boxname, sizeof ( boxname ), "revelationtracker_box %d", pid );
-        UplinkSnprintf ( closename, sizeof ( closename ), "revaltiontracker_close %d", pid );
+		UplinkSnprintf(titlename, sizeof(titlename), "revelationtracker_title %d", pid);
+		UplinkSnprintf(boxname, sizeof(boxname), "revelationtracker_box %d", pid);
+		UplinkSnprintf(closename, sizeof(closename), "revaltiontracker_close %d", pid);
 
-        EclRemoveButton ( titlename );
-        EclRemoveButton ( boxname );
-        EclRemoveButton ( closename );
-
+		EclRemoveButton(titlename);
+		EclRemoveButton(boxname);
+		EclRemoveButton(closename);
 	}
-
 }
 
-void RevelationTracker::ShowInterface ()
+void RevelationTracker::ShowInterface()
 {
 
-	if ( IsInterfaceVisible () ) {
+	if (IsInterfaceVisible()) {
 
-		int pid = SvbLookupPID ( this );
+		int pid = SvbLookupPID(this);
 
-        char titlename [128];
-        char boxname [128];
-        char closename [128];
+		char titlename[128];
+		char boxname[128];
+		char closename[128];
 
-        UplinkSnprintf ( titlename, sizeof ( titlename ), "revelationtracker_title %d", pid );
-        UplinkSnprintf ( boxname, sizeof ( boxname ), "revelationtracker_box %d", pid );
-        UplinkSnprintf ( closename, sizeof ( closename ), "revaltiontracker_close %d", pid );
+		UplinkSnprintf(titlename, sizeof(titlename), "revelationtracker_title %d", pid);
+		UplinkSnprintf(boxname, sizeof(boxname), "revelationtracker_box %d", pid);
+		UplinkSnprintf(closename, sizeof(closename), "revaltiontracker_close %d", pid);
 
-        EclButtonBringToFront ( titlename );
-        EclButtonBringToFront ( boxname );
-        EclButtonBringToFront ( closename );
-
+		EclButtonBringToFront(titlename);
+		EclButtonBringToFront(boxname);
+		EclButtonBringToFront(closename);
 	}
-
 }
 
-void RevelationTracker::MoveTo ( int x, int y, int time_ms )
+void RevelationTracker::MoveTo(int x, int y, int time_ms)
 {
 
-    if ( IsInterfaceVisible () ) {
+	if (IsInterfaceVisible()) {
 
-        int pid = SvbLookupPID ( this );
+		int pid = SvbLookupPID(this);
 
-        char titlename [128];
-        char boxname [128];
-        char closename [128];
+		char titlename[128];
+		char boxname[128];
+		char closename[128];
 
-        UplinkSnprintf ( titlename, sizeof ( titlename ), "revelationtracker_title %d", pid );
-        UplinkSnprintf ( boxname, sizeof ( boxname ), "revelationtracker_box %d", pid );
-        UplinkSnprintf ( closename, sizeof ( closename ), "revaltiontracker_close %d", pid );
+		UplinkSnprintf(titlename, sizeof(titlename), "revelationtracker_title %d", pid);
+		UplinkSnprintf(boxname, sizeof(boxname), "revelationtracker_box %d", pid);
+		UplinkSnprintf(closename, sizeof(closename), "revaltiontracker_close %d", pid);
 
-        EclRegisterMovement ( titlename, x, y, time_ms );
-        EclRegisterMovement ( boxname, x, y + 15, time_ms );
-        EclRegisterMovement ( closename, x + 130, y + 1, time_ms );
-
-    }
-
+		EclRegisterMovement(titlename, x, y, time_ms);
+		EclRegisterMovement(boxname, x, y + 15, time_ms);
+		EclRegisterMovement(closename, x + 130, y + 1, time_ms);
+	}
 }
 
-bool RevelationTracker::IsInterfaceVisible ()
+bool RevelationTracker::IsInterfaceVisible()
 {
 
-	int pid = SvbLookupPID ( this );
-    char titlename [128];
-    UplinkSnprintf ( titlename, sizeof ( titlename ), "revelationtracker_title %d", pid );
+	int pid = SvbLookupPID(this);
+	char titlename[128];
+	UplinkSnprintf(titlename, sizeof(titlename), "revelationtracker_title %d", pid);
 
-	return ( EclGetButton ( titlename ) != NULL );
-
+	return (EclGetButton(titlename) != NULL);
 }

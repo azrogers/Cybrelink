@@ -7,7 +7,6 @@
 
   */
 
-
 // ============================================================================
 
 #ifndef _included_faithscreeninterface_h
@@ -19,35 +18,26 @@ class GenericScreen;
 
 // ============================================================================
 
-
-
-class FaithScreenInterface : public RemoteInterfaceScreen
-{
+class FaithScreenInterface : public RemoteInterfaceScreen {
 
 protected:
-
-	static void CloseClick ( Button *button );
+	static void CloseClick(Button* button);
 
 public:
+	FaithScreenInterface();
+	~FaithScreenInterface();
 
-	FaithScreenInterface ();
-	~FaithScreenInterface ();
+	bool EscapeKeyPressed();
 
-    bool EscapeKeyPressed ();
+	void Create();
+	void Create(ComputerScreen* newcs);
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Create ( ComputerScreen *newcs );
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	int ScreenID();
 
-	int ScreenID ();
-
-	GenericScreen *GetComputerScreen ();
-
+	GenericScreen* GetComputerScreen();
 };
 
-
-
 #endif
-

@@ -3,45 +3,36 @@
 
   Closing interface
 
-    Shows an advert as Uplink closes down
+	Shows an advert as Uplink closes down
 
   */
-
 
 #ifndef _included_closinginterface_h
 #define _included_closinginterface_h
 
-
+#include "eclipse.h"
 #include "mainmenu/mainmenuscreen.h"
 
-
-class ClosingInterface : public MainMenuScreen
-{
+class ClosingInterface : public MainMenuScreen {
 
 protected:
-
-    static void LargeTextDraw ( Button *button, bool highlighted, bool clicked );
-
-public:
-
-    int timesync;
-    int status;
-    int count;
+	static void LargeTextDraw(Button* button, bool highlighted, bool clicked);
 
 public:
+	int timesync;
+	int status;
+	int count;
 
-    ClosingInterface ();
-    ~ClosingInterface ();
+public:
+	ClosingInterface();
+	~ClosingInterface();
 
-	void Create ();
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
+	void Create();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	int  ScreenID ();			
-
+	int ScreenID();
 };
 
-
 #endif
-

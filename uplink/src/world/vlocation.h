@@ -5,7 +5,6 @@
 
   */
 
-
 #ifndef _included_vlocation_h
 #define _included_vlocation_h
 
@@ -14,57 +13,52 @@
 #include <stdio.h>
 
 #include "app/uplinkobject.h"
- 
-#define SIZE_VLOCATION_IP  24
-#define SIZE_COMPUTER_NAME   64
 
-#define VIRTUAL_WIDTH     594
-#define VIRTUAL_HEIGHT    315
+#define SIZE_VLOCATION_IP 24
+#define SIZE_COMPUTER_NAME 64
+
+#define VIRTUAL_WIDTH 594
+#define VIRTUAL_HEIGHT 315
 
 class Computer;
 
 // ============================================================================
 
-
-class VLocation : public UplinkObject
-{
+class VLocation : public UplinkObject {
 
 public:
+	char ip[SIZE_VLOCATION_IP]; // Unique
+	char computer[SIZE_COMPUTER_NAME];
 
-	char ip       [SIZE_VLOCATION_IP];				// Unique
-	char computer [SIZE_COMPUTER_NAME];
-
-	int x, y;					// Physical location on map
-	bool listed;				// Am I publicly listed?
-    bool displayed;             // Should I be displayed on the world map?
-	bool colored;               // Should I be displayed in a distinct color on the world map?
+	int x, y; // Physical location on map
+	bool listed; // Am I publicly listed?
+	bool displayed; // Should I be displayed on the world map?
+	bool colored; // Should I be displayed in a distinct color on the world map?
 
 public:
-
 	VLocation();
 	virtual ~VLocation();
 
-	void SetIP ( char *newip );
-	static bool VerifyIP ( char *newip );
-	void SetComputer ( char *newcomputer );
+	void SetIP(const char* newip);
+	static bool VerifyIP(const char* newip);
+	void SetComputer(const char* newcomputer);
 
-	void SetPLocation ( int newx, int newy );
-	static bool VerifyPLocation ( int newx, int newy );
-	void SetListed ( bool newlisted );
-    void SetDisplayed ( bool newdisplayed );
-	void SetColorDisplayed ( bool newcolored );
+	void SetPLocation(int newx, int newy);
+	static bool VerifyPLocation(int newx, int newy);
+	void SetListed(bool newlisted);
+	void SetDisplayed(bool newdisplayed);
+	void SetColorDisplayed(bool newcolored);
 
-	Computer *GetComputer ();				// Returns NULL if none
+	Computer* GetComputer(); // Returns NULL if none
 
 	// Common functions
 
-	bool Load  ( FILE *file );
-	void Save  ( FILE *file );
-	void Print ();
-	
-	char *GetID ();
-	int   GetOBJECTID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
 
 /*
@@ -75,31 +69,27 @@ public:
 
   */
 
-class VLocationSpecial : public VLocation
-{
+class VLocationSpecial : public VLocation {
 
 public:
-
 	int screenIndex;
-    int securitySystemIndex;
+	int securitySystemIndex;
 
 public:
+	VLocationSpecial();
+	virtual ~VLocationSpecial();
 
-	VLocationSpecial ();
-	virtual ~VLocationSpecial ();
-
-	void SetScreenIndex ( int newScreenIndex );
-    void SetSecuritySystemIndex ( int newIndex );
+	void SetScreenIndex(int newScreenIndex);
+	void SetSecuritySystemIndex(int newIndex);
 
 	// Common functions
 
-	bool Load  ( FILE *file );
-	void Save  ( FILE *file );
-	void Print ();
-	
-	char *GetID ();
-	int   GetOBJECTID ();
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
 
-#endif 
+#endif

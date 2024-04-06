@@ -13,25 +13,20 @@ class Mission;
 
 // ============================================================================
 
-
-class MissionInterface : public LocalInterfaceScreen
-{
+class MissionInterface : public LocalInterfaceScreen {
 
 protected:
-
 	int index;
 	time_t timesync;
 	Mission* mission;
 
 protected:
-
 	static void TitleClick(Button* button);
 	static void AbandonClick(Button* button);
 	static void ReplyClick(Button* button);
 	static void MessageMiddleClick(Button* button);
 
 public:
-
 	MissionInterface();
 	~MissionInterface();
 
@@ -43,7 +38,6 @@ public:
 	bool IsVisible();
 
 	int ScreenID();
-
 };
 
-#endif 
+#endif

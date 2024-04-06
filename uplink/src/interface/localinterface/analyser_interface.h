@@ -5,25 +5,18 @@
 
   */
 
-
-
 #ifndef _included_analyserinterface_h
 #define _included_analyserinterface_h
-
 
 #include "world/vlocation.h"
 
 #include "interface/localinterface/localinterfacescreen.h"
 
-
-
-class AnalyserInterface : public LocalInterfaceScreen
-{
+class AnalyserInterface : public LocalInterfaceScreen {
 
 protected:
+	static char remotehost[SIZE_VLOCATION_IP];
 
-	static char remotehost [SIZE_VLOCATION_IP];						
-	
 	static int moving_stipplepattern;
 	static int static_stipplepattern;
 
@@ -31,29 +24,24 @@ protected:
 	int stippleupdate;
 
 protected:
-	
-	static void CycleStipplePattern ();
+	static void CycleStipplePattern();
 
-	static void TitleClick ( Button *button );
-	static void SystemClick ( Button *button );
+	static void TitleClick(Button* button);
+	static void SystemClick(Button* button);
 
-	static void ConnectionDraw ( Button *button, bool highlighted, bool clicked );
+	static void ConnectionDraw(Button* button, bool highlighted, bool clicked);
 	static void BypassSystem();
 
 public:
+	AnalyserInterface();
+	~AnalyserInterface();
 
-	AnalyserInterface ();
-	~AnalyserInterface ();
+	void Create();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
-
-	int ScreenID ();
-
+	int ScreenID();
 };
 
-
 #endif
-

@@ -1,6 +1,6 @@
 
 /*
-	
+
   Security object
 
 	Part of every computer system
@@ -8,69 +8,58 @@
 
   */
 
-
 #ifndef _included_security_h
 #define _included_security_h
 
 // ============================================================================
-
 
 #include "app/uplinkobject.h"
 #include "world/computer/securitymonitor.h"
 
 class SecuritySystem;
 
-
 // ============================================================================
 
-
-
-class Security : public UplinkObject
-{
+class Security : public UplinkObject {
 
 protected:
+	DArray<SecuritySystem*> systems;
 
-	DArray <SecuritySystem *> systems;
-	
 public:
+	Security();
+	~Security();
 
-	Security ();
-	~Security ();
+	void AddSystem(SecuritySystem* newsystem, int index = -1);
+	void AddSystem(int TYPE, int level, int index = -1);
 
-	void AddSystem ( SecuritySystem *newsystem, int index = -1 );
-	void AddSystem ( int TYPE, int level, int index = -1 );
-    
-    void RemoveAllSystems ();
+	void RemoveAllSystems();
 
-	SecuritySystem *GetSystem (int index);
-	int NumSystems ();
-	int NumRunningSystems ();
+	SecuritySystem* GetSystem(int index);
+	int NumSystems();
+	int NumRunningSystems();
 
 	bool HasSystem(int TYPE);
 	int GetTypeIndex(int TYPE);
 
 	// Use these to determine status of security system
 
-	bool IsRunning			  ( int TYPE );
-	bool IsRunning_Proxy	  ();
-	bool IsRunning_Firewall   ();
-	bool IsRunning_Encryption ();
-	bool IsRunning_Monitor	  ();
+	bool IsRunning(int TYPE);
+	bool IsRunning_Proxy();
+	bool IsRunning_Firewall();
+	bool IsRunning_Encryption();
+	bool IsRunning_Monitor();
 
-	bool IsAnythingEnabled    ();
-	bool IsAnythingDisabled   ();							// Returns true if any system is disabled
+	bool IsAnythingEnabled();
+	bool IsAnythingDisabled(); // Returns true if any system is disabled
 
 	// Common functions
 
-	bool Load  ( FILE *file );			
-	void Save  ( FILE *file );			
-	void Print ();		
-	void Update ();			
-	
-	char *GetID ();			
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
+	void Update();
 
+	std::string GetID();
 };
 
-
 #endif
-

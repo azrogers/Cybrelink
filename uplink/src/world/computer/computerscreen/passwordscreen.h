@@ -14,41 +14,33 @@
 
 #include "world/computer/computerscreen/computerscreen.h"
 
-#define SIZE_PASSWORDSCREEN_PASSWORD  64
+#define SIZE_PASSWORDSCREEN_PASSWORD 64
 
 // ============================================================================
 
-
-class PasswordScreen : public ComputerScreen  
-{
+class PasswordScreen : public ComputerScreen {
 
 public:
-
 	int nextpage;
-	int difficulty;									// 1 = easy, >1 = getting harder
-	char password [SIZE_PASSWORDSCREEN_PASSWORD];
+	int difficulty; // 1 = easy, >1 = getting harder
+	char password[SIZE_PASSWORDSCREEN_PASSWORD];
 
 public:
-
 	PasswordScreen();
 	virtual ~PasswordScreen();
 
-	
-	void SetNextPage ( int newnextpage );
-	void SetPassword ( char *newpassword );
-	void SetDifficulty ( int newdifficulty );
-
+	void SetNextPage(int newnextpage);
+	void SetPassword(const char* newpassword);
+	void SetDifficulty(int newdifficulty);
 
 	// Common functions
 
-	bool Load  ( FILE *file );			
-	void Save  ( FILE *file );		
-	void Print ();						
-	
-	char *GetID ();						
-	int   GetOBJECTID ();			
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
-
 
 #endif

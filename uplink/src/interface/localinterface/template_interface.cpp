@@ -5,11 +5,11 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "eclipse.h"
+	#include "eclipse.h"
 
-#include "localinterface.h"
+	#include "localinterface.h"
 
-#include "memory_interface.h"
+	#include "memory_interface.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

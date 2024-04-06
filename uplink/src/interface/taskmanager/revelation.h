@@ -7,33 +7,26 @@
 
   */
 
-
 #include "interface/taskmanager/uplinktask.h"
 
-
-class Revelation : public UplinkTask
-{
+class Revelation : public UplinkTask {
 
 protected:
-
 	time_t timesync;
-    int animationtime;
-    int nextnumber;
-    int numcopies;
+	int animationtime;
+	int nextnumber;
+	int numcopies;
 
 protected:
-
-    static void DrawRevelation ( Button *button, bool highlighted, bool clicked );
+	static void DrawRevelation(Button* button, bool highlighted, bool clicked);
 
 public:
+	void Initialise();
+	void Tick(int n);
 
-	void Initialise ();     
-	void Tick ( int n );	
+	void CreateInterface();
+	void RemoveInterface();
+	void ShowInterface();
 
-	void CreateInterface ();       
-	void RemoveInterface ();
-	void ShowInterface ();
-
-	bool IsInterfaceVisible ();    
-
+	bool IsInterfaceVisible();
 };

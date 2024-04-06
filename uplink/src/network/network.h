@@ -10,50 +10,44 @@
 #ifndef _included_network_h
 #define _included_network_h
 
-  // ============================================================================
+// ============================================================================
 
 #include <time.h>
 
 #if ENABLE_NETWORK
-#include <tcp4u.h>
+	#include <tcp4u.h>
 #endif
 
-#include "network/networkserver.h"
 #include "network/networkclient.h"
+#include "network/networkserver.h"
 
 #include "app/uplinkobject.h"
 
 // Status of network
 
-#define NETWORK_NONE	0
-#define NETWORK_CLIENT  1
-#define NETWORK_SERVER  2
-
+#define NETWORK_NONE 0
+#define NETWORK_CLIENT 1
+#define NETWORK_SERVER 2
 
 // ============================================================================
 
-
-class Network : public UplinkObject
-{
+class Network : public UplinkObject {
 
 protected:
-
 	NetworkServer server;
 	NetworkClient client;
 
 public:
-
 	int STATUS;
 
 public:
-
 	Network();
 	virtual ~Network();
 
 	void SetStatus(int newSTATUS);
 
-	NetworkServer* GetServer();					// MUST be in correct STATUS
-	NetworkClient* GetClient();					// before accessing
+	NetworkServer* GetServer(); // MUST be in correct STATUS
+	NetworkClient* GetClient(); // before accessing
 
 	char* GetLocalHost();
 	char* GetLocalIP();
@@ -61,7 +55,7 @@ public:
 	void StartServer();
 	void StopServer();
 
-	void StartClient(char* ip);
+	void StartClient(const char* ip);
 	void StopClient();
 
 	bool IsActive();
@@ -72,8 +66,7 @@ public:
 	void Save(FILE* file);
 	void Print();
 	void Update();
-	char* GetID();
-
+	std::string GetID();
 };
 
-#endif 
+#endif

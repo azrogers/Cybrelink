@@ -1,84 +1,77 @@
 
 #ifdef WIN32
-#include <windows.h>
+	#include <windows.h>
 #endif
 
 #include <GL/gl.h>
 
 #include <GL/glu.h> /*_glu_extention_library_*/
 
-
 #include "eclipse.h"
-#include "vanbakel.h"
 #include "gucci.h"
+#include "vanbakel.h"
 
 #include "app/app.h"
 #include "app/globals.h"
 #include "app/opengl_interface.h"
 #include "app/serialise.h"
 
-#include "game/game.h"
 #include "game/data/data.h"
+#include "game/game.h"
 
 #include "interface/interface.h"
-#include "interface/taskmanager/taskmanager.h"
-#include "interface/taskmanager/decypher.h"
-#include "interface/remoteinterface/remoteinterface.h"
 #include "interface/remoteinterface/cypherscreen_interface.h"
+#include "interface/remoteinterface/remoteinterface.h"
+#include "interface/taskmanager/decypher.h"
+#include "interface/taskmanager/taskmanager.h"
 
-#include "world/world.h"
-#include "world/player.h"
 #include "world/computer/computer.h"
-#include "world/computer/databank.h"
 #include "world/computer/computerscreen/cypherscreen.h"
+#include "world/computer/databank.h"
 #include "world/generator/numbergenerator.h"
+#include "world/player.h"
+#include "world/world.h"
 
-
-
-
-Decypher::Decypher () : UplinkTask ()
+Decypher::Decypher() :
+	UplinkTask()
 {
-	
+
 	status = DECYPHER_OFF;
 	numticksrequired = 0;
 	progress = 0;
-
 }
 
-Decypher::~Decypher ()
-{
-}
+Decypher::~Decypher() { }
 
-void Decypher::MoveTo ( int x, int y, int time_ms )
+void Decypher::MoveTo(int x, int y, int time_ms)
 {
 
-	UplinkTask::MoveTo ( x, y, time_ms );
+	UplinkTask::MoveTo(x, y, time_ms);
 
-	int pid = SvbLookupPID ( this );
+	int pid = SvbLookupPID(this);
 
-	char stitle    [128];
-	char sborder   [128];
-	char sprogress [128];
-	char sclose    [128];
+	char stitle[128];
+	char sborder[128];
+	char sprogress[128];
+	char sclose[128];
 
-	UplinkSnprintf ( stitle, sizeof ( stitle ), "decypher_title %d", pid );
-	UplinkSnprintf ( sborder, sizeof ( sborder ), "decypher_border %d", pid );
-	UplinkSnprintf ( sprogress, sizeof ( sprogress ), "decypher_progress %d", pid );
-	UplinkSnprintf ( sclose, sizeof ( sclose ), "decypher_close %d", pid );	
+	UplinkSnprintf(stitle, sizeof(stitle), "decypher_title %d", pid);
+	UplinkSnprintf(sborder, sizeof(sborder), "decypher_border %d", pid);
+	UplinkSnprintf(sprogress, sizeof(sprogress), "decypher_progress %d", pid);
+	UplinkSnprintf(sclose, sizeof(sclose), "decypher_close %d", pid);
 
-	EclRegisterMovement ( stitle, x, y, time_ms);
-	EclRegisterMovement ( sborder, x + 20, y, time_ms );
-	EclRegisterMovement ( sprogress, x + 20, y + 1, time_ms );
-	EclRegisterMovement ( sclose, x + 140, y + 1, time_ms );
+	EclRegisterMovement(stitle, x, y, time_ms);
+	EclRegisterMovement(sborder, x + 20, y, time_ms);
+	EclRegisterMovement(sprogress, x + 20, y + 1, time_ms);
+	EclRegisterMovement(sclose, x + 140, y + 1, time_ms);
 
-	EclButtonBringToFront ( stitle );
-	EclButtonBringToFront ( sborder );
-	EclButtonBringToFront ( sprogress );
-	EclButtonBringToFront ( sclose );
-
+	EclButtonBringToFront(stitle);
+	EclButtonBringToFront(sborder);
+	EclButtonBringToFront(sprogress);
+	EclButtonBringToFront(sclose);
 }
 
-void Decypher::SetTarget ( UplinkObject *uo, char *uos, int uoi )
+void Decypher::SetTarget(UplinkObject* uo, char* uos, int uoi)
 {
 
 	/*
@@ -89,297 +82,300 @@ void Decypher::SetTarget ( UplinkObject *uo, char *uos, int uoi )
 
 		*/
 
-	if ( status == DECYPHER_OFF ) {
+	if (status == DECYPHER_OFF) {
 
-		if ( uo->GetOBJECTID () == OID_CYPHERSCREEN ) {
+		if (uo->GetOBJECTID() == OID_CYPHERSCREEN) {
 
-			CypherScreen *cs = (CypherScreen *) uo;
-			UplinkAssert (cs);
-			Computer *comp = cs->GetComputer ();
-			UplinkAssert (comp);
+			CypherScreen* cs = (CypherScreen*)uo;
+			UplinkAssert(cs);
+			Computer* comp = cs->GetComputer();
+			UplinkAssert(comp);
 
-			Button *button = EclGetButton ( uos );
-			UplinkAssert (button);
+			Button* button = EclGetButton(uos);
+			UplinkAssert(button);
 
-			MoveTo ( button->x + button->width - 300, button->y + button->height, 1000 );
+			MoveTo(button->x + button->width - 300, button->y + button->height, 1000);
 
-			int security = game->GetInterface ()->GetRemoteInterface ()->security_level;
-			int difficulty = (int)(CYPHER_WIDTH * CYPHER_HEIGHT * TICKSREQUIRED_BYPASSCYPHER * cs->difficulty);
-			numticksrequired = NumberGenerator::ApplyVariance ( difficulty, (int)(HACKDIFFICULTY_VARIANCE * 100) );
+			int security = game->GetInterface()->GetRemoteInterface()->security_level;
+			int difficulty =
+				(int)(CYPHER_WIDTH * CYPHER_HEIGHT * TICKSREQUIRED_BYPASSCYPHER * cs->difficulty);
+			numticksrequired =
+				NumberGenerator::ApplyVariance(difficulty, (int)(HACKDIFFICULTY_VARIANCE * 100));
 			progress = 0;
 
-			if ( comp->security.IsRunning_Monitor () )
-				game->GetWorld ()->GetPlayer ()->GetConnection ()->BeginTrace ();
+			if (comp->security.IsRunning_Monitor()) {
+				game->GetWorld()->GetPlayer()->GetConnection()->BeginTrace();
+			}
 
-			int pid = SvbLookupPID ( this );
-			char sprogress [128];
-			UplinkSnprintf ( sprogress, sizeof ( sprogress ), "decypher_progress %d", pid );
-			EclRegisterCaptionChange ( sprogress, "Decyphering..." );
+			int pid = SvbLookupPID(this);
+			char sprogress[128];
+			UplinkSnprintf(sprogress, sizeof(sprogress), "decypher_progress %d", pid);
+			EclRegisterCaptionChange(sprogress, "Decyphering...");
 
 			status = DECYPHER_INPROGRESS;
-
 		}
-
 	}
-
 }
 
-void Decypher::BorderDraw ( Button *button, bool highlighted, bool clicked )
+void Decypher::BorderDraw(Button* button, bool highlighted, bool clicked)
 {
 
-	glBegin ( GL_QUADS );
+	glBegin(GL_QUADS);
 
-		if      ( clicked )		glColor4f ( 0.5f, 0.5f, 0.6f, ALPHA );
-		else if ( highlighted ) glColor4f ( 0.2f, 0.2f, 0.5f, ALPHA );
-		else					glColor4f ( 0.2f, 0.2f, 0.4f, ALPHA );
-		glVertex2i ( button->x, button->y );
-
-		if		( clicked )		glColor4f ( 0.7f, 0.7f, 0.6f, ALPHA );
-		else if ( highlighted ) glColor4f ( 0.5f, 0.5f, 0.6f, ALPHA );
-		else					glColor4f ( 0.3f, 0.3f, 0.5f, ALPHA );
-		glVertex2i ( button->x + button->width, button->y );
-
-		if		( clicked )		glColor4f ( 0.5f, 0.5f, 0.6f, ALPHA );
-		else if ( highlighted ) glColor4f ( 0.2f, 0.2f, 0.5f, ALPHA );
-		else					glColor4f ( 0.2f, 0.2f, 0.4f, ALPHA );
-		glVertex2i ( button->x + button->width, button->y + button->height );
-
-		if		( clicked )		glColor4f ( 0.7f, 0.7f, 0.6f, ALPHA );
-		else if ( highlighted ) glColor4f ( 0.5f, 0.5f, 0.6f, ALPHA );
-		else					glColor4f ( 0.3f, 0.3f, 0.5f, ALPHA );
-		glVertex2i ( button->x, button->y + button->height );
-
-	glEnd ();
-
-	if ( highlighted || clicked ) {
-
-		glColor4f ( 0.3f, 0.3f, 0.7f, 1.0f );
-		border_draw ( button );
-
+	if (clicked) {
+		glColor4f(0.5f, 0.5f, 0.6f, ALPHA);
+	} else if (highlighted) {
+		glColor4f(0.2f, 0.2f, 0.5f, ALPHA);
+	} else {
+		glColor4f(0.2f, 0.2f, 0.4f, ALPHA);
 	}
+	glVertex2i(button->x, button->y);
 
+	if (clicked) {
+		glColor4f(0.7f, 0.7f, 0.6f, ALPHA);
+	} else if (highlighted) {
+		glColor4f(0.5f, 0.5f, 0.6f, ALPHA);
+	} else {
+		glColor4f(0.3f, 0.3f, 0.5f, ALPHA);
+	}
+	glVertex2i(button->x + button->width, button->y);
+
+	if (clicked) {
+		glColor4f(0.5f, 0.5f, 0.6f, ALPHA);
+	} else if (highlighted) {
+		glColor4f(0.2f, 0.2f, 0.5f, ALPHA);
+	} else {
+		glColor4f(0.2f, 0.2f, 0.4f, ALPHA);
+	}
+	glVertex2i(button->x + button->width, button->y + button->height);
+
+	if (clicked) {
+		glColor4f(0.7f, 0.7f, 0.6f, ALPHA);
+	} else if (highlighted) {
+		glColor4f(0.5f, 0.5f, 0.6f, ALPHA);
+	} else {
+		glColor4f(0.3f, 0.3f, 0.5f, ALPHA);
+	}
+	glVertex2i(button->x, button->y + button->height);
+
+	glEnd();
+
+	if (highlighted || clicked) {
+
+		glColor4f(0.3f, 0.3f, 0.7f, 1.0f);
+		border_draw(button);
+	}
 }
 
-void Decypher::ProgressDraw ( Button *button, bool highlighted, bool clicked )
+void Decypher::ProgressDraw(Button* button, bool highlighted, bool clicked)
 {
 
-	UplinkAssert ( button );
+	UplinkAssert(button);
 
-	float scale = (float) button->width / 100.0f;
-	if ( highlighted ) scale *= 2;
+	float scale = (float)button->width / 100.0f;
+	if (highlighted) {
+		scale *= 2;
+	}
 
-	glBegin ( GL_QUADS );
+	glBegin(GL_QUADS);
 
-		glColor4f ( 0.0f, 1.5f - scale, scale, 0.6f );
-		glVertex3i ( button->x, button->y, 0 );
+	glColor4f(0.0f, 1.5f - scale, scale, 0.6f);
+	glVertex3i(button->x, button->y, 0);
 
-		glColor4f ( 0.0f, 1.5f - scale, scale, 0.6f );
-		glVertex3i ( button->x + button->width, button->y, 0 );
+	glColor4f(0.0f, 1.5f - scale, scale, 0.6f);
+	glVertex3i(button->x + button->width, button->y, 0);
 
-		glColor4f ( 0.0f, 1.5f - scale, scale, 0.6f );
-		glVertex3i ( button->x + button->width, button->y + button->height, 0 );
+	glColor4f(0.0f, 1.5f - scale, scale, 0.6f);
+	glVertex3i(button->x + button->width, button->y + button->height, 0);
 
-		glColor4f ( 0.0f, 1.5f - scale, scale, 0.6f );
-		glVertex3i ( button->x, button->y + button->height, 0 );
+	glColor4f(0.0f, 1.5f - scale, scale, 0.6f);
+	glVertex3i(button->x, button->y + button->height, 0);
 
-	glEnd ();
+	glEnd();
 
 	int xpos = button->x + 5;
 	int ypos = (button->y + button->height / 2) + 3;
-		
-	glColor4f ( 1.0f, 1.0f, 1.0f, 1.0f );    
-    GciDrawText ( xpos, ypos, button->caption, HELVETICA_10 );
 
+	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+	GciDrawText(xpos, ypos, button->caption, HELVETICA_10);
 }
 
-void Decypher::CloseClick ( Button *button )
+void Decypher::CloseClick(Button* button)
 {
 
 	int pid;
-	char bname [64];
-	sscanf ( button->name, "%s %d", bname, &pid );
+	char bname[64];
+	sscanf(button->name.c_str(), "%s %d", bname, &pid);
 
-	SvbRemoveTask ( pid );
-
+	SvbRemoveTask(pid);
 }
 
-void Decypher::BorderClick ( Button *button )
+void Decypher::BorderClick(Button* button)
 {
 
 	int pid;
-	char bname [64];
-	sscanf ( button->name, "%s %d", bname, &pid );
+	char bname[64];
+	sscanf(button->name.c_str(), "%s %d", bname, &pid);
 
-	game->GetInterface ()->GetTaskManager ()->SetTargetProgram ( pid );
-
+	game->GetInterface()->GetTaskManager()->SetTargetProgram(pid);
 }
 
-void Decypher::Initialise ()
-{
-}
+void Decypher::Initialise() { }
 
-void Decypher::Tick ( int n )
+void Decypher::Tick(int n)
 {
 
-	if ( IsInterfaceVisible () ) {
+	if (IsInterfaceVisible()) {
 
-		int pid = SvbLookupPID ( this );
-		char sprogress [128];
-		UplinkSnprintf ( sprogress, sizeof ( sprogress ), "decypher_progress %d", pid );
+		int pid = SvbLookupPID(this);
+		char sprogress[128];
+		UplinkSnprintf(sprogress, sizeof(sprogress), "decypher_progress %d", pid);
 
-		if ( status == DECYPHER_OFF ) {
+		if (status == DECYPHER_OFF) {
 
 			// Not decyphering - look for a new target
 
-
-		}
-		else if ( status == DECYPHER_INPROGRESS ) {
+		} else if (status == DECYPHER_INPROGRESS) {
 
 			// Make sure we are still looking at the
 			// same interface screen
 
-			RemoteInterfaceScreen *ris = game->GetInterface ()->GetRemoteInterface ()->GetInterfaceScreen ();
-			UplinkAssert (ris);
+			RemoteInterfaceScreen* ris = game->GetInterface()->GetRemoteInterface()->GetInterfaceScreen();
+			UplinkAssert(ris);
 
-			if ( ris->ScreenID () != SCREEN_CYPHERSCREEN ) {
-				SvbRemoveTask ( this );
+			if (ris->ScreenID() != SCREEN_CYPHERSCREEN) {
+				SvbRemoveTask(this);
 				// WARNING - this has now been deleted
 				return;
 			}
 
-			CypherScreenInterface *csi = (CypherScreenInterface *) ris;
-				
+			CypherScreenInterface* csi = (CypherScreenInterface*)ris;
+
 			progress += (int)(n * version);
 
-			UplinkAssert ( EclGetButton ( sprogress ) );
-			EclGetButton ( sprogress )->width = (int)(120 * ( (float) progress / (float) numticksrequired ));
-			EclDirtyButton ( sprogress );
+			UplinkAssert(EclGetButton(sprogress));
+			EclGetButton(sprogress)->width = (int)(120 * ((float)progress / (float)numticksrequired));
+			EclDirtyButton(sprogress);
 
-			if ( progress >= numticksrequired ) {
+			if (progress >= numticksrequired) {
 
 				// Finished
 
-				while ( csi->NumUnLocked () > 0 )
-					csi->CypherLock ();
+				while (csi->NumUnLocked() > 0) {
+					csi->CypherLock();
+				}
 
 				status = DECYPHER_FINISHED;
 
+			} else {
+
+				int percentagedone = (int)(100.0f * (float)progress / (float)numticksrequired);
+
+				while (100.0 * (float)csi->NumLocked() / (float)(CYPHER_WIDTH * CYPHER_HEIGHT)
+					   <= percentagedone) {
+					csi->CypherLock();
+				}
 			}
-			else {
 
-				int percentagedone = (int)(100.0f * (float) progress / (float) numticksrequired);
+		} else if (status == DECYPHER_FINISHED) {
 
-				while ( 100.0 * (float) csi->NumLocked () / (float) (CYPHER_WIDTH*CYPHER_HEIGHT) <= percentagedone )
-					csi->CypherLock ();
-
-			}
-			
-		}
-		else if ( status == DECYPHER_FINISHED ) {
-
-			SvbRemoveTask ( this );
+			SvbRemoveTask(this);
 			return;
-
 		}
-
 	}
-
 }
 
-void Decypher::CreateInterface ()
+void Decypher::CreateInterface()
 {
 
-	if ( !IsInterfaceVisible () ) {
+	if (!IsInterfaceVisible()) {
 
-		int pid = SvbLookupPID ( this );
-		
-		char stitle    [128];
-		char sborder   [128];
-		char sprogress [128];
-		char sclose    [128];
+		int pid = SvbLookupPID(this);
 
-		UplinkSnprintf ( stitle, sizeof ( stitle ), "decypher_title %d", pid );
-		UplinkSnprintf ( sborder, sizeof ( sborder ), "decypher_border %d", pid );
-		UplinkSnprintf ( sprogress, sizeof ( sprogress ), "decypher_progress %d", pid );
-		UplinkSnprintf ( sclose, sizeof ( sclose ), "decypher_close %d", pid );	
+		char stitle[128];
+		char sborder[128];
+		char sprogress[128];
+		char sclose[128];
 
-		EclRegisterButton ( 265, 450, 20, 15, "", "Decypher", stitle );
-		button_assignbitmap ( stitle, "software/dec.tif" );
+		UplinkSnprintf(stitle, sizeof(stitle), "decypher_title %d", pid);
+		UplinkSnprintf(sborder, sizeof(sborder), "decypher_border %d", pid);
+		UplinkSnprintf(sprogress, sizeof(sprogress), "decypher_progress %d", pid);
+		UplinkSnprintf(sclose, sizeof(sclose), "decypher_close %d", pid);
+
+		EclRegisterButton(265, 450, 20, 15, "", "Decypher", stitle);
+		button_assignbitmap(stitle, "software/dec.tif");
 
 		// Fix for decypher unpickability by NeoThermic
 
-		EclRegisterButton ( 285, 450, 120, 15, "", "", sborder );
-		EclRegisterButtonCallbacks ( sborder, BorderDraw, BorderClick, button_click, button_highlight );
+		EclRegisterButton(285, 450, 120, 15, "", "", sborder);
+		EclRegisterButtonCallbacks(sborder, BorderDraw, BorderClick, button_click, button_highlight);
 
-		EclRegisterButton ( 285, 450, 120, 13, "Select target", "Shows the progress of the decypher", sprogress );
-		EclRegisterButtonCallbacks ( sprogress, ProgressDraw, BorderClick, button_click, button_highlight );		
+		EclRegisterButton(
+			285, 450, 120, 13, "Select target", "Shows the progress of the decypher", sprogress);
+		EclRegisterButtonCallbacks(sprogress, ProgressDraw, BorderClick, button_click, button_highlight);
 
-		EclRegisterButton ( 405, 450, 13, 13, "", "Close the Decypher (and stop)", sclose );		
-		button_assignbitmaps ( sclose, "close.tif", "close_h.tif", "close_c.tif" );
-		EclRegisterButtonCallback ( sclose, CloseClick );
-		
+		EclRegisterButton(405, 450, 13, 13, "", "Close the Decypher (and stop)", sclose);
+		button_assignbitmaps(sclose, "close.tif", "close_h.tif", "close_c.tif");
+		EclRegisterButtonCallback(sclose, CloseClick);
+	}
+}
+
+void Decypher::RemoveInterface()
+{
+
+	if (IsInterfaceVisible()) {
+
+		int pid = SvbLookupPID(this);
+
+		char stitle[128];
+		char sborder[128];
+		char sprogress[128];
+		char sclose[128];
+
+		UplinkSnprintf(stitle, sizeof(stitle), "decypher_title %d", pid);
+		UplinkSnprintf(sborder, sizeof(sborder), "decypher_border %d", pid);
+		UplinkSnprintf(sprogress, sizeof(sprogress), "decypher_progress %d", pid);
+		UplinkSnprintf(sclose, sizeof(sclose), "decypher_close %d", pid);
+
+		EclRemoveButton(stitle);
+		EclRemoveButton(sborder);
+		EclRemoveButton(sprogress);
+		EclRemoveButton(sclose);
+	}
+}
+
+void Decypher::ShowInterface()
+{
+
+	if (!IsInterfaceVisible()) {
+		CreateInterface();
 	}
 
+	int pid = SvbLookupPID(this);
+
+	char stitle[128];
+	char sborder[128];
+	char sprogress[128];
+	char sclose[128];
+
+	UplinkSnprintf(stitle, sizeof(stitle), "decypher_title %d", pid);
+	UplinkSnprintf(sborder, sizeof(sborder), "decypher_border %d", pid);
+	UplinkSnprintf(sprogress, sizeof(sprogress), "decypher_progress %d", pid);
+	UplinkSnprintf(sclose, sizeof(sclose), "decypher_close %d", pid);
+
+	EclButtonBringToFront(stitle);
+	EclButtonBringToFront(sborder);
+	EclButtonBringToFront(sprogress);
+	EclButtonBringToFront(sclose);
 }
 
-void Decypher::RemoveInterface ()
+bool Decypher::IsInterfaceVisible()
 {
 
-	if ( IsInterfaceVisible () ) {
+	int pid = SvbLookupPID(this);
 
-		int pid = SvbLookupPID ( this );
+	char stitle[128];
+	UplinkSnprintf(stitle, sizeof(stitle), "decypher_border %d", pid);
 
-		char stitle    [128];
-		char sborder   [128];
-		char sprogress [128];
-		char sclose    [128];
-
-		UplinkSnprintf ( stitle, sizeof ( stitle ), "decypher_title %d", pid );
-		UplinkSnprintf ( sborder, sizeof ( sborder ), "decypher_border %d", pid );
-		UplinkSnprintf ( sprogress, sizeof ( sprogress ), "decypher_progress %d", pid );
-		UplinkSnprintf ( sclose, sizeof ( sclose ), "decypher_close %d", pid );	
-
-		EclRemoveButton ( stitle );
-		EclRemoveButton ( sborder );
-		EclRemoveButton ( sprogress );
-		EclRemoveButton ( sclose );
-
-	}
-
-}
-
-void Decypher::ShowInterface ()
-{
-
-	if ( !IsInterfaceVisible () ) CreateInterface ();
-
-	int pid = SvbLookupPID ( this );
-
-	char stitle    [128];
-	char sborder   [128];
-	char sprogress [128];
-	char sclose    [128];
-
-	UplinkSnprintf ( stitle, sizeof ( stitle ), "decypher_title %d", pid );
-	UplinkSnprintf ( sborder, sizeof ( sborder ), "decypher_border %d", pid );
-	UplinkSnprintf ( sprogress, sizeof ( sprogress ), "decypher_progress %d", pid );
-	UplinkSnprintf ( sclose, sizeof ( sclose ), "decypher_close %d", pid );	
-
-	EclButtonBringToFront ( stitle );
-	EclButtonBringToFront ( sborder );
-	EclButtonBringToFront ( sprogress );
-	EclButtonBringToFront ( sclose );
-
-}
-
-bool Decypher::IsInterfaceVisible ()
-{
-
-	int pid = SvbLookupPID ( this );
-
-	char stitle [128];
-	UplinkSnprintf ( stitle, sizeof ( stitle ), "decypher_border %d", pid );
-	
-	return ( EclGetButton (stitle) != NULL );
-
+	return (EclGetButton(stitle) != NULL);
 }

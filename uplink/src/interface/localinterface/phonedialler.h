@@ -2,40 +2,33 @@
 #ifndef _included_dialler_h
 #define _included_dialler_h
 
-
 #include "interface/localinterface/localinterfacescreen.h"
 
-
-class PhoneDialler : public LocalInterfaceScreen
-{
+class PhoneDialler : public LocalInterfaceScreen {
 
 protected:
+	static char buttonnames[][9];
 
-	static char buttonnames [][9];
-
-	char *ip;
-	char *infosup;
+	char* ip;
+	char* infosup;
 
 	int nextscene;
 
 	int lastupdate;
 	int curnumber;
 
-	void UpdateDisplay ();
+	void UpdateDisplay();
 
 public:
+	PhoneDialler();
+	~PhoneDialler();
 
-    PhoneDialler ();
-    ~PhoneDialler ();
+	void Create(int x, int y);
+	void Remove();
+	bool UpdateSpecial();
+	bool IsVisible();
 
-	void Create ( int x, int y );
-	void Remove ();
-	bool UpdateSpecial ();
-	bool IsVisible ();
-
-	void DialNumber ( int x, int y, char *number, int scenario, char *info = NULL );
-
+	void DialNumber(int x, int y, const char* number, int scenario, const char* info = NULL);
 };
 
 #endif
-

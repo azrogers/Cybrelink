@@ -3,8 +3,8 @@
 
   High Security Screen
 
-	Represents a set of security logins 
-	which must all be bypassed in order to 
+	Represents a set of security logins
+	which must all be bypassed in order to
 	access the system.
 
 	Looks like a menu screen.
@@ -17,36 +17,29 @@
 #include "world/computer/computerscreen/computerscreen.h"
 class MenuScreenOption;
 
-
-class HighSecurityScreen : public ComputerScreen
-{
+class HighSecurityScreen : public ComputerScreen {
 
 public:
-
-	LList <MenuScreenOption *> systems;
+	LList<MenuScreenOption*> systems;
 	int nextpage;
 
 public:
+	HighSecurityScreen();
+	~HighSecurityScreen();
 
-	HighSecurityScreen ();
-	~HighSecurityScreen ();
+	void AddSystem(const char* name, int page);
+	void SetNextPage(int newnextpage);
 
-	void AddSystem ( char *name, int page );
-	void SetNextPage ( int newnextpage );
-
-	void ResetSecurity ();							// Sets all systems to "Enabled"
+	void ResetSecurity(); // Sets all systems to "Enabled"
 
 	// Common functions
 
-	bool Load  ( FILE *file );			
-	void Save  ( FILE *file );			
-	void Print ();						
-	
-	char *GetID ();						
-	int   GetOBJECTID ();				
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
 
-
 #endif
-

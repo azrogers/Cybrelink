@@ -1,14 +1,12 @@
 #ifdef WIN32
-#include <windows.h>
+	#include <Windows.h>
 #endif
-
-#include <stdio.h>
 
 #include <gl/glew.h>
 #include <GL/gl.h>
 
-//#define USE_FTGL
-//#define USE_GLTT
+// #define USE_FTGL
+// #define USE_GLTT
 
 #include <map>
 
@@ -17,39 +15,38 @@
 #include "tosser.h"
 
 #ifdef USE_FREETYPEGL
-#include <freetype-gl/freetype-gl.h>
-#include <freetype-gl/texture-font.h>
+	#include <freetype-gl/freetype-gl.h>
+	#include <freetype-gl/texture-font.h>
 static std::map<int, texture_font_t*> fonts;
 static std::map<int, texture_atlas_t*> atlases;
 
-static VertexBufferPool *GlobalVertexBufferPool;
+static VertexBufferPool* GlobalVertexBufferPool;
 #endif
 
 #ifdef USE_FTGL
-#include <FTGL.h>
-#include <FTGLBitmapFont.h>
+	#include <FTGL.h>
+	#include <FTGLBitmapFont.h>
 
 typedef FTGLBitmapFont FTGLFontType;
 
 static std::map<int, FTGLFontType*> fonts;
 
-class FTBBoxHack
-{
+class FTBBoxHack {
 public:
 	FTPoint lower, upper;
 };
 #endif // USE_FTGL
 
 #ifdef USE_GLTT
-#  ifdef WIN32
-#include <FTFace.h>
-#include <FTEngine.h>
-#include <GLTTBitmapFont.h>
-#  else
-#include <gltt/FTFace.h>
-#include <gltt/FTEngine.h>
-#include <gltt/GLTTBitmapFont.h>
-#  endif
+	#ifdef WIN32
+		#include <FTEngine.h>
+		#include <FTFace.h>
+		#include <GLTTBitmapFont.h>
+	#else
+		#include <gltt/FTEngine.h>
+		#include <gltt/FTFace.h>
+		#include <gltt/GLTTBitmapFont.h>
+	#endif
 
 static std::map<int, GLTTBitmapFont*> fonts;
 
@@ -60,7 +57,7 @@ static BTree<FTFace*> faces;
 
 using namespace std;
 
-int  gci_defaultfont = HELVETICA_12;
+int gci_defaultfont = HELVETICA_12;
 bool gci_truetypeenabled = false;
 
 void GciInitializePostGl()
@@ -78,76 +75,50 @@ void GciCleanup()
 }
 
 #ifdef USE_FREETYPEGL
-void GciGarbageCollectTick()
-{
-	GlobalVertexBufferPool->GarbageCollectTick();
-}
+void GciGarbageCollectTick() { GlobalVertexBufferPool->GarbageCollectTick(); }
 #endif
 
-void GciSetDefaultFont(int STYLE)
-{
+void GciSetDefaultFont(int STYLE) { gci_defaultfont = STYLE; }
 
-	gci_defaultfont = STYLE;
+int GciDrawText(int x, int y, const char* text) { return GciDrawText(x, y, text, gci_defaultfont); }
 
-}
+// Uses default
+int GciDrawText(int x, int y, std::string text) { return GciDrawText(x, y, text.c_str()); }
 
-int GciDrawText(int x, int y, char* text)
-{
-	return GciDrawText(x, y, text, gci_defaultfont);
-}
+int GciTextWidth(const char* text) { return GciTextWidth(text, gci_defaultfont); }
 
-int GciTextWidth(char* text)
-{
+int GciTextWidth(std::string text) { return GciTextWidth(text.c_str()); }
 
-	return GciTextWidth(text, gci_defaultfont);
+void GciEnableTrueTypeSupport() { gci_truetypeenabled = true; }
 
-}
+void GciDisableTrueTypeSupport() { gci_truetypeenabled = false; }
 
-void GciEnableTrueTypeSupport()
-{
+bool GciRegisterTrueTypeFont(const char* filename) { return true; }
 
-	gci_truetypeenabled = true;
-
-}
-
-void GciDisableTrueTypeSupport()
-{
-
-	gci_truetypeenabled = false;
-
-}
-
-bool GciRegisterTrueTypeFont(const char* filename)
-{
-	return true;
-}
-
-bool GciUnregisterTrueTypeFont(const char* filename)
-{
-	return true;
-}
+bool GciUnregisterTrueTypeFont(const char* filename) { return true; }
 
 #ifdef USE_GLTT
 static FTFace* RegisterFace(const char* familyname, const char* filename)
 {
-	if (faces.GetData(familyname))
+	if (faces.GetData(familyname)) {
 		return faces.GetData(familyname);
+	}
 
 	FTFace* face;
-#ifdef USE_GLTT
+	#ifdef USE_GLTT
 	face = new FTFace();
 	if (!face->open(filename)) {
 		delete face;
 		return NULL;
 	}
-#endif // USE_GLTT
-#ifdef USE_FTGL
+	#endif // USE_GLTT
+	#ifdef USE_FTGL
 	face = new FTFace(filename);
 	if (face->Error() != 0) {
 		delete face;
 		return NULL;
 	}
-#endif // USE_GLTT
+	#endif // USE_GLTT
 	faces.PutData(familyname, face);
 	return face;
 }
@@ -162,20 +133,21 @@ static void UnregisterFace(const char* familyname)
 }
 #endif // USE_GLTT
 
+int GciDrawText(int x, int y, std::string_view& text) { return GciDrawText(x, y, text, gci_defaultfont); }
 
-int GciDrawText(int x, int y, char* text, int STYLE, unsigned int bufferId)
+int GciDrawText(int x, int y, const char* text, int STYLE, unsigned int bufferId)
 {
 
 	if (gci_truetypeenabled && fonts[STYLE]) {
 
 		// Use true type fonts
-#ifdef USE_GLTT        
+#ifdef USE_GLTT
 		GLTTBitmapFont* font = fonts[STYLE];
 		font->output(x, y, text);
 #endif // USE_GLTT
 #ifdef USE_FTGL
 		FTGLFontType* font = fonts[STYLE];
-		//FTGLPixmapFont *font = fonts[STYLE];
+		// FTGLPixmapFont *font = fonts[STYLE];
 		glRasterPos2i(x, y);
 		font->Render(text);
 #endif // USE_FTGL
@@ -187,11 +159,21 @@ int GciDrawText(int x, int y, char* text, int STYLE, unsigned int bufferId)
 		options.FontIndex = STYLE;
 		return GciDrawText(UPoint(x, y), text, options, bufferId);
 #endif
-	}
-	else {
+	} else {
 		GciFallbackDrawText(x, y, text, STYLE);
 	}
 	return 0;
+}
+
+// STYLE can be a ttf index if ttf is enabled
+int GciDrawText(int x, int y, std::string_view& text, int STYLE, unsigned int bufferId)
+{
+	return GciDrawText(x, y, std::string(text).c_str(), STYLE, bufferId);
+}
+
+int GciDrawText(int x, int y, std::string text, int STYLE, unsigned int bufferId)
+{
+	return GciDrawText(x, y, text.c_str(), STYLE, bufferId);
 }
 
 int GciDrawText(UPoint point, char* text, const GucciTextDrawingOptions& options, unsigned int bufferId)
@@ -201,12 +183,9 @@ int GciDrawText(UPoint point, char* text, const GucciTextDrawingOptions& options
 	vertexOptions.Font = fonts[options.FontIndex];
 	vertexOptions.Color = options.Color;
 	vertexOptions.MaxWidth = options.MaxWidth;
-	if (bufferId != -1)
-	{
+	if (bufferId != -1) {
 		GlobalVertexBufferPool->UpdateBufferText(bufferId, text, vertexOptions);
-	}
-	else
-	{
+	} else {
 		bufferId = GlobalVertexBufferPool->GetTextBuffer(text, vertexOptions);
 	}
 
@@ -217,7 +196,7 @@ int GciDrawText(UPoint point, char* text, const GucciTextDrawingOptions& options
 	return 0;
 }
 
-int GciTextWidth(char* text, int STYLE)
+int GciTextWidth(const char* text, int STYLE)
 {
 	if (fonts[STYLE]) {
 #ifdef USE_GLTT
@@ -235,34 +214,28 @@ int GciTextWidth(char* text, int STYLE)
 #ifdef USE_FREETYPEGL
 		// check that all relevant glyphs are loaded, without forcing a reload
 		int missedGlyphs = 0;
-		for (int i = 0; i < strlen(text); i++)
-		{
-			if (texture_font_find_glyph(fonts[STYLE], text + i) == 0)
-			{
+		for (int i = 0; i < strlen(text); i++) {
+			if (texture_font_find_glyph(fonts[STYLE], text + i) == 0) {
 				missedGlyphs++;
 			}
 		}
 
 		// we're missing some glyphs - load em all
-		if (missedGlyphs > 0)
-		{
+		if (missedGlyphs > 0) {
 			missedGlyphs = texture_font_load_glyphs(fonts[STYLE], text);
 		}
 
 		// some glyphs can't fit
-		if (missedGlyphs > 0)
-		{
+		if (missedGlyphs > 0) {
 			// double the atlas size and try again
 			texture_font_enlarge_atlas(fonts[STYLE], atlases[STYLE]->width * 2, atlases[STYLE]->height * 2);
 			texture_font_load_glyphs(fonts[STYLE], text);
 		}
 
 		float totalWidth = 0;
-		for (int i = 0; i < strlen(text); i++)
-		{
+		for (int i = 0; i < strlen(text); i++) {
 			texture_glyph_t* glyph = texture_font_get_glyph(fonts[STYLE], text + i);
-			if (i > 0)
-			{
+			if (i > 0) {
 				float kerning = texture_glyph_get_kerning(glyph, text + (i - 1));
 				totalWidth += kerning;
 			}
@@ -272,25 +245,25 @@ int GciTextWidth(char* text, int STYLE)
 
 		return totalWidth;
 #endif
-	}
-	else
-	{
-		return GciFallbackTextWidth(text, STYLE);
+	} else {
+		return GciFallbackTextWidth(const_cast<char*>(text), STYLE);
 	}
 }
 
-bool GciLoadTrueTypeFont(int index, char* fontname, char* filename, int size)
+int GciTextWidth(std::string text, int STYLE) { return GciTextWidth(text.c_str(), STYLE); }
+
+bool GciLoadTrueTypeFont(int index, const char* fontname, const char* filename, int size)
 {
 
 	if (gci_truetypeenabled) {
 #ifndef USE_FREETYPEGL
 		int pointSize = int(size * 72.0 / 96.0 + 0.5);
-#ifdef USE_GLTT
+	#ifdef USE_GLTT
 		FTFace* face = RegisterFace(fontname, filename);
 
-		if (!face)
+		if (!face) {
 			return false;
-
+		}
 
 		GLTTBitmapFont* font = new GLTTBitmapFont(face);
 
@@ -298,31 +271,30 @@ bool GciLoadTrueTypeFont(int index, char* fontname, char* filename, int size)
 			delete font;
 			return false;
 		}
-#endif // USE_GLTT
-#ifdef USE_FTGL
+	#endif // USE_GLTT
+	#ifdef USE_FTGL
 
 		FTGLFontType* font = new FTGLFontType(filename);
-		//FTGLPixmapFont *font = new FTGLPixmapFont(filename);
+		// FTGLPixmapFont *font = new FTGLPixmapFont(filename);
 		if (font->Error() != 0 || !font->FaceSize(pointSize, 96)) {
 			delete font;
 			return false;
 		}
-#endif // USE_FTGL
+	#endif // USE_FTGL
 
 		GciDeleteTrueTypeFont(index);
 		fonts[index] = font;
 
-#else  
+#else
 		int pointSize = int(size * 72.0 / 96.0 + 0.5);
 		texture_atlas_t* atlas = texture_atlas_new(1024, 1024, 1);
 		texture_font_t* font = texture_font_new_from_file(atlas, size, filename);
 
-		if (font != nullptr)
-		{
+		if (font != nullptr) {
 			font->size = size;
 			font->rendermode = RENDER_SIGNED_DISTANCE_FIELD;
 		}
-		
+
 		/*if (font != nullptr)
 		{
 			font->hinting = 1;
@@ -347,8 +319,7 @@ bool GciLoadTrueTypeFont(int index, char* fontname, char* filename, int size)
 #endif // USE_FREETYPEGL
 
 		return true;
-	}
-	else {
+	} else {
 		printf("GciLoadTrueTypeFont called, but truetypes are not enabled\n");
 		return false;
 	}
@@ -357,8 +328,9 @@ bool GciLoadTrueTypeFont(int index, char* fontname, char* filename, int size)
 void GciDeleteTrueTypeFont(int index)
 {
 #ifdef USE_FTGL
-	if (fonts[index])
+	if (fonts[index]) {
 		delete fonts[index];
+	}
 #endif
 
 #ifdef USE_GLTT
@@ -367,8 +339,7 @@ void GciDeleteTrueTypeFont(int index)
 #endif
 
 #ifdef USE_FREETYPEGL
-	if (fonts[index])
-	{
+	if (fonts[index]) {
 		texture_font_delete(fonts[index]);
 		texture_atlas_delete(atlases[index]);
 	}
@@ -382,16 +353,17 @@ void GciDeleteTrueTypeFont(int index)
 void GciDeleteAllTrueTypeFonts()
 {
 	// Delete all the frickin' fonts
-#ifdef USE_GLTT    
-	for (map<int, GLTTBitmapFont*>::iterator x = fonts.begin(); x != fonts.end(); x++)
+#ifdef USE_GLTT
+	for (map<int, GLTTBitmapFont*>::iterator x = fonts.begin(); x != fonts.end(); x++) {
 		GciDeleteTrueTypeFont(x->first);
+	}
 #elif USE_FTGL
-	for (map<int, FTGLFontType*>::iterator x = fonts.begin(); x != fonts.end(); x++)
-		//for (map<int, FTGLPixmapFont *>::iterator x = fonts.begin(); x != fonts.end(); x++)
+	for (map<int, FTGLFontType*>::iterator x = fonts.begin(); x != fonts.end(); x++) {
+		// for (map<int, FTGLPixmapFont *>::iterator x = fonts.begin(); x != fonts.end(); x++)
 		GciDeleteTrueTypeFont(x->first);
+	}
 #elif USE_FREETYPEGL
-	for (std::pair<int, texture_font_t*> pair : fonts)
-	{
+	for (std::pair<int, texture_font_t*> pair : fonts) {
 		GciDeleteTrueTypeFont(pair.first);
 	}
 	atlases.clear();
@@ -400,14 +372,13 @@ void GciDeleteAllTrueTypeFonts()
 #ifdef USE_GLTT
 	// Delete all the frickin' faces
 
-	DArray <FTFace*>* thefaces = faces.ConvertToDArray();
+	DArray<FTFace*>* thefaces = faces.ConvertToDArray();
 
 	for (int id = 0; id < thefaces->Size(); ++id) {
 		if (thefaces->ValidIndex(id)) {
 
 			FTFace* theface = thefaces->GetData(id);
 			delete theface;
-
 		}
 	}
 
@@ -419,8 +390,8 @@ void GciDeleteAllTrueTypeFonts()
 	fonts.clear();
 
 #ifdef USE_GLTT
-	// Added to kill the remaining memory leaks, not needed, could be removed if a updated library come and this function is not in.
-	//FTEngine::destroyStaticEngine();
+	// Added to kill the remaining memory leaks, not needed, could be removed if a updated library come and
+	// this function is not in.
+	// FTEngine::destroyStaticEngine();
 #endif
-
 }

@@ -13,31 +13,26 @@
 
 #include "mainmenu/mainmenuscreen.h"
 
-
-class ObituaryInterface : public MainMenuScreen
-{
+class ObituaryInterface : public MainMenuScreen {
 
 protected:
+	static void MediumTextDraw(Button* button, bool highlighted, bool clicked);
+	static void LargeTextDraw(Button* button, bool highlighted, bool clicked);
 
-	static void MediumTextDraw ( Button *button, bool highlighted, bool clicked );
-	static void LargeTextDraw  ( Button *button, bool highlighted, bool clicked );
+	static void ReturnToMainMenuClick(Button* button);
 
-	static void ReturnToMainMenuClick ( Button *button );
-
-	static void PiClick ( Button *button );
+	static void PiClick(Button* button);
 
 public:
+	ObituaryInterface();
+	~ObituaryInterface();
 
-	ObituaryInterface ();
-	~ObituaryInterface ();
+	void Create();
+	void Remove();
+	void Update();
+	bool IsVisible();
 
-	void Create ();
-	void Remove ();
-	void Update ();
-	bool IsVisible ();
-
-	int  ScreenID ();			
-
+	int ScreenID();
 };
 
 #endif

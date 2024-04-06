@@ -7,114 +7,104 @@
 
 #include "world/computer/computerscreen/messagescreen.h"
 
-
-
 MessageScreen::MessageScreen()
 {
-	
+
 	nextpage = -1;
 	textmessage = NULL;
 	buttonmessage = NULL;
 	mailthistome = false;
-
 }
 
 MessageScreen::~MessageScreen()
 {
-	
-	if ( textmessage ) delete [] textmessage;
-	if ( buttonmessage ) delete [] buttonmessage;
 
+	if (textmessage) {
+		delete[] textmessage;
+	}
+	if (buttonmessage) {
+		delete[] buttonmessage;
+	}
 }
 
-void MessageScreen::SetNextPage ( int newnextpage )
+void MessageScreen::SetNextPage(int newnextpage) { nextpage = newnextpage; }
+
+void MessageScreen::SetTextMessage(const char* newtextmessage)
 {
 
-	nextpage = newnextpage;
-
+	if (textmessage) {
+		delete[] textmessage;
+	}
+	textmessage = new char[strlen(newtextmessage) + 1];
+	UplinkSafeStrcpy(textmessage, newtextmessage);
 }
 
-void MessageScreen::SetTextMessage ( char *newtextmessage )
+void MessageScreen::SetButtonMessage(const char* newbuttonmessage)
 {
 
-	if ( textmessage ) delete [] textmessage;
-	textmessage = new char [strlen(newtextmessage)+1];
-	UplinkSafeStrcpy ( textmessage, newtextmessage );
-
+	if (buttonmessage) {
+		delete[] buttonmessage;
+	}
+	buttonmessage = new char[strlen(newbuttonmessage) + 1];
+	UplinkSafeStrcpy(buttonmessage, newbuttonmessage);
 }
 
-void MessageScreen::SetButtonMessage ( char *newbuttonmessage )
+void MessageScreen::SetMailThisToMe(bool newvalue) { mailthistome = newvalue; }
+
+bool MessageScreen::Load(FILE* file)
 {
 
-	if ( buttonmessage ) delete [] buttonmessage;
-	buttonmessage = new char [strlen(newbuttonmessage)+1];
-	UplinkSafeStrcpy ( buttonmessage, newbuttonmessage );
+	LoadID(file);
 
-}
+	if (!ComputerScreen::Load(file)) {
+		return false;
+	}
 
-void MessageScreen::SetMailThisToMe ( bool newvalue )
-{
+	if (!FileReadData(&nextpage, sizeof(nextpage), 1, file)) {
+		return false;
+	}
+	if (!LoadDynamicStringPtr(&textmessage, file)) {
+		return false;
+	}
+	if (!LoadDynamicStringPtr(&buttonmessage, file)) {
+		return false;
+	}
+	if (!FileReadData(&mailthistome, sizeof(mailthistome), 1, file)) {
+		return false;
+	}
 
-	mailthistome = newvalue;
-
-}
-
-bool MessageScreen::Load  ( FILE *file )
-{
-
-	LoadID ( file );
-
-	if ( !ComputerScreen::Load ( file ) ) return false;
-
-	if ( !FileReadData ( &nextpage, sizeof(nextpage), 1, file ) ) return false;	
-	if ( !LoadDynamicStringPtr ( &textmessage, file ) ) return false;
-	if ( !LoadDynamicStringPtr ( &buttonmessage, file ) ) return false;
-	if ( !FileReadData ( &mailthistome, sizeof(mailthistome), 1, file ) ) return false;
-
-	LoadID_END ( file );
+	LoadID_END(file);
 
 	return true;
-
 }
 
-void MessageScreen::Save  ( FILE *file )
+void MessageScreen::Save(FILE* file)
 {
 
-	SaveID ( file );
+	SaveID(file);
 
-	ComputerScreen::Save ( file );
+	ComputerScreen::Save(file);
 
-	fwrite ( &nextpage, sizeof(nextpage), 1, file );
-	SaveDynamicString ( textmessage, file );
-	SaveDynamicString ( buttonmessage, file );
-	fwrite (  &mailthistome, sizeof(mailthistome), 1, file );
+	fwrite(&nextpage, sizeof(nextpage), 1, file);
+	SaveDynamicString(textmessage, file);
+	SaveDynamicString(buttonmessage, file);
+	fwrite(&mailthistome, sizeof(mailthistome), 1, file);
 
-	SaveID_END ( file );
-
+	SaveID_END(file);
 }
 
-void MessageScreen::Print ()
+void MessageScreen::Print()
 {
 
-	printf ( "MessageScreen : \n" );
-	ComputerScreen::Print ();
-	printf ( "NextPage = %d, TextMessage = %s, ButtonMessage = %s, MailThisToMe = %d\n", 
-				nextpage, textmessage, buttonmessage, mailthistome );
-
-}
-	
-char *MessageScreen::GetID ()
-{
-
-	return "SCR_MESS";
-
+	printf("MessageScreen : \n");
+	ComputerScreen::Print();
+	printf("NextPage = %d, TextMessage = %s, ButtonMessage = %s, MailThisToMe = %d\n",
+		   nextpage,
+		   textmessage,
+		   buttonmessage,
+		   mailthistome);
 }
 
-int MessageScreen::GetOBJECTID ()
-{
+std::string MessageScreen::GetID() { return "SCR_MESS"; }
 
-	return OID_MESSAGESCREEN;
-
-}
-			
-
+int MessageScreen::GetOBJECTID() { return OID_MESSAGESCREEN; }

@@ -1,10 +1,9 @@
 #pragma once
-#include "tosser.h"
 #include "game/game.h"
+#include "tosser.h"
 #include "world/vlocation.h"
 
-class BestPathGenerator
-{
+class BestPathGenerator {
 public:
-	static void CreatePath(Game* game, BTree<VLocation *>);
+	static void CreatePath(Game* game, BTree<VLocation*>);
 };

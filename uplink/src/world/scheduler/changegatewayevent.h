@@ -10,48 +10,38 @@
 
   */
 
-
 #ifndef _included_changegatewayevent_h
 #define _included_changegatewayevent_h
 
-
 #include "world/scheduler/uplinkevent.h"
-
 
 class GatewayDef;
 
-
-class ChangeGatewayEvent : public UplinkEvent
-{
+class ChangeGatewayEvent : public UplinkEvent {
 
 public:
-
 	GatewayDef* newgatewaydef;
 
 public:
+	ChangeGatewayEvent();
+	~ChangeGatewayEvent();
 
-	ChangeGatewayEvent ();
-	~ChangeGatewayEvent ();
+	void SetNewGateway(GatewayDef* value);
 
-	void SetNewGateway ( GatewayDef *value );
+	void Run();
+	void RunWarning();
 
-	void Run ();
-	void RunWarning ();
-
-	char *GetShortString ();
-	char *GetLongString ();
+	char* GetShortString();
+	char* GetLongString();
 
 	// Common functions
 
-	bool Load  ( FILE *file );
-	void Save  ( FILE *file );
-	void Print ();
-	
-	char *GetID ();				
-	int   GetOBJECTID ();		
+	bool Load(FILE* file);
+	void Save(FILE* file);
+	void Print();
 
+	std::string GetID();
+	int GetOBJECTID();
 };
 
-
 #endif
-

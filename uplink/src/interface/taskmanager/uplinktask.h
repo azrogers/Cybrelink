@@ -7,37 +7,31 @@
 
 // ============================================================================
 
-#include "task.h"
 #include "app/uplinkobject.h"
+#include "task.h"
 
 // ============================================================================
 
-
-class UplinkTask : public Task  
-{
+class UplinkTask : public Task {
 
 protected:
+	UplinkObject* targetobject;
+	std::string targetstring;
+	int targetint;
 
-	UplinkObject *targetobject;
-	char		 *targetstring;
-	int			  targetint;
-	
 public:
-
 	float version;
 	bool followmouse;
 
 public:
-
 	UplinkTask();
 	virtual ~UplinkTask();
 
-	void SetVersion ( float newversion );
-	void SetFollowMouse ( bool newfollowmouse );
+	void SetVersion(float newversion);
+	void SetFollowMouse(bool newfollowmouse);
 
-	virtual void SetTarget ( UplinkObject *newtargetobject, char *newtargetstring, int targetint );
-	virtual void MoveTo ( int x, int y, int time_ms );	
-	
+	virtual void SetTarget(UplinkObject* newtargetobject, std::string& newtargetstring, int targetint);
+	virtual void MoveTo(int x, int y, int time_ms);
 };
 
-#endif 
+#endif

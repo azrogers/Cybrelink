@@ -8,8 +8,8 @@
 
 #include "eclipse.h"
 #include "gucci.h"
-#include "soundgarden.h"
 #include "redshirt.h"
+#include "soundgarden.h"
 
 #include "app/app.h"
 #include "app/globals.h"
@@ -23,16 +23,13 @@
 #include "interface/localinterface/localinterface.h"
 #include "interface/localinterface/memory_interface.h"
 
-#include "world/world.h"
-#include "world/player.h"
 #include "world/company/mission.h"
 #include "world/computer/computer.h"
 #include "world/generator/missiongenerator.h"
+#include "world/player.h"
+#include "world/world.h"
 
 #include "interface/localinterface/mission_interface.h"
-
-
-
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -44,18 +41,14 @@ MissionInterface::MissionInterface()
 	index = -1;
 	timesync = 0;
 	mission = NULL;
-
 }
 
-MissionInterface::~MissionInterface()
-{
-}
+MissionInterface::~MissionInterface() { }
 
 void MissionInterface::TitleClick(Button* button)
 {
 
 	game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
-
 }
 
 void MissionInterface::AbandonClick(Button* button)
@@ -63,16 +56,16 @@ void MissionInterface::AbandonClick(Button* button)
 
 	UplinkAssert(button);
 
-	if (strcmp(button->caption, "Abandon") == 0) {
+	if (strcmp(button->caption.c_str(), "Abandon") == 0) {
 		button->SetCaption("! ABANDON !");
 
-	}
-	else {
+	} else {
 
 		// Get the mission that this interface is looking at
 
-		MissionInterface* mi = (MissionInterface*)game->GetInterface()->GetLocalInterface()->GetInterfaceScreen();
-		//UplinkAssert (mi);
+		MissionInterface* mi =
+			(MissionInterface*)game->GetInterface()->GetLocalInterface()->GetInterfaceScreen();
+		// UplinkAssert (mi);
 		if (!mi) {
 			game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
 			return;
@@ -88,20 +81,20 @@ void MissionInterface::AbandonClick(Button* button)
 
 		if (mi->mission == realmission) {
 
-			MissionGenerator::MissionFailed(mi->mission, game->GetWorld()->GetPlayer(), "You abandoned the mission.");
+			MissionGenerator::MissionFailed(
+				mi->mission, game->GetWorld()->GetPlayer(), "You abandoned the mission.");
 
 			// Remove the mission
-			if (mi->mission) delete mi->mission;
+			if (mi->mission) {
+				delete mi->mission;
+			}
 			mi->mission = NULL;
 			game->GetWorld()->GetPlayer()->missions.RemoveData(mi->index);
-
 		}
 
 		// Get rid of this screen
 		game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
-
 	}
-
 }
 
 void MissionInterface::ReplyClick(Button* button)
@@ -110,7 +103,7 @@ void MissionInterface::ReplyClick(Button* button)
 	// Get the mission that this interface is looking at
 
 	MissionInterface* mi = (MissionInterface*)game->GetInterface()->GetLocalInterface()->GetInterfaceScreen();
-	//UplinkAssert (mi);
+	// UplinkAssert (mi);
 	if (!mi) {
 		game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
 		return;
@@ -134,29 +127,27 @@ void MissionInterface::ReplyClick(Button* button)
 
 	std::ostrstream body;
 	body << "I have completed the following mission:\n"
-		<< mi->mission->description << "\n\n"
-		<< "Please credit my account with the remaining payment ASAP.\n"
-		<< "Additional requested data:\n"
-		<< '\x0';
+		 << mi->mission->description << "\n\n"
+		 << "Please credit my account with the remaining payment ASAP.\n"
+		 << "Additional requested data:\n"
+		 << '\x0';
 
 	game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_SENDMAIL);
 	game->GetInterface()->GetLocalInterface()->Update();
 
-	EclRegisterCaptionChange("sendmail_to", contact, 1);						// Should occur instantly
+	EclRegisterCaptionChange("sendmail_to", contact, 1); // Should occur instantly
 	EclRegisterCaptionChange("sendmail_subject", "Mission completed");
 	EclRegisterCaptionChange("sendmail_body box", body.str(), 1000);
 
 	body.rdbuf()->freeze(0);
-	//delete [] body.str ();
-
+	// delete [] body.str ();
 }
 
 void MissionInterface::MessageMiddleClick(Button* button)
 {
 	// Get the mission that this interface is looking at
 	MissionInterface* mi = (MissionInterface*)game->GetInterface()->GetLocalInterface()->GetInterfaceScreen();
-	if (!mi)
-	{
+	if (!mi) {
 		return;
 	}
 
@@ -167,20 +158,17 @@ void MissionInterface::MessageMiddleClick(Button* button)
 
 	// Ensure they are the same
 	// ie Player has not lost this mission
-	if (mi->mission != realmission)
-	{
+	if (mi->mission != realmission) {
 		return;
 	}
 
-	if (realmission->AttachedBankAccounts.size() > 0)
-	{
+	if (realmission->AttachedBankAccounts.size() > 0) {
 		BankAccountId& targetAccount = realmission->AttachedBankAccounts[0];
 
 		// look for bank account screen buttons
 		Button* targetIpButton = EclGetButton("t_ip_value 0 0");
 		Button* targetAccountNumButton = EclGetButton("t_accno_value 0 0");
-		if (!targetIpButton || !targetAccountNumButton)
-		{
+		if (!targetIpButton || !targetAccountNumButton) {
 			return;
 		}
 
@@ -195,7 +183,6 @@ void MissionInterface::SetMission(int newindex)
 	index = newindex;
 	mission = game->GetWorld()->GetPlayer()->missions.GetData(index);
 	UplinkAssert(mission);
-
 }
 
 void MissionInterface::Create()
@@ -214,8 +201,15 @@ void MissionInterface::Create()
 
 		LocalInterfaceScreen::CreateHeight(3 + (95 + boxheight + 5) + 15 + 3);
 
-		//EclRegisterButton ( screenw - panelwidth - 2, paneltop, panelwidth, 15, "MISSION", "Remove the mission screen", "mission_title" );
-		EclRegisterButton(screenw - panelwidth, paneltop + 3, panelwidth - 7, 15, "MISSION", "Remove the mission screen", "mission_title");
+		// EclRegisterButton ( screenw - panelwidth - 2, paneltop, panelwidth, 15, "MISSION", "Remove the
+		// mission screen", "mission_title" );
+		EclRegisterButton(screenw - panelwidth,
+						  paneltop + 3,
+						  panelwidth - 7,
+						  15,
+						  "MISSION",
+						  "Remove the mission screen",
+						  "mission_title");
 		EclRegisterButtonCallback("mission_title", TitleClick);
 
 		char employer[SIZE_MISSION_EMPLOYER + 8];
@@ -242,29 +236,27 @@ void MissionInterface::Create()
 
 					details << "- " << mission->links.GetData(i) << "(Invalid)\n";
 
-				}
-				else {
+				} else {
 
 					Computer* computer = game->GetWorld()->GetComputer(vl->computer);
 
-					if (!computer)
+					if (!computer) {
 						details << "- " << mission->links.GetData(i) << "(Invalid)\n";
+					}
 
-					else
+					else {
 						details << "- " << computer->name << "\n";
-
+					}
 				}
-
 			}
-
 		}
 
 		// Concatenate any codes onto the end of the mission
 
 		if (mission->codes.Size() > 0) {
 
-			DArray <char*>* darray = mission->codes.ConvertToDArray();
-			DArray <char*>* darray_index = mission->codes.ConvertIndexToDArray();
+			DArray<char*>* darray = mission->codes.ConvertToDArray();
+			DArray<char*>* darray_index = mission->codes.ConvertIndexToDArray();
 
 			details << "\n\nCodes included : \n";
 
@@ -274,43 +266,45 @@ void MissionInterface::Create()
 
 				VLocation* vl = game->GetWorld()->GetVLocation(darray_index->GetData(i));
 
-				//char thislink [64];
+				// char thislink [64];
 
 				if (!vl) {
 
 					details << "[" << mission->links.GetData(i) << "(Invalid)]\n";
 
-				}
-				else {
+				} else {
 
 					Computer* computer = game->GetWorld()->GetComputer(vl->computer);
 
-					if (!computer)
+					if (!computer) {
 						details << "[" << mission->links.GetData(i) << "(Invalid)]\n";
+					}
 
-					else
+					else {
 						details << "[" << computer->name << "]\n";
-
+					}
 				}
 
 				details << "- " << darray->GetData(i) << "\n";
-
 			}
 
 			delete darray;
 			delete darray_index;
-
 		}
 
 		details << '\x0';
 
-		//EclRegisterButton ( screenw - panelwidth - 2, paneltop + 20, panelwidth, 15, "", "mission_employer" );
-		//EclRegisterButton ( screenw - panelwidth - 2, paneltop + 40, panelwidth, 15, "", "mission_payment" );
-		//EclRegisterButton ( screenw - panelwidth - 2, paneltop + 60, panelwidth, 30, "", "mission_description" );		
+		// EclRegisterButton ( screenw - panelwidth - 2, paneltop + 20, panelwidth, 15, "", "mission_employer"
+		// ); EclRegisterButton ( screenw - panelwidth - 2, paneltop + 40, panelwidth, 15, "",
+		// "mission_payment" ); EclRegisterButton ( screenw - panelwidth - 2, paneltop + 60, panelwidth, 30,
+		// "", "mission_description" );
 
-		EclRegisterButton(screenw - panelwidth, (paneltop + 3) + 20, (panelwidth - 7), 15, "", "mission_employer");
-		EclRegisterButton(screenw - panelwidth, (paneltop + 3) + 40, (panelwidth - 7), 15, "", "mission_payment");
-		EclRegisterButton(screenw - panelwidth, (paneltop + 3) + 60, (panelwidth - 7), 30, "", "mission_description");
+		EclRegisterButton(
+			screenw - panelwidth, (paneltop + 3) + 20, (panelwidth - 7), 15, "", "mission_employer");
+		EclRegisterButton(
+			screenw - panelwidth, (paneltop + 3) + 40, (panelwidth - 7), 15, "", "mission_payment");
+		EclRegisterButton(
+			screenw - panelwidth, (paneltop + 3) + 60, (panelwidth - 7), 30, "", "mission_description");
 
 		EclRegisterButtonCallbacks("mission_employer", textbox_draw, NULL, NULL, NULL);
 		EclRegisterButtonCallbacks("mission_payment", textbox_draw, NULL, NULL, NULL);
@@ -320,15 +314,21 @@ void MissionInterface::Create()
 		EclRegisterCaptionChange("mission_payment", payment, 100);
 		EclRegisterCaptionChange("mission_description", description, 200);
 
-		//int boxheight = screenh - (paneltop + 95) - 70;
-		//create_stextbox ( screenw - panelwidth - 2, paneltop + 95, panelwidth, boxheight, details.str (), "mission_details" );
-		create_stextbox(screenw - panelwidth, (paneltop + 3) + 95, (panelwidth - 7), boxheight, details.str(), "mission_details");
+		// int boxheight = screenh - (paneltop + 95) - 70;
+		// create_stextbox ( screenw - panelwidth - 2, paneltop + 95, panelwidth, boxheight, details.str (),
+		// "mission_details" );
+		create_stextbox(screenw - panelwidth,
+						(paneltop + 3) + 95,
+						(panelwidth - 7),
+						boxheight,
+						details.str(),
+						"mission_details");
 
 		EclRegisterMiddleClickCallback("mission_details box", MessageMiddleClick);
 
-		//int x1 = screenw - panelwidth - 2;
-		//int x2 = x1 + panelwidth / 3 + 2;
-		//int x3 = x2 + panelwidth / 3 + 2;
+		// int x1 = screenw - panelwidth - 2;
+		// int x2 = x1 + panelwidth / 3 + 2;
+		// int x3 = x2 + panelwidth / 3 + 2;
 
 		int width = ((panelwidth - 7) - 4) / 3;
 		int x1 = screenw - panelwidth;
@@ -336,23 +336,24 @@ void MissionInterface::Create()
 		int x2 = x1 + width + ((x3 - (x1 + width)) - width) / 2;
 		int y = (paneltop + 3) + 95 + boxheight + 5;
 
-		//EclRegisterButton ( x1, paneltop + 95 + boxheight + 5, panelwidth / 3 - 2, 15, "Close", "Close this screen", "mission_close" );
+		// EclRegisterButton ( x1, paneltop + 95 + boxheight + 5, panelwidth / 3 - 2, 15, "Close", "Close this
+		// screen", "mission_close" );
 		EclRegisterButton(x1, y, width, 15, "Close", "Close this screen", "mission_close");
 		EclRegisterButtonCallback("mission_close", TitleClick);
 
-		//EclRegisterButton ( x2, paneltop + 95 + boxheight + 5, panelwidth / 3 - 2, 15, "Reply", "Send a mail to the employer", "mission_reply" );
+		// EclRegisterButton ( x2, paneltop + 95 + boxheight + 5, panelwidth / 3 - 2, 15, "Reply", "Send a
+		// mail to the employer", "mission_reply" );
 		EclRegisterButton(x2, y, width, 15, "Reply", "Send a mail to the employer", "mission_reply");
 		EclRegisterButtonCallback("mission_reply", ReplyClick);
 
-		//EclRegisterButton ( x3, paneltop + 95 + boxheight + 5, panelwidth / 3 - 2, 15, "Abandon", "Abandon this mission", "mission_abandon" );
+		// EclRegisterButton ( x3, paneltop + 95 + boxheight + 5, panelwidth / 3 - 2, 15, "Abandon", "Abandon
+		// this mission", "mission_abandon" );
 		EclRegisterButton(x3, y, width, 15, "Abandon", "Abandon this mission", "mission_abandon");
 		EclRegisterButtonCallback("mission_abandon", AbandonClick);
 
 		details.rdbuf()->freeze(0);
-		//delete [] details.str ();
-
+		// delete [] details.str ();
 	}
-
 }
 
 void MissionInterface::Remove()
@@ -372,9 +373,7 @@ void MissionInterface::Remove()
 		EclRemoveButton("mission_close");
 		EclRemoveButton("mission_reply");
 		EclRemoveButton("mission_abandon");
-
 	}
-
 }
 
 void MissionInterface::Update()
@@ -389,25 +388,14 @@ void MissionInterface::Update()
 		// Ensure they are the same
 		// ie Player has not lost this mission
 
-		if (mission != realmission)
+		if (mission != realmission) {
 			game->GetInterface()->GetLocalInterface()->RunScreen(SCREEN_NONE);
+		}
 
 		timesync = time(NULL);
-
 	}
-
 }
 
-bool MissionInterface::IsVisible()
-{
+bool MissionInterface::IsVisible() { return (EclGetButton("mission_title") != NULL); }
 
-	return (EclGetButton("mission_title") != NULL);
-
-}
-
-int MissionInterface::ScreenID()
-{
-
-	return SCREEN_MISSION;
-
-}
+int MissionInterface::ScreenID() { return SCREEN_MISSION; }

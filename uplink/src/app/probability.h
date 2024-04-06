@@ -13,26 +13,21 @@
 
 #include "tosser.h"
 
-class Probability  
-{
+class Probability {
 
 protected:
-
-	DArray <int> chances;
+	DArray<int> chances;
 
 public:
-
 	Probability();
 	virtual ~Probability();
 
-	void InputProbability ( int value, int percentagechance );
-	void ChangeProbability ( int value, int percentagechance );
+	void InputProbability(int value, int percentagechance);
+	void ChangeProbability(int value, int percentagechance);
 
-	bool Validate ();							// True if all percentages sum to 100
+	bool Validate(); // True if all percentages sum to 100
 
-	int GetValue ();
-
+	int GetValue();
 };
-
 
 #endif
