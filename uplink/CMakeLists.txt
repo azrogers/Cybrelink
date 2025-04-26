@@ -53,3 +53,7 @@ target_link_libraries(
           $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>
           cpptrace::cpptrace
           cppfs::cppfs)
+
+if(WIN32)
+	set_target_properties(uplink-game PROPERTIES LINK_FLAGS "/SUBSYSTEM:CONSOLE /SAFESEH:NO")
+endif()

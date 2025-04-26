@@ -1,13 +1,6 @@
-
-#ifdef WIN32
-	#include <windows.h>
-#endif
+#include "gl.h"
 
 #include <strstream>
-
-#include <GL/gl.h>
-
-#include <GL/glu.h> /* glu extention library */
 
 #include <string.h>
 
@@ -182,7 +175,7 @@ void UserIDScreenInterface::ProceedClick(Button* button)
 
 		AccessLog* log = new AccessLog();
 		char logdetails[256];
-		UplinkSnprintf(logdetails, sizeof(logdetails), "User [%s] logged on (level %d)", name, security);
+		UplinkSnprintf(logdetails, sizeof(logdetails), "User [%s] logged on (level %d)", name.c_str(), security);
 		log->SetProperties(
 			&(game->GetWorld()->date), game->GetWorld()->GetPlayer()->GetConnection()->GetGhost(), "PLAYER");
 		log->SetData1(logdetails);

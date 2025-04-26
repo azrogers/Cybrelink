@@ -26,7 +26,7 @@ typedef float FTGL_FLOAT;
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN
 	#endif
-	#include <windows.h>
+	#include <Windows.h>
 
 	#ifndef __gl_h_
 		#include <GL/gl.h>

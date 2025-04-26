@@ -101,7 +101,7 @@ void EclRegisterButton(int x, int y, int width, int height, std::string caption,
 		return;
 	}
 
-	buttons.push_back(Button(x, y, width, height, caption, name));
+	buttons.push_front(Button(x, y, width, height, caption, name));
 
 	EclRegisterButtonCallbacks(name, default_draw, default_mouseup, default_mousedown, default_mousemove);
 
@@ -164,7 +164,7 @@ void EclButtonBringToFront(std::string name)
 {
 	for (auto it = buttons.begin(); it != buttons.end(); ++it) {
 		if (it->name == name) {
-			buttons.splice(buttons.end(), buttons, it);
+			buttons.splice(buttons.begin(), buttons, it);
 			EclDirtyButton(name);
 			return;
 		}
@@ -177,7 +177,7 @@ void EclButtonSendToBack(std::string name)
 {
 	for (auto it = buttons.begin(); it != buttons.end(); ++it) {
 		if (it->name == name) {
-			buttons.splice(buttons.begin(), buttons, it);
+			buttons.splice(buttons.end(), buttons, it);
 			EclDirtyButton(name);
 			return;
 		}
@@ -339,7 +339,8 @@ void EclDrawAllButtons()
 {
 	// Draw all buttons
 
-	for (Button& b : buttons) {
+	for (auto it = buttons.rbegin(); it != buttons.rend(); ++it) {
+		Button& b = *it;
 		if (b.x >= 0 && b.y >= 0) {
 			EclDrawButton(&b);
 		}

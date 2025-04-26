@@ -554,6 +554,7 @@ void text_draw(Button* button, bool highlighted, bool clicked)
 
 	std::list<std::string_view> wrappedtext;
 
+	std::string newcaption;
 	if (!highlighted || !EclIsButtonEditable(button->name)) {
 
 		wrappedtext = wordwraptext(button->caption, button->width);
@@ -563,7 +564,7 @@ void text_draw(Button* button, bool highlighted, bool clicked)
 		// Highlighted - put a symbol at the end of every other second
 
 		if (time(NULL) >= (CursorFlash - 1)) {
-			std::string newcaption = std::format("%s_", button->caption);
+			newcaption = std::format("{}_", button->caption);
 			wrappedtext = wordwraptext(newcaption, button->width);
 
 			if (time(NULL) >= CursorFlash) {

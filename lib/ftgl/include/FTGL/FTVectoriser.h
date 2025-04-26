@@ -1,6 +1,7 @@
 #ifndef __FTVectoriser__
 #define __FTVectoriser__
 
+#include "FTGL.h"
 #include "FTContour.h"
 #include "FTGL.h"
 #include "FTList.h"

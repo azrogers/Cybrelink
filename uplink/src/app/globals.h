@@ -15,6 +15,8 @@
 
 #include "gucci.h"
 
+#include <cstddef>
+
 #ifdef WIN32
 	#define UplinkIntFlush _flushall()
 #else

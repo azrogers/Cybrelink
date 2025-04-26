@@ -458,7 +458,7 @@ void keyboard(unsigned char key, int x, int y)
 	} else {
 
 		Button* button = EclGetHighlightedButton();
-		if (EclIsButtonEditable(button->name)) {
+		if (button && EclIsButtonEditable(button->name)) {
 			textbutton_keypress(button, key);
 		}
 	}

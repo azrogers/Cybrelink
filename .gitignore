@@ -384,4 +384,5 @@ MigrationBackup/
 *.lib.recipe
 vcpkg_installed/
 
-out/
+out
+build

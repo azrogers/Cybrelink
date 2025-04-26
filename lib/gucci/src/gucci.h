@@ -11,10 +11,6 @@
 
 #include "tosser.h"
 
-#ifdef WIN32
-	#include <Windows.h>
-#endif
-
 #include <string>
 #include <string_view>
 

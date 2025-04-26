@@ -66,7 +66,7 @@ void GraphicOptionsInterface::ApplyClick(Button* button)
 
 		char optionname[64];
 		int newvalue;
-		UplinkSnprintf(optionname, sizeof(optionname), "%s_%s", thisint->optionTYPE, namebutton->caption);
+		UplinkSnprintf(optionname, sizeof(optionname), "%s_%s", thisint->optionTYPE, namebutton->caption.c_str());
 		sscanf(valuebutton->caption.c_str(), "%d", &newvalue);
 
 		// If they've changed, update them

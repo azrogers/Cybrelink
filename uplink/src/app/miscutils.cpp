@@ -4,9 +4,7 @@
 #include <cctype>
 #include <string>
 
-#include <GL/glew.h>
-#include <GL/gl.h>
-#include <GL/glu.h> /* glu extention library */
+#include "gl.h"
 
 #include "stdafx.h"
 
