@@ -80,6 +80,11 @@ public:
 	void RegisterPhoneDialler(PhoneDialler* phoneDiallerScreen);
 	void UnRegisterPhoneDialler(PhoneDialler* phoneDiallerScreen);
 
+	/**
+	 * Combines the given path with \ref App::path.
+	 */
+	std::string ResolvePath(std::string filename);
+
 	static void CoreDump();
 
 	// Common functions

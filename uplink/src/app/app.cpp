@@ -15,6 +15,8 @@
 	#include <unistd.h>
 #endif
 
+#include <filesystem>
+
 #include "eclipse.h"
 #include "gucci.h"
 #include "redshirt.h"
@@ -530,6 +532,11 @@ bool App::Closed() { return closed; }
 bool App::Load(FILE* file) { return true; }
 
 void App::Save(FILE* file) { }
+
+std::string App::ResolvePath(std::string filename)
+{
+	return (std::filesystem::path(this->path) / filename).string();
+}
 
 void App::CoreDump()
 {

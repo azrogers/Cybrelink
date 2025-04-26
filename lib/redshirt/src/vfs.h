@@ -30,6 +30,7 @@ struct RsVfsNode
  */
 class RsVirtualFilesystem
 {
+public:
 	RsVirtualFilesystem();
 
 	bool AddArchive(std::string archiveFilename);

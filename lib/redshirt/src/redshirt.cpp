@@ -1,26 +1,21 @@
-// -*- tab-width:4 c-file-style:"cc-mode" -*-
-#ifdef WIN32
-	#include <direct.h>
-	#include <io.h>
-#else
-	#include <dirent.h>
-	#include <fcntl.h>
-	#include <sys/stat.h>
-	#include <sys/types.h>
-	#include <unistd.h>
-#endif
+#include <iostream>
+#include <fstream>
+#include <format>
 
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
+#include <spdlog/spdlog.h>
+#include <cppfs/cppfs.h>
+#include <cppfs/fs.h>
+#include <cppfs/FileHandle.h>
+#include <cppfs/FilePath.h>
 
 #include "bungle.h"
 #include "hash.h"
 #include "redshirt.h"
 #include "tosser.h"
+#include "membuf.h"
 
-const char marker[] = "REDSHIRT\x0";
-const char marker2[] = "REDSHRT2\x0";
+const char RS_MARKER[] = "REDSHIRT\x0";
+const char RS2_MARKER[] = "REDSHRT2\x0";
 const int SIZE_MARKER = 9;
 
 const int SIZE_RSFILENAME = 256;
@@ -32,24 +27,59 @@ static bool rsInitialised = false;
 
 #define BUFFER_SIZE 16384
 
-typedef void filterFunc(unsigned char*, unsigned);
-typedef bool headerFunc(FILE*);
+static char HashBuffer[BUFFER_SIZE];
+static char FilterBuffer[BUFFER_SIZE];
+
+typedef void filterFunc(char*, unsigned);
+typedef bool headerFunc(std::iostream& stream);
+
+static std::fstream::openmode ModeStrToEnum(const std::string& str)
+{
+	if (str == "r") {
+		return std::fstream::in;
+	}
+	if (str == "rb") {
+		return std::fstream::in | std::fstream::binary;
+	}
+	if (str == "w") {
+		return std::fstream::out;
+	}
+	if (str == "wb") {
+		return std::fstream::out | std::fstream::binary;
+	}
+
+	throw std::exception("unknown file mode");
+}
+
+static void _RsRemove(const std::string& filename)
+{
+	cppfs::FileHandle file = cppfs::fs::open(filename);
+	if (!file.exists() || !file.remove()) {
+		spdlog::error("failed to remove %s", filename);
+	}
+}
+
+static void _RsRename(const std::string& oldfilename, const std::string& newfilename)
+{
+	cppfs::FileHandle file = cppfs::fs::open(oldfilename);
+	if (!file.exists() || !file.rename(newfilename)) { 
+		spdlog::error("failed to rename %s to %s", oldfilename, newfilename);
+	}
+}
 
 // filterStream:
 // transfers all the data from input to output via filterFunc(buffer, length)
-bool filterStream(FILE* input, FILE* output, filterFunc* filterFunc)
+static bool filterStream(std::istream& input, std::ostream& output, filterFunc* filterFunc)
 {
-	unsigned char buffer[BUFFER_SIZE];
-
 	do {
-		size_t bytesread = fread(buffer, 1, BUFFER_SIZE, input);
+		std::streamsize bytesread = input.readsome(FilterBuffer, BUFFER_SIZE);
 		if (bytesread <= 0) {
 			break;
 		}
 
-		filterFunc(buffer, (unsigned)bytesread);
+		filterFunc(FilterBuffer, (unsigned)bytesread);
 
-		if (fwrite(buffer, 1, bytesread, output) < bytesread) {
+		if (!output.write(FilterBuffer, bytesread).good()) {
 			return false;
 		}
 
@@ -58,22 +88,19 @@ bool filterStream(FILE* input, FILE* output, filterFunc* filterFunc)
 	return true;
 };
 
-static unsigned int RsFileCheckSum(FILE* input, unsigned char* hashbuffer, unsigned int hashsize)
+static unsigned int RsFileCheckSum(std::iostream& input, unsigned char* hashbuffer, unsigned int hashsize)
 {
-
-	unsigned char buffer[BUFFER_SIZE];
-
 	void* context = HashInitial();
 
-	size_t bytesread;
-	while ((bytesread = fread(buffer, 1, BUFFER_SIZE, input)) > 0) {
-		HashData(context, buffer, (unsigned int)bytesread);
+	std::streamsize bytesread;
+	while ((bytesread = input.readsome(HashBuffer, BUFFER_SIZE)) > 0) {
+		HashData(context, reinterpret_cast<unsigned char*>(HashBuffer), (unsigned int)bytesread);
 	}
 
 	return HashFinal(context, hashbuffer, hashsize);
 }
 
-bool writeRsEncryptedCheckSum(FILE* output)
+bool writeRsEncryptedCheckSum(std::iostream& output)
 {
 
 	bool result = false;
@@ -81,11 +108,13 @@ bool writeRsEncryptedCheckSum(FILE* output)
 	unsigned int hashsize = HashResultSize();
 	unsigned char* hashbuffer = new unsigned char[hashsize];
 
-	fseek(output, SIZE_MARKER + hashsize, SEEK_SET);
+	// calculate the checksum of the file minus the header
+	output.seekg(SIZE_MARKER + hashsize);
 
 	if (RsFileCheckSum(output, hashbuffer, hashsize) == hashsize) {
-		fseek(output, SIZE_MARKER, SEEK_SET);
-		result = (fwrite(hashbuffer, hashsize, 1, output) == 1);
+		// seek back to write the header
+		output.seekp(SIZE_MARKER);
+		result = output.write(reinterpret_cast<char*>(hashbuffer), hashsize).good();
 	}
 
 	delete[] hashbuffer;
@@ -93,7 +122,7 @@ bool writeRsEncryptedCheckSum(FILE* output)
 	return result;
 }
 
-void encryptBuffer(unsigned char* buffer, unsigned length)
+void encryptBuffer(char* buffer, unsigned length)
 {
 	// Decrypt each byte in the buffer.
 
@@ -102,7 +131,7 @@ void encryptBuffer(unsigned char* buffer, unsigned length)
 	}
 }
 
-void decryptBuffer(unsigned char* buffer, unsigned int length)
+void decryptBuffer(char* buffer, unsigned int length)
 {
 	// Decrypt each byte in the buffer.
 
@@ -111,33 +140,22 @@ void decryptBuffer(unsigned char* buffer, unsigned int length)
 	}
 }
 
-bool RsFileExists(const char* filename)
-{
+bool RsFileExists(const std::string& filename) { return std::fstream(filename).good(); }
 
-	FILE* file = fopen(filename, "r");
-
-	bool success = file ? true : false;
-
-	if (success) {
-		fclose(file);
-	}
-
-	return success;
-}
-
-bool readRsEncryptedHeader(FILE* input)
+bool readRsEncryptedHeader(std::iostream& input)
 {
 
 	bool result = false;
 
 	char newmarker[SIZE_MARKER];
-	if (fread(newmarker, SIZE_MARKER, 1, input) == 1) {
-		if (strcmp(newmarker, marker2) == 0) {
+
+	if (input.read(newmarker, SIZE_MARKER).good()) {
+		if (strncmp(newmarker, RS2_MARKER, SIZE_MARKER) == 0) {
 			unsigned int hashsize = HashResultSize();
-			unsigned char* hashbuffer = new unsigned char[hashsize];
-			result = (fread(hashbuffer, hashsize, 1, input) == 1);
+			char* hashbuffer = new char[hashsize];
+			result = input.read(hashbuffer, hashsize).good();
 			delete[] hashbuffer;
-		} else if (strcmp(newmarker, marker) == 0) {
+		} else if (strcmp(newmarker, RS_MARKER) == 0) {
 			result = true;
 		}
 	}
@@ -145,62 +163,60 @@ bool readRsEncryptedHeader(FILE* input)
 	return result;
 }
 
-bool writeRsEncryptedHeader(FILE* output)
+bool writeRsEncryptedHeader(std::iostream& output)
 {
-
 	bool result = false;
-
-	if (fwrite(marker2, SIZE_MARKER, 1, output) == 1) {
+	if (output.write(RS2_MARKER, SIZE_MARKER).good()) {
 		unsigned int hashsize = HashResultSize();
-		unsigned char* hashbuffer = new unsigned char[hashsize];
+		char* hashbuffer = new char[hashsize];
 		memset(hashbuffer, 0, hashsize);
-		result = (fwrite(hashbuffer, hashsize, 1, output) == 1);
+		result = (output.write(hashbuffer, hashsize).good());
 		delete[] hashbuffer;
 	}
 
 	return result;
 }
 
-bool noHeader(FILE*)
+bool noHeader(std::iostream&)
 {
 	// Useful for a no-operation
 	return true;
 }
 
-bool RsFileEncryptedNoVerify(const char* filename)
+bool RsFileEncryptedNoVerify(const std::string& filename)
 {
-
-	FILE* input = fopen(filename, "rb");
-	if (!input) {
+	std::fstream file;
+	file.open(filename, std::fstream::in | std::fstream::binary);
+	if (!file.is_open()) {
+		spdlog::error("failed to open file %s", filename);
 		return false;
 	}
 
-	bool result = readRsEncryptedHeader(input);
-
-	fclose(input);
+	bool result = readRsEncryptedHeader(file);
 
 	return result;
 }
 
-bool RsFileEncrypted(const char* filename)
+bool RsFileEncrypted(const std::string& filename)
 {
-
-	FILE* input = fopen(filename, "rb");
-	if (!input) {
+	std::fstream file;
+	file.open(filename, std::fstream::in | std::fstream::binary);
+	if (!file.is_open()) {
+		spdlog::error("failed to open file %s", filename);
 		return false;
 	}
 
 	bool result = false;
 
 	char newmarker[SIZE_MARKER];
-	if (fread(newmarker, SIZE_MARKER, 1, input) == 1) {
-		if (strcmp(newmarker, marker2) == 0) {
+	if (file.read(newmarker, SIZE_MARKER).good()) {
+		if (strncmp(newmarker, RS2_MARKER, SIZE_MARKER) == 0) {
 			unsigned int hashsize = HashResultSize();
-			unsigned char* hashbuffer = new unsigned char[hashsize];
+			char* hashbuffer = new char[hashsize];
 
-			if (fread(hashbuffer, hashsize, 1, input) == 1) {
+			if (file.read(hashbuffer, hashsize).good()) {
 				unsigned char* hashbuffer2 = new unsigned char[hashsize];
-				unsigned int retsize = RsFileCheckSum(input, hashbuffer2, hashsize);
+				unsigned int retsize = RsFileCheckSum(file, hashbuffer2, hashsize);
 				if (retsize > 0 && memcmp(hashbuffer, hashbuffer2, retsize) == 0) {
 					result = true;
 				}
@@ -209,12 +225,10 @@ bool RsFileEncrypted(const char* filename)
 			}
 
 			delete[] hashbuffer;
-		} else if (strcmp(newmarker, marker) == 0) {
+		} else if (strcmp(newmarker, RS_MARKER) == 0) {
 			result = true;
 		}
 	}
-
-	fclose(input);
 
 	return result;
 }
@@ -233,28 +247,24 @@ bool RsFileEncrypted(const char* filename)
 //
 //   returns true on success. Deletes outfile on failure.
 
-bool filterFile(const char* infile,
-				const char* outfile,
+bool filterFile(const std::string& infile,
+				std::iostream& outfile,
 				headerFunc* readHeader,
 				headerFunc* writeHeader,
 				headerFunc* writeChecksum,
 				filterFunc* filter)
 {
-	FILE* input = fopen(infile, "rb");
-	if (!input) {
+	std::fstream file;
+
+	file.open(infile, std::fstream::in | std::fstream::binary);
+	if (!file.is_open()) {
+		spdlog::error("Failed to open %s in filterFile", infile);
 		return false;
 	}
 
 	// Read header from input file
-	if (!readHeader(input)) {
-		printf("redshirt: failed to read header!");
-		fclose(input);
-		return false;
-	}
-
-	FILE* output = fopen(outfile, "w+b");
-	if (!output) {
-		fclose(input);
+	if (!readHeader(file)) {
+		spdlog::error("failed to read header from %s!", infile);
 		return false;
 	}
 
@@ -263,33 +273,21 @@ bool filterFile(const char* infile,
 	// setvbuf(output, NULL, _IONBF, 0);
 
 	// Write header into output file
-	if (!writeHeader(output)) {
-		printf("redshirt: failed to write header!");
-		fclose(input);
-		fclose(output);
-		remove(outfile);
+	if (!writeHeader(outfile)) {
+		spdlog::error("failed to write header!");
 		return false;
 	}
 
-	if (!filterStream(input, output, filter)) {
-		printf("redshirt: failed to write containning bytes!");
-		fclose(input);
-		fclose(output);
-		remove(outfile);
+	if (!filterStream(file, outfile, filter)) {
+		spdlog::error("failed to write containing bytes!");
 		return false;
 	}
 
 	// Write checksum into output file
-	if (!writeChecksum(output)) {
-		printf("redshirt: failed to write checksum!");
-		fclose(input);
-		fclose(output);
-		remove(outfile);
+	if (!writeChecksum(outfile)) {
+		spdlog::error("failed to write checksum!");
 		return false;
 	}
-
-	fclose(input);
-	fclose(output);
 
 	return true;
 }
@@ -298,35 +296,37 @@ bool filterFile(const char* infile,
 // process a file in place, temporary file = filename++ext
 // see filterFile for description of readHeader, writeHeader and filterFunc
 
-bool filterFileInPlace(const char* filename,
+bool filterFileInPlace(const std::string& filename,
 					   const char* ext,
 					   headerFunc* readHeader,
 					   headerFunc* writeHeader,
 					   headerFunc* writeChecksum,
 					   filterFunc* filterFunc)
 {
-	char tempfilename[SIZE_RSFILENAME];
-	sprintf(tempfilename, "%s%s", filename, ext);
+	std::string tempfilename = std::format("%s%s", filename, ext);
 
-	if (filterFile(filename, tempfilename, readHeader, writeHeader, writeChecksum, filterFunc)) {
-		remove(filename);
-		rename(tempfilename, filename);
+	std::fstream outfile;
+	outfile.open(tempfilename, std::fstream::out | std::fstream::binary);
+
+	if (filterFile(filename, outfile, readHeader, writeHeader, writeChecksum, filterFunc)) {
+		_RsRemove(filename);
+		_RsRename(tempfilename, filename);
 		return true;
 	} else {
-		printf("Redshirt ERROR : Failed to write output file\n");
+		spdlog::error("Failed to write output file %s", tempfilename);
 		return false;
 	}
 }
 
 // RsEncryptFile: encrypts a file in-place
-bool RsEncryptFile(const char* filename)
+bool RsEncryptFile(const std::string& filename)
 {
 	return filterFileInPlace(
 		filename, ".e", noHeader, writeRsEncryptedHeader, writeRsEncryptedCheckSum, encryptBuffer);
 }
 
 // RsDecryptFile: decrypt a file in-place
-bool RsDecryptFile(const char* filename)
+bool RsDecryptFile(const std::string& filename)
 {
 	if (!RsFileEncrypted(filename)) {
 		// Not encrypted, so nothing to do
@@ -336,50 +336,26 @@ bool RsDecryptFile(const char* filename)
 	return filterFileInPlace(filename, ".d", readRsEncryptedHeader, noHeader, noHeader, decryptBuffer);
 };
 
-const char* RsBasename(const char* filename)
+std::string RsBasename(const std::string& filename)
 {
-	// Return the basename of the file (minus any directory prefixes)
-	const char* p = filename;
-	do {
-		// Search for the next forward- or backslash
-		const char* slash = strchr(p, '/');
-		if (slash == NULL) {
-			slash = strchr(p, '\\');
-		}
-
-		// Didn't find one, quit out
-		if (slash == NULL) {
-			break;
-		}
-
-		p = slash + 1;
-	} while (true);
-
-	return p;
+	return cppfs::FilePath(filename).baseName();
 }
 
-FILE* RsFileOpen(const char* filename, const char* mode = "rb")
+std::unique_ptr<RsFileHandle> RsFileOpen(const std::string& filename, const std::string& modeStr)
 {
-
 	if (!RsFileExists(filename)) {
-		return NULL;
+		return nullptr;
 	}
 
+	const std::fstream::openmode mode = ModeStrToEnum(modeStr);
+
 	if (!RsFileEncrypted(filename)) {
-
-		// Not encrypted, so just open it
-		FILE* file = fopen(filename, mode);
-		return file;
-
+		return std::make_unique<RsFileHandle>(filename, mode);
 	} else {
+		MemoryBufferStream outstream;
 
-		char dfilename[SIZE_RSFILENAME];
-		sprintf(dfilename, "%s%s.d", tempdir, RsBasename(filename));
-
-		if (filterFile(filename, dfilename, readRsEncryptedHeader, noHeader, noHeader, decryptBuffer)) {
-			// Open the result and return it
-			FILE* result = fopen(dfilename, mode);
-			return result;
+		if (filterFile(filename, outstream, readRsEncryptedHeader, noHeader, noHeader, decryptBuffer)) {
+			return std::make_unique<RsBufferHandle>(filename, outstream);
 		} else {
 			printf("Redshirt ERROR : Failed to write to output file\n");
 			return NULL;
@@ -387,7 +363,7 @@ FILE* RsFileOpen(const char* filename, const char* mode = "rb")
 	}
 }
 
-void RsFileClose(const char* filename, FILE* file)
+void RsFileClose(const std::string& filename, std::fstream& file)
 {
 
 	fclose(file);
@@ -400,7 +376,7 @@ void RsFileClose(const char* filename, FILE* file)
 	int result = remove(dfilename);
 }
 
-bool RsLoadArchive(const char* filename)
+bool RsLoadArchive(const std::string& filename)
 {
 
 	char fullfilename[SIZE_RSFILENAME];
@@ -445,7 +421,7 @@ bool RsLoadArchive(const char* filename)
 	return result;
 }
 
-FILE* RsArchiveFileOpen(const char* filename, const char* mode)
+FILE* RsArchiveFileOpen(const std::string& filename, const char* mode)
 {
 
 	FILE* file = NULL;
@@ -464,7 +440,7 @@ std::string RsArchiveFileOpen(std::string filename)
 	return std::string(RsArchiveFileOpen(filename.c_str()));
 }
 
-char* RsArchiveFileOpen(const char* filename)
+char* RsArchiveFileOpen(const std::string& filename)
 {
 
 	//
@@ -530,7 +506,7 @@ char* RsArchiveFileOpen(const char* filename)
 	return NULL;
 }
 
-bool RsArchiveFileLoaded(const char* filename)
+bool RsArchiveFileLoaded(const std::string& filename)
 {
 
 	char fullfilename[SIZE_RSFILENAME];
@@ -546,7 +522,7 @@ bool RsArchiveFileLoaded(const char* filename)
 	return false;
 }
 
-void RsArchiveFileClose(const char* filename, FILE* file)
+void RsArchiveFileClose(const std::string& filename, FILE* file)
 {
 
 	if (file) {
@@ -566,7 +542,7 @@ void RsArchiveFileClose(const char* filename, FILE* file)
 	}
 }
 
-void RsCloseArchive(const char* filename) { BglCloseZipFile(const_cast<char*>(filename)); }
+void RsCloseArchive(const std::string& filename) { BglCloseZipFile(const_cast<char*>(filename)); }
 
 bool RsMakeDirectory(const char* dirname)
 {

@@ -59,6 +59,8 @@
 #include "app/opengl_interface.h"
 #include "app/serialise.h"
 
+#include "util/singleton.h"
+
 #ifndef WIN32
 	#include "app/binreloc.h"
 #endif
@@ -1002,6 +1004,7 @@ static bool TestRsLoadArchive(const char* filename)
 
 bool Load_Data()
 {
+	RsVirtualFilesystem& vfs = Singleton<RsVirtualFilesystem>::instance();
 
 	bool debugging = false;
 	if (app->GetOptions()->IsOptionEqualTo("game_debugstart", 1)) {
@@ -1012,42 +1015,38 @@ bool Load_Data()
 		printf("Loading application data\n");
 	}
 
-	if (!TestRsLoadArchive("data.dat")) {
-		return false;
-	}
-	if (!TestRsLoadArchive("graphics.dat")) {
-		return false;
-	}
-	if (!TestRsLoadArchive("loading.dat")) {
-		return false;
-	}
-	if (!TestRsLoadArchive("sounds.dat")) {
-		return false;
-	}
-	if (!TestRsLoadArchive("music.dat")) {
-		return false;
-	}
-	if (!TestRsLoadArchive("fonts.dat")) {
-		return false;
-	}
-	if (!TestRsLoadArchive("patch.dat")) {
-		return false;
-	}
-	if (!TestRsLoadArchive("patch2.dat")) {
-		return false;
-	}
-	if (!TestRsLoadArchive("patch3.dat")) {
+	if (TestRsLoadArchive("data.dat"))
+	{
 		return false;
 	}
 
-#ifdef _DEBUG
-	// DArray<char *> *fnames = RsListArchive("","");
-	// int fnames_size = fnames->Size();
-	// for ( int i = 0; i < fnames_size; ++i ) {
-	//	printf( "File: %s\n", (*fnames)[i] );
-	// }
-	// delete fnames;
-#endif
+	if (!vfs.AddArchive(app->ResolvePath("data.dat"))) {
+		return false;
+	}
+	if (!vfs.AddArchive(app->ResolvePath("graphics.dat"))) {
+		return false;
+	}
+	if (!vfs.AddArchive(app->ResolvePath("loading.dat"))) {
+		return false;
+	}
+	if (!vfs.AddArchive(app->ResolvePath("sounds.dat"))) {
+		return false;
+	}
+	if (!vfs.AddArchive(app->ResolvePath("music.dat"))) {
+		return false;
+	}
+	if (!vfs.AddArchive(app->ResolvePath("fonts.dat"))) {
+		return false;
+	}
+	if (!vfs.AddArchive(app->ResolvePath("patch.dat"))) {
+		return false;
+	}
+	if (!vfs.AddArchive(app->ResolvePath("patch2.dat"))) {
+		return false;
+	}
+	if (!vfs.AddArchive(app->ResolvePath("patch3.dat"))) {
+		return false;
+	}
 
 	if (debugging) {
 		printf("Finished loading application data\n");
