@@ -37,15 +37,15 @@ protected:
 
 public:
 	Button();
-	Button(int newx, int newy, int newwidth, int newheight, std::string newcaption, std::string newname);
+	Button(int newx, int newy, int newwidth, int newheight, const std::string& newcaption, const std::string& newname);
 
 	virtual ~Button();
 
 	void SetProperties(
-		int newx, int newy, int newwidth, int newheight, std::string newcaption, std::string newname);
+		int newx, int newy, int newwidth, int newheight, const std::string& newcaption, const std::string& newname);
 
-	void SetCaption(std::string newcaption);
-	void SetTooltip(std::string newtooltip);
+	void SetCaption(const std::string& newcaption);
+	void SetTooltip(const std::string& newtooltip);
 	void SetStandardImage(Image* newimage);
 	void SetImages(Image* newstandard, Image* newhighlighted, Image* newclicked);
 

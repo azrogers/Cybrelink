@@ -94,7 +94,7 @@ void EclReset(int width, int height)
 	EclDirtyRectangle(0, 0, width, height);
 }
 
-void EclRegisterButton(int x, int y, int width, int height, std::string caption, std::string name)
+void EclRegisterButton(int x, int y, int width, int height, const std::string& caption, const std::string& name)
 {
 	if (EclGetButton(name)) {
 		spdlog::warn("ECL WARNING : EclRegisterButton called, Button name not unique : %s\n", name);
@@ -109,14 +109,14 @@ void EclRegisterButton(int x, int y, int width, int height, std::string caption,
 }
 
 void EclRegisterButton(
-	int x, int y, int width, int height, std::string caption, std::string tooltip, std::string name)
+	int x, int y, int width, int height, const std::string& caption, const std::string& tooltip, const std::string& name)
 {
 	EclRegisterButton(x, y, width, height, caption, name);
 	EclGetButton(name)->SetTooltip(tooltip);
 }
 
 void EclRegisterImageButton(
-	int x, int y, int width, int height, std::string caption, std::string tooltip, std::string name)
+	int x, int y, int width, int height, const std::string& caption, const std::string& tooltip, const std::string& name)
 {
 	if (EclGetButton(name)) {
 		spdlog::warn("ECL WARNING : EclRegisterImageButton called, Button name not unique : %s\n", name);
@@ -130,7 +130,7 @@ void EclRegisterImageButton(
 	EclDirtyButton(name);
 }
 
-void EclRemoveButton(std::string name)
+void EclRemoveButton(const std::string& name)
 {
 	Button* button = EclGetButton(name);
 	if (button == nullptr) {
@@ -160,7 +160,7 @@ void EclRemoveButton(std::string name)
 	buttons.remove_if([name](Button& button) { return button.name == name; });
 }
 
-void EclButtonBringToFront(std::string name)
+void EclButtonBringToFront(const std::string& name)
 {
 	for (auto it = buttons.begin(); it != buttons.end(); ++it) {
 		if (it->name == name) {
@@ -173,7 +173,7 @@ void EclButtonBringToFront(std::string name)
 	spdlog::warn("ECL WARNING : EclButtonBringToFront called, button does not exist : %s\n", name);
 }
 
-void EclButtonSendToBack(std::string name)
+void EclButtonSendToBack(const std::string& name)
 {
 	for (auto it = buttons.begin(); it != buttons.end(); ++it) {
 		if (it->name == name) {
@@ -197,7 +197,7 @@ void EclRegisterDefaultButtonCallbacks(void (*draw)(Button*, bool, bool),
 	default_mousemove = mousemove;
 }
 
-void EclRegisterButtonCallbacks(std::string name,
+void EclRegisterButtonCallbacks(const std::string& name,
 								void (*draw)(Button*, bool, bool),
 								std::function<void(Button*)> mouseup,
 								std::function<void(Button*)> mousedown,
@@ -216,7 +216,7 @@ void EclRegisterButtonCallbacks(std::string name,
 	}
 }
 
-void EclRegisterButtonCallback(std::string name, std::function<void(Button*)> mouseup)
+void EclRegisterButtonCallback(const std::string& name, std::function<void(Button*)> mouseup)
 {
 	Button* button = EclGetButton(name);
 
@@ -227,7 +227,7 @@ void EclRegisterButtonCallback(std::string name, std::function<void(Button*)> mo
 	}
 }
 
-void EclRegisterMiddleClickCallback(std::string name, std::function<void(Button*)> middleclick)
+void EclRegisterMiddleClickCallback(const std::string& name, std::function<void(Button*)> middleclick)
 {
 	Button* button = EclGetButton(name);
 
@@ -238,7 +238,7 @@ void EclRegisterMiddleClickCallback(std::string name, std::function<void(Button*
 	}
 }
 
-void EclMakeButtonEditable(std::string name)
+void EclMakeButtonEditable(const std::string& name)
 {
 	Button* button = EclGetButton(name);
 
@@ -249,12 +249,12 @@ void EclMakeButtonEditable(std::string name)
 	}
 }
 
-void EclMakeButtonUnEditable(std::string name)
+void EclMakeButtonUnEditable(const std::string& name)
 {
-	editablebuttons.remove_if([name](std::string n) { return name == n; });
+	editablebuttons.remove_if([name](const std::string& n) { return name == n; });
 }
 
-bool EclIsButtonEditable(std::string name)
+bool EclIsButtonEditable(const std::string& name)
 {
 	if (!EclGetButton(name)) {
 		return false;
@@ -273,7 +273,7 @@ void EclHighlightNextEditableButton()
 		for (auto it = editablebuttons.begin(); it != editablebuttons.end(); ++it) {
 			if (*it == currenthighlight) {
 				auto nextIt = std::next(it, 1);
-				std::string& nextButton = nextIt == editablebuttons.end() ? editablebuttons.front() : *nextIt;
+				const std::string& nextButton = nextIt == editablebuttons.end() ? editablebuttons.front() : *nextIt;
 				EclHighlightButton(nextButton);
 				return;
 			}
@@ -289,7 +289,7 @@ void EclHighlightNextEditableButton()
 	}
 }
 
-int EclLookupIndex(std::string name)
+int EclLookupIndex(const std::string& name)
 {
 	auto it = buttons.begin();
 	for (int i = 0; i < buttons.size(); i++) {
@@ -331,7 +331,7 @@ bool EclIsOccupied(int x, int y, int w, int h)
 	return false;
 }
 
-void EclDirtyButton(std::string name) { }
+void EclDirtyButton(const std::string& name) { }
 
 void EclDirtyRectangle(int x, int y, int w, int h) { }
 
@@ -365,7 +365,7 @@ void EclDirtyClear()
 	}
 }
 
-void EclDrawButton(std::string name) { EclDrawButton(EclGetButton(name)); }
+void EclDrawButton(const std::string& name) { EclDrawButton(EclGetButton(name)); }
 
 void EclDrawButton(Button* button)
 {
@@ -383,7 +383,7 @@ void EclDrawButton(Button* button)
 	}
 }
 
-void EclHighlightButton(std::string name)
+void EclHighlightButton(const std::string& name)
 {
 	if (!EclIsHighlighted(name)) {
 		EclUnHighlightButton();
@@ -392,7 +392,7 @@ void EclHighlightButton(std::string name)
 	}
 }
 
-void EclClickButton(std::string name)
+void EclClickButton(const std::string& name)
 {
 	if (!EclIsClicked(name)) {
 
@@ -402,9 +402,9 @@ void EclClickButton(std::string name)
 	}
 }
 
-bool EclIsHighlighted(std::string name) { return currenthighlight == name; }
+bool EclIsHighlighted(const std::string& name) { return currenthighlight == name; }
 
-bool EclIsClicked(std::string name) { return currentclick == name; }
+bool EclIsClicked(const std::string& name) { return currentclick == name; }
 
 void EclUnHighlightButton()
 {
@@ -426,7 +426,7 @@ void EclUnClickButton()
 	currentclick = "";
 }
 
-void EclSuperHighlight(std::string name)
+void EclSuperHighlight(const std::string& name)
 {
 
 	Button* button = EclGetButton(name);
@@ -439,7 +439,7 @@ void EclSuperHighlight(std::string name)
 		int width = button->width + superhighlight_borderwidth * 2;
 		int height = button->height + superhighlight_borderwidth * 2;
 
-		std::string superhighlightname = std::format("Ecl_superhighlight %s", name);
+		const std::string& superhighlightname = std::format("Ecl_superhighlight %s", name);
 		EclRegisterButton(x, y, width, height, "", "", superhighlightname);
 		EclRegisterButtonCallbacks(superhighlightname, superhighlight_draw, NULL, NULL, NULL);
 
@@ -447,11 +447,11 @@ void EclSuperHighlight(std::string name)
 	}
 }
 
-void EclSuperUnHighlight(std::string name)
+void EclSuperUnHighlight(const std::string& name)
 {
 	if (superhighlightedbuttons.contains(name)) {
 		superhighlightedbuttons.erase(name);
-		std::string superhighlightname = std::format("Ecl_superhighlight %s", name);
+		const std::string& superhighlightname = std::format("Ecl_superhighlight %s", name);
 		EclRemoveButton(name);
 
 	} else {
@@ -461,12 +461,12 @@ void EclSuperUnHighlight(std::string name)
 
 void EclSuperUnHighlightAll()
 {
-	for (std::string key : superhighlightedbuttons) {
+	for (const std::string& key : superhighlightedbuttons) {
 		EclSuperUnHighlight(key);
 	}
 }
 
-bool EclIsSuperHighlighted(std::string name) { return superhighlightedbuttons.contains(name); }
+bool EclIsSuperHighlighted(const std::string& name) { return superhighlightedbuttons.contains(name); }
 
 void EclRegisterClearDrawFunction(std::function<void(int, int, int, int)> draw) { clear_draw = draw; }
 
@@ -476,7 +476,7 @@ void EclRegisterSuperHighlightFunction(int borderwidth, void (*draw)(Button*, bo
 	superhighlight_draw = draw;
 }
 
-void EclUpdateSuperHighlights(std::string name)
+void EclUpdateSuperHighlights(const std::string& name)
 {
 	Button* sourcebutton = EclGetButton(name);
 
@@ -487,7 +487,7 @@ void EclUpdateSuperHighlights(std::string name)
 	}
 
 	if (EclIsSuperHighlighted(name)) {
-		std::string superhighlight_name = std::format("Ecl_superhighlight %s", name);
+		const std::string& superhighlight_name = std::format("Ecl_superhighlight %s", name);
 		Button* highlightbutton = EclGetButton(superhighlight_name);
 
 		if (highlightbutton != nullptr) {
@@ -534,7 +534,7 @@ Button* EclGetHighlightedButton()
 	return currenthighlight.length() > 0 ? EclGetButton(currenthighlight) : nullptr;
 }
 
-Button* EclGetButton(std::string name)
+Button* EclGetButton(const std::string& name)
 {
 	auto it = std::find_if(buttons.begin(), buttons.end(), [name](Button& b) { return b.name == name; });
 	if (it == buttons.end()) {
@@ -557,14 +557,14 @@ void EclEnableFasterAnimations(double speed)
 void EclDisableFasterAnimations() { animsfasterenabled = false; }
 
 int EclRegisterMovement(
-	std::string bname, int targetX, int targetY, int time_ms, std::function<void()> callback)
+	const std::string& bname, int targetX, int targetY, int time_ms, std::function<void()> callback)
 {
 
 	return EclRegisterMovement(bname, targetX, targetY, time_ms, MOVE_STRAIGHTLINE, callback);
 }
 
 int EclRegisterMovement(
-	std::string bname, int targetX, int targetY, int time_ms, int MOVETYPE, std::function<void()> callback)
+	const std::string& bname, int targetX, int targetY, int time_ms, int MOVETYPE, std::function<void()> callback)
 {
 
 	Button* button = EclGetButton(bname);
@@ -579,7 +579,7 @@ int EclRegisterMovement(
 }
 
 int EclRegisterResize(
-	std::string bname, int targetW, int targetH, int time_ms, std::function<void()> callback)
+	const std::string& bname, int targetW, int targetH, int time_ms, std::function<void()> callback)
 {
 
 	Button* button = EclGetButton(bname);
@@ -592,7 +592,7 @@ int EclRegisterResize(
 	}
 }
 
-int EclRegisterAnimation(std::string bname,
+int EclRegisterAnimation(const std::string& bname,
 						 int targetX,
 						 int targetY,
 						 int targetW,
@@ -605,8 +605,8 @@ int EclRegisterAnimation(std::string bname,
 		bname, targetX, targetY, MOVE_STRAIGHTLINE, targetW, targetH, "", time_ms, callback);
 }
 
-int EclRegisterCaptionChange(std::string bname,
-							 std::string targetC,
+int EclRegisterCaptionChange(const std::string& bname,
+							 const std::string& targetC,
 							 int time_ms,
 							 std::function<void()> callback)
 {
@@ -630,7 +630,7 @@ int EclRegisterCaptionChange(std::string bname,
 	}
 }
 
-int EclRegisterCaptionChange(std::string bname, std::string targetC, std::function<void()> callback)
+int EclRegisterCaptionChange(const std::string& bname, const std::string& targetC, std::function<void()> callback)
 {
 	int time = (int)(targetC.length() * 20);
 	return EclRegisterCaptionChange(bname, targetC, time, callback);
@@ -638,13 +638,13 @@ int EclRegisterCaptionChange(std::string bname, std::string targetC, std::functi
 
 int EclAnimationsRunning() { return anims.size() > 0; }
 
-int EclRegisterAnimation(std::string bname,
+int EclRegisterAnimation(const std::string& bname,
 						 int targetX,
 						 int targetY,
 						 int MOVETYPE,
 						 int targetW,
 						 int targetH,
-						 std::string targetC,
+						 const std::string& targetC,
 						 int time_ms,
 						 std::function<void()> callback)
 {
@@ -734,7 +734,7 @@ int EclRegisterAnimation(std::string bname,
 	}
 }
 
-int EclIsAnimationActive(std::string bname)
+int EclIsAnimationActive(const std::string& bname)
 {
 	auto it = anims.begin();
 	for (int i = 0; i < anims.size(); i++) {
@@ -748,7 +748,7 @@ int EclIsAnimationActive(std::string bname)
 	return -1;
 }
 
-int EclIsCaptionChangeActive(std::string bname)
+int EclIsCaptionChangeActive(const std::string& bname)
 {
 	auto it = anims.begin();
 	for (int i = 0; i < anims.size(); i++) {
@@ -762,7 +762,7 @@ int EclIsCaptionChangeActive(std::string bname)
 	return -1;
 }
 
-int EclIsNoCaptionChangeActive(std::string bname)
+int EclIsNoCaptionChangeActive(const std::string& bname)
 {
 	auto it = anims.begin();
 	for (int i = 0; i < anims.size(); i++) {
@@ -790,7 +790,7 @@ void EclUpdateAllAnimations()
 	// Update all super-highlighted buttons
 	//
 
-	for (std::string h : superhighlightedbuttons) {
+	for (const std::string& h : superhighlightedbuttons) {
 		EclUpdateSuperHighlights(h);
 	}
 
@@ -949,7 +949,7 @@ void EclUpdateAllAnimations()
 				size_t showlength = (size_t)(((float)time - anim->starttime) * anim->dC);
 				size_t maxlen = anim->targetC.length();
 				size_t len = showlength < maxlen ? showlength : maxlen;
-				std::string newCaption = std::string(anim->targetC.c_str(), len);
+				const std::string newCaption(anim->targetC.c_str(), len);
 				anim->button->SetCaption(newCaption);
 			}
 
@@ -1015,7 +1015,7 @@ void EclDebugPrint()
 
 	printf("EDITABLE BUTTONS : \n");
 
-	for (std::string e : editablebuttons) {
+	for (const std::string& e : editablebuttons) {
 		spdlog::info(e);
 	}
 

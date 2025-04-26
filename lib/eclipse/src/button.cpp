@@ -21,7 +21,7 @@ Button::Button()
 	userinfo = 0;
 }
 
-Button::Button(int newx, int newy, int newwidth, int newheight, std::string newcaption, std::string newname)
+Button::Button(int newx, int newy, int newwidth, int newheight, const std::string& newcaption, const std::string& newname)
 {
 	SetProperties(newx, newy, newwidth, newheight + FUDGE, newcaption, newname);
 	draw = NULL;
@@ -54,7 +54,7 @@ Button::~Button()
 }
 
 void Button::SetProperties(
-	int newx, int newy, int newwidth, int newheight, std::string newcaption, std::string newname)
+	int newx, int newy, int newwidth, int newheight, const std::string& newcaption, const std::string& newname)
 {
 	x = newx;
 	y = newy;
@@ -64,9 +64,9 @@ void Button::SetProperties(
 	SetCaption(newcaption);
 }
 
-void Button::SetCaption(std::string newcaption) { caption = newcaption; }
+void Button::SetCaption(const std::string& newcaption) { caption = newcaption; }
 
-void Button::SetTooltip(std::string newtooltip) { tooltip = newtooltip; }
+void Button::SetTooltip(const std::string& newtooltip) { tooltip = newtooltip; }
 
 void Button::SetStandardImage(Image* newimage)
 {
